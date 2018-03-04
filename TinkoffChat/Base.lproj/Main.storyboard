@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" systemVersion="17A277" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -9,16 +14,69 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="TinkoffChat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ice" translatesAutoresizingMaskIntoConstraints="NO" id="vu3-f5-6GS">
+                                <rect key="frame" x="16" y="36" width="343" height="343"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="vu3-f5-6GS" secondAttribute="height" multiplier="1:1" id="bC7-0S-lGN"/>
+                                </constraints>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jec-vF-dET">
+                                <rect key="frame" x="16" y="591" width="343" height="56"/>
+                                <color key="backgroundColor" red="1" green="0.5" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="56" id="dkC-Cz-kWA"/>
+                                </constraints>
+                                <state key="normal" title="Редактировать"/>
+                                <connections>
+                                    <action selector="editAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xl1-hn-akx"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Александр Лыков" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RlI-O1-bIN">
+                                <rect key="frame" x="16" y="395" width="343" height="30"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Saladass1377" textAlignment="natural" lineBreakMode="middleTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8oo-PV-biH">
+                                <rect key="frame" x="16" y="441" width="343" height="134"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="RlI-O1-bIN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="1VI-Fl-Jb0"/>
+                            <constraint firstItem="Jec-vF-dET" firstAttribute="top" secondItem="8oo-PV-biH" secondAttribute="bottom" constant="16" id="8Em-XE-P9w"/>
+                            <constraint firstItem="vu3-f5-6GS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="9aE-7g-aab"/>
+                            <constraint firstItem="RlI-O1-bIN" firstAttribute="top" secondItem="vu3-f5-6GS" secondAttribute="bottom" constant="16" id="Lzv-Oh-Qwb"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8oo-PV-biH" secondAttribute="trailing" constant="16" id="MSd-Rd-DzE"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="vu3-f5-6GS" secondAttribute="trailing" constant="16" id="TIi-iE-eqG"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="RlI-O1-bIN" secondAttribute="trailing" constant="16" id="UGp-ZQ-VuT"/>
+                            <constraint firstItem="8oo-PV-biH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Xcg-fv-MoO"/>
+                            <constraint firstItem="vu3-f5-6GS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Y24-CW-Pxo"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Jec-vF-dET" secondAttribute="bottom" constant="20" id="a4q-cL-PBJ"/>
+                            <constraint firstItem="Jec-vF-dET" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="ddi-QG-xcz"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Jec-vF-dET" secondAttribute="trailing" constant="16" id="hOq-rB-vOX"/>
+                            <constraint firstItem="8oo-PV-biH" firstAttribute="top" secondItem="RlI-O1-bIN" secondAttribute="bottom" constant="16" id="iDT-Ku-cLu"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="nameLabel" destination="RlI-O1-bIN" id="AO8-v1-hI5"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="36" y="32.833583208395808"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="ice" width="111" height="111"/>
+    </resources>
 </document>

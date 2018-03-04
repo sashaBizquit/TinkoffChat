@@ -10,13 +10,21 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var nameLabel: UILabel!
+    
     private func viewChanging(with changesDescription: String, by functionDescription: String) {
-        print("View \(changesDescription): " + functionDescription)
+        //print("View \(changesDescription): " + functionDescription)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blue
+        
+        nameLabel.text = "🐋"
+    }
+    @IBAction func editAction(_ sender: Any) {
+        let button = sender as? UIButton
+        button?.titleLabel?.text = ""
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -28,16 +28,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private func stateChanging(to newStateName: UIApplicationState?, by functionDescription: String) {
         let actionDescription = UIApplication.shared.applicationState != newStateName ? "is about to move": "has moved"
-        print("Application \(actionDescription) from \(currentState.description) to \(newStateName.description) state: " + functionDescription)
+        //print("Application \(actionDescription) from \(currentState.description) to \(newStateName.description) state: " + functionDescription)
         currentState = newStateName
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        window = UIWindow(frame: UIScreen.main.bounds)
-        if let _window = window {
-            _window.rootViewController = ViewController()
-            _window.makeKeyAndVisible()
-        }
+//        window = UIWindow(frame: UIScreen.main.bounds)
+//        if let _window = window {
+//            _window.rootViewController = ViewController()
+//            _window.makeKeyAndVisible()
+//        }
         stateChanging(to: .inactive, by: #function)
         return true
     }
