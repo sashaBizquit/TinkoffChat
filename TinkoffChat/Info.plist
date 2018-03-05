@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) camera use</string>
+	<string>$(PRODUCT_NAME) camera access.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>$(PRODUCT_NAME) photo use</string>
+	<string>$(PRODUCT_NAME) photo library access.</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>

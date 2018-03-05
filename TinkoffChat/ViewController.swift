@@ -8,7 +8,7 @@
 import Photos
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var cameraIcon: UIImageView!
@@ -16,6 +16,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var editButton: UIButton!
     private let cameraIconImage = #imageLiteral(resourceName: "slr-camera-2-xxl")
     
+    // MARK: - UIViewController lifecycle
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         // print("init: \(editButton.frame)")
@@ -30,6 +31,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         // viewDidLoad: view is loaded and not yet put on a superview,
         // so it knows storyboard's frame (iPhone 5s) and doesn't know final frame (iPhone X)
 
+        // cameraIcon menu provider
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.imageTapped))
         cameraIcon.addGestureRecognizer(tapGestureRecognizer)
     }
@@ -53,7 +55,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         print("viewDidAppear: \(editButton.frame)")
         // viewDidAppear: view added to superview, frame changed to final state (iPhone X)
         
-        // Adjusting image according to circle borders
+        // Adjusting camera icon according to circle borders
         let imageSize =  cameraIcon.frame.width / 2.0
         let newSize = CGSize(width: imageSize, height: imageSize)
         let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
@@ -92,9 +94,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         alertController.addAction(cameraAction)
         self.present(alertController, animated: true, completion: nil)
     }
-    
-    // MARK: - UIImagePickerController
-    
+}
+
+
+// MARK: -
+extension ViewController: UIImagePickerControllerDelegate {
+
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
             profileImage.image = image
@@ -102,11 +107,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         else if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
             profileImage.image = image
         }
-        else {
-            print("Картинка не прилетела")
-        }
         dismiss(animated: true, completion: nil)
     }
-
 }
 
