@@ -27,10 +27,8 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jec-vF-dET">
-                                <rect key="frame" x="16" y="492" width="288" height="56"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="56" id="dkC-Cz-kWA"/>
-                                </constraints>
+                                <rect key="frame" x="16" y="476" width="288" height="72"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <color key="tintColor" red="0.2470588235" green="0.47058823529999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <state key="normal" title="Редактировать"/>
                                 <connections>
@@ -44,7 +42,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Saladass1377" textAlignment="natural" lineBreakMode="middleTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8oo-PV-biH">
-                                <rect key="frame" x="16" y="386" width="288" height="90"/>
+                                <rect key="frame" x="16" y="386" width="288" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -63,7 +61,7 @@
                             <constraint firstItem="RlI-O1-bIN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="1VI-Fl-Jb0"/>
                             <constraint firstItem="hQ7-Fq-NcI" firstAttribute="height" secondItem="vu3-f5-6GS" secondAttribute="height" multiplier="0.25" id="3RN-gg-UaJ"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="bottom" secondItem="hQ7-Fq-NcI" secondAttribute="bottom" id="7So-3E-mNv"/>
-                            <constraint firstItem="Jec-vF-dET" firstAttribute="top" secondItem="8oo-PV-biH" secondAttribute="bottom" constant="16" id="8Em-XE-P9w"/>
+                            <constraint firstItem="Jec-vF-dET" firstAttribute="top" relation="greaterThanOrEqual" secondItem="8oo-PV-biH" secondAttribute="bottom" constant="16" id="8Em-XE-P9w"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="9aE-7g-aab"/>
                             <constraint firstItem="RlI-O1-bIN" firstAttribute="top" secondItem="vu3-f5-6GS" secondAttribute="bottom" constant="16" id="Lzv-Oh-Qwb"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8oo-PV-biH" secondAttribute="trailing" constant="16" id="MSd-Rd-DzE"/>
@@ -75,6 +73,7 @@
                             <constraint firstItem="Jec-vF-dET" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="ddi-QG-xcz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Jec-vF-dET" secondAttribute="trailing" constant="16" id="hOq-rB-vOX"/>
                             <constraint firstItem="8oo-PV-biH" firstAttribute="top" secondItem="RlI-O1-bIN" secondAttribute="bottom" constant="16" id="iDT-Ku-cLu"/>
+                            <constraint firstItem="Jec-vF-dET" firstAttribute="height" secondItem="hQ7-Fq-NcI" secondAttribute="height" id="mMi-hA-hJv"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="trailing" secondItem="hQ7-Fq-NcI" secondAttribute="trailing" id="rKg-0Z-gtd"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -88,7 +87,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="36" y="32.833583208395808"/>
+            <point key="canvasLocation" x="-450" y="50"/>
         </scene>
     </scenes>
     <resources>

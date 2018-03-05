@@ -21,15 +21,19 @@ class ViewController: UIViewController {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        //print("init: \(editButton.frame)") - связь outlet (в частности, editButton) ещё не подгрузились из storyboard
+        // print("init: \(editButton.frame)")
+        // editButton: connection between the outlet and storyboard object isn't established
+        // storyboard isn't loaded at this moment
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         print("viewDidLoad: \(editButton.frame)")
+        // viewDidLoad: view is loaded and not yet put on a superview,
+        // so it knows storyboard's frame (iPhone 5s) and doesn't know final frame (iPhone X)
         
-        let currentImage = #imageLiteral(resourceName: "slr-camera-2-xxl")
+        let currentImage = cameraIcon.image ?? #imageLiteral(resourceName: "slr-camera-2-xxl")
         let imageScale =  currentImage.size.width / 2
         let newSize = CGSize(width: imageScale, height: imageScale)
         let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
@@ -44,9 +48,20 @@ class ViewController: UIViewController {
         cameraIcon.addGestureRecognizer(tapGestureRecognizer)
     }
     
-    @objc func imageTapped()
-    {
-       print("Выбери изображение профиля")
+    @objc func imageTapped() {
+        
+        let alertController = UIAlertController(title: "Выбери изображение профиля", message: nil, preferredStyle: .alert)
+        let galleryAction = UIAlertAction(title: "Установить из галлереи", style: .default) { action in
+           print("Установить из галлереи")
+        }
+        alertController.addAction(galleryAction)
+        let cameraAction = UIAlertAction(title: "Сделать фото", style: .default) { action in
+            print("Сделать фото")
+        }
+        alertController.addAction(cameraAction)
+        self.present(alertController, animated: true) {
+            
+        }
     }
     
     @IBAction func editAction(_ sender: Any) {
@@ -71,7 +86,8 @@ class ViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("viewDidAppear: \(editButton.frame)") //
+        print("viewDidAppear: \(editButton.frame)")
+        // viewDidAppear: view added to superview, frame changed to final state (iPhone X)
     }
 
 }
