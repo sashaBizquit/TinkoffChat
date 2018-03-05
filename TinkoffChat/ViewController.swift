@@ -14,15 +14,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var cameraIcon: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var editButton: UIButton!
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
+    private let cameraIconImage = #imageLiteral(resourceName: "slr-camera-2-xxl")
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         // print("init: \(editButton.frame)")
-        // editButton: connection between the outlet and storyboard object isn't established
+        // editButton: connection between the outlet and storyboard object isn't established yet
         // storyboard isn't loaded at this moment
     }
     
@@ -32,21 +29,43 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         print("viewDidLoad: \(editButton.frame)")
         // viewDidLoad: view is loaded and not yet put on a superview,
         // so it knows storyboard's frame (iPhone 5s) and doesn't know final frame (iPhone X)
+
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.imageTapped))
+        cameraIcon.addGestureRecognizer(tapGestureRecognizer)
+    }
+    
+    @IBAction func editAction(_ sender: Any) {
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
-        let currentImage = cameraIcon.image ?? #imageLiteral(resourceName: "slr-camera-2-xxl")
-        let imageScale =  currentImage.size.width / 2
-        let newSize = CGSize(width: imageScale, height: imageScale)
+        let cornerRadius = cameraIcon.frame.width / 2.0
+        cameraIcon.layer.cornerRadius = cornerRadius
+        profileImage.layer.cornerRadius = cornerRadius
+        editButton.layer.cornerRadius = editButton.frame.height / 4.0
+        editButton.layer.borderColor = UIColor.black.cgColor
+        editButton.layer.borderWidth = 1.5
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("viewDidAppear: \(editButton.frame)")
+        // viewDidAppear: view added to superview, frame changed to final state (iPhone X)
+        
+        // Adjusting image according to circle borders
+        let imageSize =  cameraIcon.frame.width / 2.0
+        let newSize = CGSize(width: imageSize, height: imageSize)
         let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
         UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        currentImage.draw(in: rect)
+        cameraIconImage.draw(in: rect)
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         cameraIcon.image = newImage
-        
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.imageTapped))
-        cameraIcon.addGestureRecognizer(tapGestureRecognizer)
     }
+    
+    // MARK: - UIAlertController
     
     @objc func imageTapped() {
         
@@ -74,6 +93,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         self.present(alertController, animated: true, completion: nil)
     }
     
+    // MARK: - UIImagePickerController
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
             profileImage.image = image
@@ -84,34 +105,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         else {
             print("Картинка не прилетела")
         }
-
         dismiss(animated: true, completion: nil)
-    }
-    
-    @IBAction func editAction(_ sender: Any) {
-//        let button = sender as? UIButton
-//        button?.titleLabel?.text = ""
-    }
-
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        let cornerRadius = cameraIcon.frame.width / 2.0
-        cameraIcon.layer.cornerRadius = cornerRadius
-        profileImage.layer.cornerRadius = cornerRadius
-        editButton.layer.cornerRadius = editButton.frame.height / 4.0
-        editButton.layer.borderColor = UIColor.black.cgColor
-        editButton.layer.borderWidth = 1.5
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        print("viewDidAppear: \(editButton.frame)")
-        // viewDidAppear: view added to superview, frame changed to final state (iPhone X)
     }
 
 }
