@@ -5,10 +5,10 @@
 //  Created by Александр Лыков on 21.02.2018.
 //  Copyright © 2018 Lykov. All rights reserved.
 //
-
+import Photos
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var cameraIcon: UIImageView!
@@ -52,21 +52,45 @@ class ViewController: UIViewController {
         
         let alertController = UIAlertController(title: "Выбери изображение профиля", message: nil, preferredStyle: .alert)
         let galleryAction = UIAlertAction(title: "Установить из галлереи", style: .default) { action in
-           print("Установить из галлереи")
+            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+                let galleryImagePicker = UIImagePickerController()
+                galleryImagePicker.delegate = self
+                galleryImagePicker.sourceType = .photoLibrary
+                galleryImagePicker.allowsEditing = true
+                self.present(galleryImagePicker, animated: true, completion: nil)
+            }
         }
         alertController.addAction(galleryAction)
         let cameraAction = UIAlertAction(title: "Сделать фото", style: .default) { action in
-            print("Сделать фото")
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                let cameraImagePicker = UIImagePickerController()
+                cameraImagePicker.delegate = self
+                cameraImagePicker.sourceType = .camera
+                cameraImagePicker.allowsEditing = false
+                self.present(cameraImagePicker, animated: true, completion: nil)
+            }
         }
         alertController.addAction(cameraAction)
-        self.present(alertController, animated: true) {
-            
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
+            profileImage.image = image
         }
+        else if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            profileImage.image = image
+        }
+        else {
+            print("Картинка не прилетела")
+        }
+
+        dismiss(animated: true, completion: nil)
     }
     
     @IBAction func editAction(_ sender: Any) {
-        let button = sender as? UIButton
-        button?.titleLabel?.text = ""
+//        let button = sender as? UIButton
+//        button?.titleLabel?.text = ""
     }
 
     override func viewWillLayoutSubviews() {
