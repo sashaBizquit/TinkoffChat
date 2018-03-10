@@ -18,7 +18,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        let cornerRadius = editPhotoButton.frame.width / 2.0
+        let cornerRadius = CGFloat.minimum(editPhotoButton.frame.width, editPhotoButton.frame.height) / 2.0
         profileImage.layer.cornerRadius = cornerRadius
         editPhotoButton.layer.cornerRadius = cornerRadius
         
@@ -29,7 +29,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
         editDescriptionButton.layer.borderColor = UIColor.black.cgColor
         editDescriptionButton.layer.borderWidth = 1.5
     }
-    
+
     @IBAction func editPhoto(_ sender: UIButton) {
         callEditPhotoAlert()
     }
