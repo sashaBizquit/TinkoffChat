@@ -10,6 +10,8 @@ import UIKit
 
 class ConversationsListTableViewController: UITableViewController {
 
+    @IBOutlet weak var barButton: UIButton!
+    
     private var conversations: [SectionsNames: [ConversationCellModel]] = [.Online: [ConversationCellModel](), .Offline: [ConversationCellModel]()]
     
     enum SectionsNames: String {
@@ -33,27 +35,23 @@ class ConversationsListTableViewController: UITableViewController {
         conversations[.Online]!.sort {$0.date! > $1.date!}
         conversations[.Offline]!.sort {$0.date! > $1.date!}
         
-        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
-
-        let button = UIButton.init(type: .custom)
-        button.setImage(#imageLiteral(resourceName: "placeholder-user"), for: UIControlState.normal)
-        button.addTarget(self, action: #selector(self.action), for: UIControlEvents.touchUpInside)
-        button.widthAnchor.constraint(equalToConstant: 32.0).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 32.0).isActive = true
-        let barButton = UIBarButtonItem(customView: button)
-        self.navigationItem.rightBarButtonItem = barButton
+        
+        let height = self.navigationController!.navigationBar.frame.size.height / CGFloat(2).squareRoot()
+        barButton.widthAnchor.constraint(equalToConstant: height).isActive = true
+        barButton.heightAnchor.constraint(equalToConstant: height).isActive = true
+        barButton.layer.masksToBounds = true
+        
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: barButton)
+        
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
+        barButton.layer.cornerRadius = barButton.frame.width / 2.0
     }
     
-    @objc func action() {
-        print("kekekekekek")
-    }
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {

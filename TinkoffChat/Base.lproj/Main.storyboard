@@ -71,7 +71,18 @@
                             <outlet property="delegate" destination="1Og-tF-Cwx" id="4fO-MU-Ah9"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="TinkoffChat" leftItemsSupplementBackButton="YES" id="QvU-Ko-KQy"/>
+                    <navigationItem key="navigationItem" title="TinkoffChat" leftItemsSupplementBackButton="YES" id="QvU-Ko-KQy">
+                        <barButtonItem key="rightBarButtonItem" landscapeImage="placeholder-user" style="done" id="pDh-Fj-k7E">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="W1w-tc-YgJ">
+                                <rect key="frame" x="50" y="0.0" width="254" height="44"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button" image="placeholder-user"/>
+                            </button>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="barButton" destination="W1w-tc-YgJ" id="Q7P-lT-ehN"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gNg-lE-9KK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
