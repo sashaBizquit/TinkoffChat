@@ -12,10 +12,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Profile View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="TinkoffChat" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ProfileViewController" customModule="TinkoffChat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -49,25 +49,28 @@
                                 <color key="textColor" red="0.54789257049560547" green="0.56865197420120239" blue="0.59700471162796021" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="slr-camera-2-xxl" translatesAutoresizingMaskIntoConstraints="NO" id="hQ7-Fq-NcI">
+                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rct-Mw-63F">
                                 <rect key="frame" x="232" y="252" width="72" height="72"/>
-                                <color key="backgroundColor" red="0.24705882352941178" green="0.47058823529411764" blue="0.94117647058823528" alpha="1" colorSpace="calibratedRGB"/>
-                                <color key="tintColor" red="0.2470588235" green="0.47058823529999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.2470588235" green="0.47058823529999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="hQ7-Fq-NcI" secondAttribute="height" multiplier="1:1" id="QW2-LP-CU6"/>
+                                    <constraint firstAttribute="width" secondItem="Rct-Mw-63F" secondAttribute="height" multiplier="1:1" id="M8P-XC-s6T"/>
                                 </constraints>
-                            </imageView>
+                                <state key="normal" image="slr-camera-2-xxl"/>
+                                <connections>
+                                    <action selector="editPhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kQy-z0-2NO"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="RlI-O1-bIN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="1VI-Fl-Jb0"/>
-                            <constraint firstItem="hQ7-Fq-NcI" firstAttribute="height" secondItem="vu3-f5-6GS" secondAttribute="height" multiplier="0.25" id="3RN-gg-UaJ"/>
-                            <constraint firstItem="vu3-f5-6GS" firstAttribute="bottom" secondItem="hQ7-Fq-NcI" secondAttribute="bottom" id="7So-3E-mNv"/>
                             <constraint firstItem="Jec-vF-dET" firstAttribute="top" relation="greaterThanOrEqual" secondItem="8oo-PV-biH" secondAttribute="bottom" constant="16" id="8Em-XE-P9w"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="9aE-7g-aab"/>
+                            <constraint firstItem="Rct-Mw-63F" firstAttribute="height" secondItem="vu3-f5-6GS" secondAttribute="height" multiplier="0.25" id="FUs-ja-hY4"/>
                             <constraint firstItem="RlI-O1-bIN" firstAttribute="top" secondItem="vu3-f5-6GS" secondAttribute="bottom" constant="16" id="Lzv-Oh-Qwb"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8oo-PV-biH" secondAttribute="trailing" constant="16" id="MSd-Rd-DzE"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="vu3-f5-6GS" secondAttribute="trailing" constant="16" id="TIi-iE-eqG"/>
+                            <constraint firstItem="Rct-Mw-63F" firstAttribute="trailing" secondItem="vu3-f5-6GS" secondAttribute="trailing" id="TUB-Uf-VpS"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="RlI-O1-bIN" secondAttribute="trailing" constant="16" id="UGp-ZQ-VuT"/>
                             <constraint firstItem="8oo-PV-biH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Xcg-fv-MoO"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Y24-CW-Pxo"/>
@@ -75,14 +78,14 @@
                             <constraint firstItem="Jec-vF-dET" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="ddi-QG-xcz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Jec-vF-dET" secondAttribute="trailing" constant="16" id="hOq-rB-vOX"/>
                             <constraint firstItem="8oo-PV-biH" firstAttribute="top" secondItem="RlI-O1-bIN" secondAttribute="bottom" constant="16" id="iDT-Ku-cLu"/>
-                            <constraint firstItem="Jec-vF-dET" firstAttribute="height" secondItem="hQ7-Fq-NcI" secondAttribute="height" multiplier="0.75" id="mMi-hA-hJv"/>
-                            <constraint firstItem="vu3-f5-6GS" firstAttribute="trailing" secondItem="hQ7-Fq-NcI" secondAttribute="trailing" id="rKg-0Z-gtd"/>
+                            <constraint firstItem="vu3-f5-6GS" firstAttribute="bottom" secondItem="Rct-Mw-63F" secondAttribute="bottom" id="ko7-QI-i2g"/>
+                            <constraint firstItem="Jec-vF-dET" firstAttribute="height" secondItem="Rct-Mw-63F" secondAttribute="height" multiplier="0.75" id="mMi-hA-hJv"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="cameraIcon" destination="hQ7-Fq-NcI" id="kDV-kt-COf"/>
-                        <outlet property="editButton" destination="Jec-vF-dET" id="IRp-ux-Ql6"/>
+                        <outlet property="editDescriptionButton" destination="Jec-vF-dET" id="hkh-Zh-ie6"/>
+                        <outlet property="editPhotoButton" destination="Rct-Mw-63F" id="1Db-WN-fEv"/>
                         <outlet property="nameLabel" destination="RlI-O1-bIN" id="AO8-v1-hI5"/>
                         <outlet property="profileImage" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
                     </connections>
