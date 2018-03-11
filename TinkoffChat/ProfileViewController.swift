@@ -12,8 +12,16 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var editDescriptionButton: UIButton!
+    @IBOutlet weak var editProfileDescriptionButton: UIButton!
     @IBOutlet weak var editPhotoButton: UIButton!
+    @IBOutlet weak var profileDescription: UILabel!
+    
+    var content = ("Name","Description")
+    
+    override func viewDidLoad() {
+        nameLabel.text = content.0
+        profileDescription.text = content.1
+    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -25,9 +33,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
         let inset = cornerRadius * (1.0 - 1.0/sqrt(2.0))
         editPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(inset, inset, inset, inset)
         
-        editDescriptionButton.layer.cornerRadius = editDescriptionButton.frame.height / 4.0
-        editDescriptionButton.layer.borderColor = UIColor.black.cgColor
-        editDescriptionButton.layer.borderWidth = 1.5
+        editProfileDescriptionButton.layer.cornerRadius = editProfileDescriptionButton.frame.height / 4.0
+        editProfileDescriptionButton.layer.borderColor = UIColor.black.cgColor
+        editProfileDescriptionButton.layer.borderWidth = 1.5
     }
 
     @IBAction func editPhoto(_ sender: UIButton) {
@@ -56,6 +64,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
         }
         alertController.addAction(cameraAction)
         self.present(alertController, animated: true, completion: nil)
+    }
+    
+    @IBAction func cancelAction(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
