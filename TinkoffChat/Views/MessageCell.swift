@@ -10,18 +10,46 @@ import UIKit
 
 class MessageCell: UITableViewCell {
 
-    @IBOutlet weak var outgoingLabel: UILabel!
-    @IBOutlet weak var incomingLabel: UILabel!
+    @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var leftConstraint: NSLayoutConstraint!
+    @IBOutlet weak var messageView: UIView!
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    @IBOutlet weak var rightConstraint: NSLayoutConstraint!
+    
+    private var storedRight: NSLayoutConstraint?
+    private var storedLeft: NSLayoutConstraint?
+    
+    var message: String? {
+        didSet {
+            label.text = message
+        }
     }
+    var isIncoming = true {
+        didSet {
+            messageView.backgroundColor = isIncoming ? #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1) : #colorLiteral(red: 0.5563425422, green: 0.9793455005, blue: 0, alpha: 1)
+            
+//            let margins = contentView.layoutMarginsGuide // обращение к contentView было до добавления messageView
+//            margins.bottomAnchor.constraint(equalTo: label.bottomAnchor).isActive = true // Работало
+//            margins.topAnchor.constraint(equalTo: label.topAnchor).isActive = true // Работало
+//            margins.leadingAnchor.constraint(equalTo: label.leadingAnchor).isActive = true // НЕ РАБОТАЛО
+//            // Пришлось делать через сториборд + аутлетить констрейнты
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
 
-        // Configure the view for the selected state
+            if rightConstraint == nil {
+                rightConstraint = storedRight
+            } else {
+                storedRight = rightConstraint
+            }
+            if leftConstraint == nil {
+                leftConstraint = storedLeft
+            } else {
+                storedLeft = leftConstraint
+            }
+            
+            rightConstraint.isActive = !isIncoming
+            leftConstraint.isActive = isIncoming
+            label.preferredMaxLayoutWidth = contentView.frame.width * 0.75 - (isIncoming ? leftConstraint : rightConstraint).constant
+        }
     }
 
 }

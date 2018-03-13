@@ -14,7 +14,7 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var messageLabel: UILabel!
     
-    private let noMessagesConst = "No messages yet"
+    static let noMessagesConst = "Сообщений пока нет"
     
     var name: String? {
         didSet {
@@ -23,18 +23,21 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     }
     
     var message: String? {
-        didSet {
-            messageLabel.text = message ?? noMessagesConst
+        set {
+            messageLabel.text = newValue ?? ConversationListCell.noMessagesConst
             
             let fontSize = messageLabel.font.pointSize
             var traits = messageLabel.font.fontDescriptor.symbolicTraits
-            switch message {
+            switch newValue {
             case nil:
                 traits.insert(.traitItalic)
             default:
                 traits.remove(.traitItalic)
             }
             messageLabel.font = UIFont(descriptor: messageLabel.font.fontDescriptor.withSymbolicTraits(traits)!, size: fontSize)
+        }
+        get {
+            return messageLabel.text == ConversationListCell.noMessagesConst ? nil: messageLabel.text
         }
     }
     

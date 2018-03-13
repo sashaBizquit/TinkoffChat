@@ -20,7 +20,6 @@ class ConversationsListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let boolArray = [true,false,true,true]
         outerloop: for status in boolArray {
             for readStatus in boolArray.reversed() {
@@ -91,41 +90,6 @@ class ConversationsListViewController: UITableViewController {
         return section == 0 ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
     }
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -141,6 +105,11 @@ class ConversationsListViewController: UITableViewController {
                 let conversation = sender as? ConversationListCell{
                 conversationVC.interlocutor = conversation.name!
                 conversation.hasUnreadMessages = false
+                if let message = conversation.message {
+                    conversationVC.messages.insert((message, false), at: conversationVC.messages.endIndex)
+                } else {
+                    conversationVC.messages.removeAll()
+                }
             }
         }
     }
