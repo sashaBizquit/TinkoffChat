@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration{
+class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
 
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
@@ -44,8 +44,16 @@ class ConversationTableViewCell: UITableViewCell, ConversationCellConfiguration{
                 let today = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
                 let formatter = DateFormatter()
                 formatter.locale = Locale(identifier: "ru_RU")
-                formatter.dateFormat = unwrappedDate < today ? "dd MMM" : "HH:mm"
-                dateLabel.text = formatter.string(from: unwrappedDate)
+                
+                if unwrappedDate < today {
+                    formatter.dateFormat = "dd MMM"
+                    let dateString = formatter.string(from: unwrappedDate)
+                    let index = dateString.index(dateString.startIndex, offsetBy: 6)
+                    dateLabel.text = String(dateString[..<index])
+                } else {
+                    formatter.dateFormat = "HH:mm"
+                    dateLabel.text = formatter.string(from: unwrappedDate)
+                }
             }
         }
     }
