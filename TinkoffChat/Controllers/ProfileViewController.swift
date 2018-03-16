@@ -53,6 +53,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
                 imagePicker.allowsEditing = true
                 self.present(imagePicker, animated: true, completion: nil)
             }
+            else {
+                //dismiss(animated: true, completion: nil)
+            }
         }
         let alertController = UIAlertController(title: "Выбери изображение профиля", message: nil, preferredStyle: .alert)
         let galleryAction = UIAlertAction(title: "Установить из галлереи", style: .default) { action in

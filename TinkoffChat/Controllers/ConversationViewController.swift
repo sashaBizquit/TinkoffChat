@@ -35,6 +35,7 @@ class ConversationViewController: UITableViewController {
             messages.append((botMessage + "\n" + botMessage + "\n" + botMessage, false))
             messages.append(lastViewed)
         }
+        
         //to udgrade
         var avgHeight = CGFloat(0)
         let windowWidth = UIScreen.main.bounds.width
@@ -49,6 +50,10 @@ class ConversationViewController: UITableViewController {
         
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = avgHeight
+        
+//        if messages.count > 0 {
+//            self.tableView.scrollToRow(at: IndexPath(row: messages.count-1, section: 0), at: .bottom, animated: true)
+//        }
     }
 
     // MARK: - Table view data source
@@ -78,13 +83,6 @@ class ConversationViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return messages.count == 0 ? ConversationListCell.noMessagesConst : nil
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-//        if messages.count > 0 {
-//            self.tableView.scrollToRow(at: IndexPath(row: messages.count-1, section: 0), at: .bottom, animated: true)
-//        }
     }
     
 //    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
