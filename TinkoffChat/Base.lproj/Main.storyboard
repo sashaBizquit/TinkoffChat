@@ -166,7 +166,7 @@
         <!--Выберите тему-->
         <scene sceneID="so6-aP-fFh">
             <objects>
-                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" sceneMemberID="viewController">
+                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" customModule="TinkoffChat" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="yEL-ji-GCY">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -177,25 +177,25 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="65S-bA-zA7">
                                         <rect key="frame" x="0.0" y="0.0" width="160" height="30.5"/>
                                         <color key="backgroundColor" white="0.5" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <state key="normal" title="Тема 1"/>
+                                        <state key="normal" title="Черная тема"/>
                                         <connections>
-                                            <action selector="theme1Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="5YC-7f-Wl7"/>
+                                            <action selector="theme1Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="HNs-1f-VcD"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yjz-KQ-OGc">
                                         <rect key="frame" x="0.0" y="55.5" width="160" height="31"/>
                                         <color key="backgroundColor" white="0.5" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <state key="normal" title="Тема 2"/>
+                                        <state key="normal" title="Белая тема"/>
                                         <connections>
-                                            <action selector="theme2Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="luJ-2w-Fkt"/>
+                                            <action selector="theme2Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="7SP-4H-kFu"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ivj-ef-64y">
                                         <rect key="frame" x="0.0" y="111.5" width="160" height="30.5"/>
                                         <color key="backgroundColor" white="0.5" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <state key="normal" title="Тема 3"/>
+                                        <state key="normal" title="Тема шампань"/>
                                         <connections>
-                                            <action selector="theme3Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="VPP-A1-9y2"/>
+                                            <action selector="theme3Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="k5a-y5-Dh5"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -217,7 +217,7 @@
                     <navigationItem key="navigationItem" title="Выберите тему" id="lgX-mY-ba8">
                         <barButtonItem key="leftBarButtonItem" title="Закрыть" id="4M1-Gm-53b">
                             <connections>
-                                <action selector="closeAction:" destination="3zH-1m-wyz" id="Nns-un-6tJ"/>
+                                <action selector="closeAction:" destination="3zH-1m-wyz" id="Fh9-Y1-oX6"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

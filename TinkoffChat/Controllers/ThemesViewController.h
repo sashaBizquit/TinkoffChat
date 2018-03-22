@@ -10,12 +10,17 @@
 #import "Themes.h"
 
 @class ThemesViewController;
+@protocol ThemePickerProtocol;
 
 @protocol ThemesViewControllerDelegate <NSObject>
-- (void) themesViewController: (ThemesViewController *) controller didSelectTheme: (UIColor*) selectedTheme;
+- (void) themesViewController: (id<ThemePickerProtocol>) controller didSelectTheme: (Theme*) selectedTheme;
 @end
 
-@interface ThemesViewController : UIViewController
+@protocol ThemePickerProtocol <NSObject>
+    @property (assign) id<ThemesViewControllerDelegate> delegate;
+@end
+
+@interface ThemesViewController : UIViewController <ThemePickerProtocol>
     @property (assign) Themes* model;
     @property (assign) id<ThemesViewControllerDelegate> delegate;
 @end

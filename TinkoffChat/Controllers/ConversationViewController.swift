@@ -37,19 +37,20 @@ class ConversationViewController: UITableViewController {
         }
         
         //to udgrade
-        var avgHeight = CGFloat(0)
-        let windowWidth = UIScreen.main.bounds.width
-        let constraintRect = CGSize(width: windowWidth, height: .greatestFiniteMagnitude)
-
-        for message in messages {
-            let boundingBox = message.0.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 17)], context: nil)
-            avgHeight += boundingBox.height
+        if messages.count != 0 {
+            var avgHeight = CGFloat(0)
+            let windowWidth = UIScreen.main.bounds.width
+            let constraintRect = CGSize(width: windowWidth, height: .greatestFiniteMagnitude)
+            
+            for message in messages {
+                let boundingBox = message.0.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 17)], context: nil)
+                avgHeight += boundingBox.height
+            }
+            avgHeight = avgHeight / CGFloat(messages.count)
+            
+            tableView.rowHeight = UITableViewAutomaticDimension
+            tableView.estimatedRowHeight = avgHeight
         }
-        avgHeight = avgHeight / CGFloat(messages.count)
-        //print(avgHeight)
-        
-        tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.estimatedRowHeight = avgHeight
         
 //        if messages.count > 0 {
 //            self.tableView.scrollToRow(at: IndexPath(row: messages.count-1, section: 0), at: .bottom, animated: true)

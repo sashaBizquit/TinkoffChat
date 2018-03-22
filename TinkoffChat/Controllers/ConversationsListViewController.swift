@@ -10,6 +10,7 @@ import UIKit
 
 class ConversationsListViewController: UITableViewController, ThemesViewControllerDelegate {
     
+    
     @IBOutlet weak var profileButton: UIButton!
     
     private var conversations: [SectionsNames: [ConversationCellModel]] = [.Online: [ConversationCellModel](), .Offline: [ConversationCellModel]()]
@@ -20,6 +21,7 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationController?.navigationBar.backgroundColor = .white
         let boolArray = [true,false,true,true]
         outerloop: for status in boolArray {
             for readStatus in boolArray.reversed() {
@@ -113,19 +115,35 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
             }
         } else if segue.identifier == "toThemePicker" {
             if let navigationVC = segue.destination as? UINavigationController {
-                if let themesVC = navigationVC.topViewController as? ThemesViewController {
+                if let themesVC = navigationVC.topViewController as? ThemePickerProtocol {
                     themesVC.delegate = self
+                } else if let themesVC = navigationVC.topViewController as? TinkoffChat.ThemesViewController {
+                    themesVC.themeDidChanged = { [weak self] (theme: Theme) in
+                        if let strongSelf = self {
+                            strongSelf.logThemeChanging(selectedTheme: theme)
+                        }
+                    }
+                    themesVC.getCurrentThemeBackroundColor = { [weak self] in
+                        if let strongSelf = self {
+                            let color = strongSelf.navigationController?.navigationBar.backgroundColor
+                            
+                            return color
+                        }
+                        return .white
+                    }
                 }
             }
         }
     }
     // MARK: - ThemesViewControllerDelegate
     
-    func themesViewController(_ controller: ThemesViewController!, didSelectTheme selectedTheme: UIColor!) {
+    @objc func themesViewController(_ controller: ThemePickerProtocol, didSelect selectedTheme: Theme) {
         logThemeChanging(selectedTheme: selectedTheme)
     }
 
-    private func logThemeChanging(selectedTheme: UIColor) {
-        print(selectedTheme)
+    private func logThemeChanging(selectedTheme: Theme) {
+        UINavigationBar.appearance().backgroundColor = selectedTheme.backgroundColor
+        UINavigationBar.appearance().tintColor = selectedTheme.tintColor
+        print("Theme: [\(selectedTheme.backgroundColor!)] & [\(selectedTheme.tintColor!)]")
     }
 }
