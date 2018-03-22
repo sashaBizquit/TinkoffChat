@@ -73,11 +73,16 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" leftItemsSupplementBackButton="YES" id="QvU-Ko-KQy">
+                        <barButtonItem key="leftBarButtonItem" title="Тема" id="ap6-Nq-K9i" userLabel="Theme Button Item">
+                            <connections>
+                                <segue destination="8ks-vi-ICo" kind="presentation" identifier="toThemePicker" id="2Xh-f3-qNk"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" landscapeImage="placeholder-user" style="done" id="pDh-Fj-k7E">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="W1w-tc-YgJ">
                                 <rect key="frame" x="50" y="0.0" width="254" height="44"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button" image="placeholder-user"/>
+                                <state key="normal" image="placeholder-user"/>
                                 <connections>
                                     <segue destination="3Io-Fn-P9e" kind="presentation" identifier="toProfile" id="JqG-k1-f4Z"/>
                                 </connections>
@@ -156,7 +161,70 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8zh-20-x6E" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="803" y="37"/>
+            <point key="canvasLocation" x="-866" y="494"/>
+        </scene>
+        <!--Выберите тему-->
+        <scene sceneID="so6-aP-fFh">
+            <objects>
+                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="yEL-ji-GCY">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="l8u-cl-Q5b">
+                                <rect key="frame" x="80" y="245" width="160" height="142"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="65S-bA-zA7">
+                                        <rect key="frame" x="0.0" y="0.0" width="160" height="30.5"/>
+                                        <color key="backgroundColor" white="0.5" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Тема 1"/>
+                                        <connections>
+                                            <action selector="theme1Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="5YC-7f-Wl7"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yjz-KQ-OGc">
+                                        <rect key="frame" x="0.0" y="55.5" width="160" height="31"/>
+                                        <color key="backgroundColor" white="0.5" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Тема 2"/>
+                                        <connections>
+                                            <action selector="theme2Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="luJ-2w-Fkt"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ivj-ef-64y">
+                                        <rect key="frame" x="0.0" y="111.5" width="160" height="30.5"/>
+                                        <color key="backgroundColor" white="0.5" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Тема 3"/>
+                                        <connections>
+                                            <action selector="theme3Action:" destination="3zH-1m-wyz" eventType="touchUpInside" id="VPP-A1-9y2"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="65S-bA-zA7" firstAttribute="height" secondItem="yjz-KQ-OGc" secondAttribute="height" id="Hhw-vJ-JrP"/>
+                                    <constraint firstItem="yjz-KQ-OGc" firstAttribute="height" secondItem="ivj-ef-64y" secondAttribute="height" id="uOG-f4-RfC"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.86548846960067749" blue="0.17509174346923828" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="l8u-cl-Q5b" firstAttribute="centerY" secondItem="RTu-ES-2cG" secondAttribute="centerY" id="38L-Do-GYq"/>
+                            <constraint firstItem="l8u-cl-Q5b" firstAttribute="width" secondItem="yEL-ji-GCY" secondAttribute="width" multiplier="0.5" id="EOp-8C-AjE"/>
+                            <constraint firstItem="l8u-cl-Q5b" firstAttribute="centerX" secondItem="RTu-ES-2cG" secondAttribute="centerX" id="K9H-bD-I27"/>
+                            <constraint firstItem="l8u-cl-Q5b" firstAttribute="height" secondItem="yEL-ji-GCY" secondAttribute="height" multiplier="0.25" id="veq-sH-IZY"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="RTu-ES-2cG"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Выберите тему" id="lgX-mY-ba8">
+                        <barButtonItem key="leftBarButtonItem" title="Закрыть" id="4M1-Gm-53b">
+                            <connections>
+                                <action selector="closeAction:" destination="3zH-1m-wyz" id="Nns-un-6tJ"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="le5-Dx-aPR" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1717.5" y="-6.3380281690140849"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="jew-W2-eIT">
@@ -262,7 +330,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1708" y="-739"/>
+            <point key="canvasLocation" x="1718" y="-717"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1bB-yv-dmE">
@@ -283,7 +351,25 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dgJ-Sc-HHp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="773" y="-739"/>
+            <point key="canvasLocation" x="724" y="-717"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="JUf-gc-jaR">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="8ks-vi-ICo" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="dYE-bS-Q0C">
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="3zH-1m-wyz" kind="relationship" relationship="rootViewController" id="ioY-XA-18k"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Abd-Ip-37G" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="724" y="-6"/>
         </scene>
     </scenes>
     <resources>

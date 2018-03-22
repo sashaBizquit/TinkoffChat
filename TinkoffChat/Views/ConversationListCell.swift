@@ -17,8 +17,11 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     static let noMessagesConst = "Сообщений пока нет"
     
     var name: String? {
-        didSet {
-            nameLabel.text = name
+        get {
+            return nameLabel.text
+        }
+        set {
+            nameLabel.text = newValue
         }
     }
     
@@ -61,13 +64,25 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
         }
     }
     
-    var online: Bool = true {
-        didSet {
-            self.backgroundColor = online ? #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1) : #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+    var online: Bool {
+        set {
+            backgroundColor = newValue ? #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1) : #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         }
+        get {
+            return backgroundColor == #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1)
+        }
+//        didSet {
+//            self.backgroundColor = online ? #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1) : #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+//        }
     }
 
     var hasUnreadMessages: Bool = false {
+//        set {
+//
+//        }
+//        get {
+//
+//        }
         didSet {
             let fontSize = messageLabel.font.pointSize
             var traits = messageLabel.font.fontDescriptor.symbolicTraits

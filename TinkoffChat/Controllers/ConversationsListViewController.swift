@@ -8,8 +8,8 @@
 
 import UIKit
 
-class ConversationsListViewController: UITableViewController {
-
+class ConversationsListViewController: UITableViewController, ThemesViewControllerDelegate {
+    
     @IBOutlet weak var profileButton: UIButton!
     
     private var conversations: [SectionsNames: [ConversationCellModel]] = [.Online: [ConversationCellModel](), .Offline: [ConversationCellModel]()]
@@ -111,7 +111,21 @@ class ConversationsListViewController: UITableViewController {
                     conversationVC.messages.removeAll()
                 }
             }
+        } else if segue.identifier == "toThemePicker" {
+            if let navigationVC = segue.destination as? UINavigationController {
+                if let themesVC = navigationVC.topViewController as? ThemesViewController {
+                    themesVC.delegate = self
+                }
+            }
         }
     }
+    // MARK: - ThemesViewControllerDelegate
+    
+    func themesViewController(_ controller: ThemesViewController!, didSelectTheme selectedTheme: UIColor!) {
+        logThemeChanging(selectedTheme: selectedTheme)
+    }
 
+    private func logThemeChanging(selectedTheme: UIColor) {
+        print(selectedTheme)
+    }
 }

@@ -12,6 +12,8 @@
 		2A4ECBF7205437FC0091A040 /* ConversationCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */; };
 		2A83AE35205414FD004AED5B /* ConversationsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */; };
 		2A83AE3720541812004AED5B /* ConversationListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A83AE3620541812004AED5B /* ConversationListCell.swift */; };
+		2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A9A3D8C2063D1680097F2E1 /* Themes.m */; };
+		2AB117CC205C6982000DB688 /* ThemesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AB117CB205C6982000DB688 /* ThemesViewController.m */; };
 		2ADC828F20470BB600447C57 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2ADC828D20470BB600447C57 /* Main.storyboard */; };
 		2AFF7473203DD342006FF139 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFF7472203DD342006FF139 /* AppDelegate.swift */; };
 		2AFF7475203DD342006FF139 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFF7474203DD342006FF139 /* ProfileViewController.swift */; };
@@ -25,6 +27,11 @@
 		2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellModel.swift; sourceTree = "<group>"; };
 		2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsListViewController.swift; sourceTree = "<group>"; };
 		2A83AE3620541812004AED5B /* ConversationListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListCell.swift; sourceTree = "<group>"; };
+		2A9A3D8C2063D1680097F2E1 /* Themes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Themes.m; sourceTree = "<group>"; };
+		2AB117C9205C6981000DB688 /* TinkoffChat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TinkoffChat-Bridging-Header.h"; sourceTree = "<group>"; };
+		2AB117CA205C6982000DB688 /* ThemesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThemesViewController.h; sourceTree = "<group>"; };
+		2AB117CB205C6982000DB688 /* ThemesViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ThemesViewController.m; sourceTree = "<group>"; };
+		2AB117CD205C6FF9000DB688 /* Themes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Themes.h; sourceTree = "<group>"; };
 		2ADC828E20470BB600447C57 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2AFF746F203DD342006FF139 /* TinkoffChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TinkoffChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AFF7472203DD342006FF139 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +56,8 @@
 			isa = PBXGroup;
 			children = (
 				2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */,
+				2AB117CD205C6FF9000DB688 /* Themes.h */,
+				2A9A3D8C2063D1680097F2E1 /* Themes.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -56,8 +65,11 @@
 		2A2CBC232057D2A3007C98AA /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				2AB117C9205C6981000DB688 /* TinkoffChat-Bridging-Header.h */,
 				2AFF7474203DD342006FF139 /* ProfileViewController.swift */,
 				2A2CBC1E2056A633007C98AA /* ConversationViewController.swift */,
+				2AB117CA205C6982000DB688 /* ThemesViewController.h */,
+				2AB117CB205C6982000DB688 /* ThemesViewController.m */,
 				2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */,
 			);
 			path = Controllers;
@@ -135,6 +147,7 @@
 				TargetAttributes = {
 					2AFF746E203DD342006FF139 = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -181,6 +194,8 @@
 				2A4ECBF7205437FC0091A040 /* ConversationCellModel.swift in Sources */,
 				2A83AE35205414FD004AED5B /* ConversationsListViewController.swift in Sources */,
 				2AFF7473203DD342006FF139 /* AppDelegate.swift in Sources */,
+				2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */,
+				2AB117CC205C6982000DB688 /* ThemesViewController.m in Sources */,
 				2A2CBC212057CABA007C98AA /* MessageCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -318,6 +333,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = M3K3S8K472;
 				INFOPLIST_FILE = TinkoffChat/Info.plist;
@@ -325,6 +342,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.lykov.TinkoffChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "TinkoffChat/Controllers/TinkoffChat-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -334,6 +353,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = M3K3S8K472;
 				INFOPLIST_FILE = TinkoffChat/Info.plist;
@@ -341,6 +362,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.lykov.TinkoffChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "TinkoffChat/Controllers/TinkoffChat-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
