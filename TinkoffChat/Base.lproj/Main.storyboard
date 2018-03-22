@@ -166,7 +166,7 @@
         <!--Выберите тему-->
         <scene sceneID="so6-aP-fFh">
             <objects>
-                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" sceneMemberID="viewController">
+                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" customModule="TinkoffChat" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="yEL-ji-GCY">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -263,9 +263,6 @@
                                 <state key="normal" title="Редактировать">
                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
-                                <connections>
-                                    <action selector="editAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xl1-hn-akx"/>
-                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Александр Лыков" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="RlI-O1-bIN">
                                 <rect key="frame" x="16" y="384" width="288" height="30"/>

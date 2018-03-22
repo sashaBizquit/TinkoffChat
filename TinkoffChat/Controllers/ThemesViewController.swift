@@ -27,8 +27,9 @@ class ThemesViewController: UIViewController {
     private func changeTheme(to theme: Theme) {
         view.backgroundColor = theme.backgroundColor
         let currentBar = self.navigationController?.navigationBar
-        currentBar?.backgroundColor = theme.backgroundColor
+        currentBar?.barTintColor = theme.backgroundColor
         currentBar?.tintColor = theme.tintColor
+        currentBar?.titleTextAttributes = [NSAttributedStringKey.foregroundColor: theme.tintColor]
         themeDidChanged?(theme)
     }
     

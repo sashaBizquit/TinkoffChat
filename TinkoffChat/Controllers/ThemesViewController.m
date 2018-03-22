@@ -56,7 +56,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIColor* color = [((UIViewController *)_delegate).navigationController.navigationBar.backgroundColor copy];
+    UIColor* color = [((UIViewController *)_delegate).navigationController.navigationBar.barTintColor copy];
     self.view.backgroundColor = color;
     [color release];
 }
@@ -68,8 +68,9 @@
 - (void)changeThemeTo:(Theme*)theme {
     self.view.backgroundColor = theme.backgroundColor;
     UINavigationBar* currentBar = self.navigationController.navigationBar;
-    currentBar.backgroundColor = theme.backgroundColor;
+    currentBar.barTintColor = theme.backgroundColor;
     currentBar.tintColor = theme.tintColor;
+    [currentBar setTitleTextAttributes:@{NSForegroundColorAttributeName: theme.tintColor}];
     currentBar = NULL;
     [self.delegate themesViewController: self didSelectTheme: theme];
 }

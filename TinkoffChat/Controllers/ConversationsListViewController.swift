@@ -26,10 +26,10 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
 //        if let storedData = defaults.object(forKey: defaultsKey) as? Data,
 //            let storedTheme = NSKeyedUnarchiver.unarchiveObject(with: storedData) as? Theme {
 //
-//            self.navigationController?.navigationBar.backgroundColor = storedTheme.backgroundColor
+//            self.navigationController?.navigationBar.barTintColor = storedTheme.backgroundColor
 //            self.navigationController?.navigationBar.tintColor = storedTheme.tintColor
 //        } else {
-            self.navigationController?.navigationBar.backgroundColor = .white
+            self.navigationController?.navigationBar.barTintColor = .white
 //        }
         
         let boolArray = [true,false,true,true]
@@ -132,9 +132,10 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
                             strongSelf.logThemeChanging(selectedTheme: theme)
                         }
                     }
+                    
                     themesVC.getCurrentThemeBackroundColor = { [weak self] in
                         if let strongSelf = self {
-                            return strongSelf.navigationController?.navigationBar.backgroundColor
+                            return strongSelf.navigationController?.navigationBar.barTintColor
                         }
                         return .white
                     }
@@ -150,8 +151,10 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
 
     private func logThemeChanging(selectedTheme: Theme) {
         let currentBar = UINavigationBar.appearance()
-        currentBar.backgroundColor = selectedTheme.backgroundColor
         currentBar.tintColor = selectedTheme.tintColor
+        currentBar.barTintColor = selectedTheme.backgroundColor
+        //currentBar.backgroundColor = UIColor.gray
+        currentBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: selectedTheme.tintColor]
         print("Theme: [\(selectedTheme.backgroundColor!)] & [\(selectedTheme.tintColor!)]")
         
 //        //attempt to save (failed)
