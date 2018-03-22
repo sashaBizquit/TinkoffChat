@@ -48,10 +48,6 @@
         newModel.theme3 = [Theme sharedChampainTheme];
         
         [self setModel: newModel];
-        
-        [newModel.theme1 release];
-        [newModel.theme2 release];
-        [newModel.theme3 release];
         [newModel release];
         
     }
@@ -66,14 +62,15 @@
 }
 
 - (void)dealloc {
-    [_model.theme1 release];
-    [_model.theme2 release];
-    [_model.theme3 release];
     [_model release];
     [super dealloc];
 }
 - (void)changeThemeTo:(Theme*)theme {
     self.view.backgroundColor = theme.backgroundColor;
+    UINavigationBar* currentBar = self.navigationController.navigationBar;
+    currentBar.backgroundColor = theme.backgroundColor;
+    currentBar.tintColor = theme.tintColor;
+    currentBar = NULL;
     [self.delegate themesViewController: self didSelectTheme: theme];
 }
 

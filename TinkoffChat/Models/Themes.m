@@ -10,6 +10,12 @@
 
 @implementation Themes
 
+- (void)dealloc {
+    if (_theme1 != nil) [_theme1 release];
+    if (_theme2 != nil) [_theme2 release];
+    if (_theme3 != nil) [_theme3 release];
+    [super dealloc];
+}
 @end
 
 @implementation Theme {
@@ -42,11 +48,7 @@
 
 + (instancetype)sharedBlackTheme {
     return [[Theme alloc] initWithBackgroundColor: [[UIColor alloc] initWithWhite: 0 alpha: 1]
-                            andTintColor: [[UIColor alloc] initWithRed: 0
-                                                                 green: (122/255.0)
-                                                                  blue: 1
-                                                                 alpha: 1
-                                           ]
+                            andTintColor: [[UIColor alloc] initWithWhite: 0 alpha: 1]
             ];
 }
 
@@ -56,13 +58,29 @@
                                                                   blue: (45.0/255.0)
                                                                  alpha: 1
                                            ]
-                            andTintColor: [[UIColor alloc] initWithRed: 0
+                            andTintColor: [[UIColor alloc] initWithRed: 1
                                                                  green: (122/255.0)
-                                                                  blue: 1
+                                                                  blue: 0
                                                                  alpha: 1
                                            ]
             ];
 }
+
+// MARK: - NSCoding -
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super init]){
+        _backgroundColor = [aDecoder decodeObjectForKey: @"backgroundColor"];
+        _tintColor = [aDecoder decodeObjectForKey: @"tintColor"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [aCoder encodeObject: _backgroundColor forKey: @"backgroundColor"];
+    [aCoder encodeObject: _tintColor forKey: @"tintColor"];
+}
+
 -(instancetype)copyWithZone:(NSZone *)zone {
     Theme *another = [[Theme alloc] init];
     another.backgroundColor = [_backgroundColor copyWithZone: zone];
@@ -87,8 +105,8 @@
 }
 
 - (void)dealloc {
-    [_backgroundColor release];
-    [_tintColor release];
+    if (_backgroundColor != nil) [_backgroundColor release];
+    if (_tintColor != nil) [_tintColor release];
     [super dealloc];
 }
 

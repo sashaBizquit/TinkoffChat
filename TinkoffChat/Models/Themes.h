@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface Theme : NSObject
+@interface Theme : NSObject <NSCoding>
 @property (copy) UIColor* backgroundColor;
 @property (copy) UIColor* tintColor;
 

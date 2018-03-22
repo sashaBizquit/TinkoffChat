@@ -166,7 +166,7 @@
         <!--Выберите тему-->
         <scene sceneID="so6-aP-fFh">
             <objects>
-                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" customModule="TinkoffChat" sceneMemberID="viewController">
+                <viewController id="3zH-1m-wyz" customClass="ThemesViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="yEL-ji-GCY">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

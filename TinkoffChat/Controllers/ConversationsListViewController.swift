@@ -10,7 +10,7 @@ import UIKit
 
 class ConversationsListViewController: UITableViewController, ThemesViewControllerDelegate {
     
-    
+    private let defaultsKey = "storedTheme"
     @IBOutlet weak var profileButton: UIButton!
     
     private var conversations: [SectionsNames: [ConversationCellModel]] = [.Online: [ConversationCellModel](), .Offline: [ConversationCellModel]()]
@@ -21,7 +21,17 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.backgroundColor = .white
+//        //attempt to get saved data (failed)
+//        let defaults = UserDefaults.standard
+//        if let storedData = defaults.object(forKey: defaultsKey) as? Data,
+//            let storedTheme = NSKeyedUnarchiver.unarchiveObject(with: storedData) as? Theme {
+//
+//            self.navigationController?.navigationBar.backgroundColor = storedTheme.backgroundColor
+//            self.navigationController?.navigationBar.tintColor = storedTheme.tintColor
+//        } else {
+            self.navigationController?.navigationBar.backgroundColor = .white
+//        }
+        
         let boolArray = [true,false,true,true]
         outerloop: for status in boolArray {
             for readStatus in boolArray.reversed() {
@@ -93,8 +103,7 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
     }
 
     // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toProfile" {
             if let navigationVC = segue.destination as? UINavigationController,
@@ -125,9 +134,7 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
                     }
                     themesVC.getCurrentThemeBackroundColor = { [weak self] in
                         if let strongSelf = self {
-                            let color = strongSelf.navigationController?.navigationBar.backgroundColor
-                            
-                            return color
+                            return strongSelf.navigationController?.navigationBar.backgroundColor
                         }
                         return .white
                     }
@@ -142,8 +149,14 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
     }
 
     private func logThemeChanging(selectedTheme: Theme) {
-        UINavigationBar.appearance().backgroundColor = selectedTheme.backgroundColor
-        UINavigationBar.appearance().tintColor = selectedTheme.tintColor
+        let currentBar = UINavigationBar.appearance()
+        currentBar.backgroundColor = selectedTheme.backgroundColor
+        currentBar.tintColor = selectedTheme.tintColor
         print("Theme: [\(selectedTheme.backgroundColor!)] & [\(selectedTheme.tintColor!)]")
+        
+//        //attempt to save (failed)
+//        let defaults = UserDefaults.standard
+//        let data =  NSKeyedArchiver.archivedData(withRootObject: selectedTheme)
+//        defaults.set(data, forKey: defaultsKey)
     }
 }

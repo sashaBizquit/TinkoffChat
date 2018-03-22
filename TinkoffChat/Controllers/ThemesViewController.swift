@@ -19,15 +19,16 @@ class ThemesViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = getCurrentThemeBackroundColor?()
-        
         model = Themes()
         model?.theme1 = Theme.sharedBlack()
         model?.theme2 = Theme.sharedWhite()
         model?.theme3 = Theme.sharedChampain()
-        
     }
     private func changeTheme(to theme: Theme) {
         view.backgroundColor = theme.backgroundColor
+        let currentBar = self.navigationController?.navigationBar
+        currentBar?.backgroundColor = theme.backgroundColor
+        currentBar?.tintColor = theme.tintColor
         themeDidChanged?(theme)
     }
     
@@ -42,9 +43,5 @@ class ThemesViewController: UIViewController {
     }
     @IBAction func theme3Action(_ sender: UIButton) {
         changeTheme(to: model!.theme3)
-    }
-    
-    override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-        super.dismiss(animated: flag, completion: completion)
     }
 }
