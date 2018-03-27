@@ -263,19 +263,10 @@
                                 <state key="normal" title="Редактировать">
                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
+                                <connections>
+                                    <action selector="editProfileInfo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0UC-cV-L3D"/>
+                                </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Александр Лыков" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="RlI-O1-bIN">
-                                <rect key="frame" x="16" y="384" width="288" height="30"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Some Text" textAlignment="natural" lineBreakMode="middleTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8oo-PV-biH">
-                                <rect key="frame" x="16" y="430" width="288" height="18"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <color key="textColor" red="0.54789257049560547" green="0.56865197420120239" blue="0.59700471162796021" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rct-Mw-63F">
                                 <rect key="frame" x="232" y="296" width="72" height="72"/>
                                 <color key="backgroundColor" red="0.2470588235" green="0.47058823529999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
@@ -287,26 +278,38 @@
                                     <action selector="editPhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kQy-z0-2NO"/>
                                 </connections>
                             </button>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Александр Лыков" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="3hm-gL-QpS" userLabel="Name Text Field">
+                                <rect key="frame" x="16" y="384" width="288" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="words" autocorrectionType="yes" spellCheckingType="no" keyboardAppearance="alert" returnKeyType="done" enablesReturnKeyAutomatically="YES" textContentType="name"/>
+                            </textField>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" showsHorizontalScrollIndicator="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium " translatesAutoresizingMaskIntoConstraints="NO" id="I2T-4i-JhP" userLabel="Description Text View">
+                                <rect key="frame" x="16" y="430" width="288" height="56"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="yes" spellCheckingType="yes" keyboardAppearance="alert"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="RlI-O1-bIN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="1VI-Fl-Jb0"/>
-                            <constraint firstItem="Jec-vF-dET" firstAttribute="top" relation="greaterThanOrEqual" secondItem="8oo-PV-biH" secondAttribute="bottom" constant="16" id="8Em-XE-P9w"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="16" id="9aE-7g-aab"/>
                             <constraint firstItem="Rct-Mw-63F" firstAttribute="height" secondItem="vu3-f5-6GS" secondAttribute="height" multiplier="0.25" id="FUs-ja-hY4"/>
-                            <constraint firstItem="RlI-O1-bIN" firstAttribute="top" secondItem="vu3-f5-6GS" secondAttribute="bottom" constant="16" id="Lzv-Oh-Qwb"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8oo-PV-biH" secondAttribute="trailing" constant="16" id="MSd-Rd-DzE"/>
+                            <constraint firstItem="3hm-gL-QpS" firstAttribute="top" secondItem="vu3-f5-6GS" secondAttribute="bottom" constant="16" id="PG9-gj-uv7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="vu3-f5-6GS" secondAttribute="trailing" constant="16" id="TIi-iE-eqG"/>
                             <constraint firstItem="Rct-Mw-63F" firstAttribute="trailing" secondItem="vu3-f5-6GS" secondAttribute="trailing" id="TUB-Uf-VpS"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="RlI-O1-bIN" secondAttribute="trailing" constant="16" id="UGp-ZQ-VuT"/>
-                            <constraint firstItem="8oo-PV-biH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Xcg-fv-MoO"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Y24-CW-Pxo"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Jec-vF-dET" secondAttribute="bottom" constant="20" id="a4q-cL-PBJ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="3hm-gL-QpS" secondAttribute="trailing" constant="16" id="c0V-pT-2oQ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="I2T-4i-JhP" secondAttribute="trailing" constant="16" id="d2l-tI-6wJ"/>
                             <constraint firstItem="Jec-vF-dET" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="ddi-QG-xcz"/>
+                            <constraint firstItem="Jec-vF-dET" firstAttribute="top" secondItem="I2T-4i-JhP" secondAttribute="bottom" constant="8" id="fzJ-XB-Tak"/>
+                            <constraint firstItem="I2T-4i-JhP" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="hNp-zi-OGi"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Jec-vF-dET" secondAttribute="trailing" constant="16" id="hOq-rB-vOX"/>
-                            <constraint firstItem="8oo-PV-biH" firstAttribute="top" secondItem="RlI-O1-bIN" secondAttribute="bottom" constant="16" id="iDT-Ku-cLu"/>
                             <constraint firstItem="vu3-f5-6GS" firstAttribute="bottom" secondItem="Rct-Mw-63F" secondAttribute="bottom" id="ko7-QI-i2g"/>
                             <constraint firstItem="Jec-vF-dET" firstAttribute="height" secondItem="Rct-Mw-63F" secondAttribute="height" multiplier="0.75" id="mMi-hA-hJv"/>
+                            <constraint firstItem="I2T-4i-JhP" firstAttribute="top" secondItem="3hm-gL-QpS" secondAttribute="bottom" constant="16" id="n6U-PH-sax"/>
+                            <constraint firstItem="3hm-gL-QpS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="ryt-bg-k3y"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -318,16 +321,16 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="descriptionTextView" destination="I2T-4i-JhP" id="iMQ-eb-laq"/>
                         <outlet property="editPhotoButton" destination="Rct-Mw-63F" id="1Db-WN-fEv"/>
-                        <outlet property="editProfileDescriptionButton" destination="Jec-vF-dET" id="hkh-Zh-ie6"/>
-                        <outlet property="nameLabel" destination="RlI-O1-bIN" id="AO8-v1-hI5"/>
-                        <outlet property="profileDescription" destination="8oo-PV-biH" id="9Eo-Ro-2Kw"/>
+                        <outlet property="editProfileInfoButton" destination="Jec-vF-dET" id="hkh-Zh-ie6"/>
+                        <outlet property="nameTextField" destination="3hm-gL-QpS" id="NMa-uw-wy6"/>
                         <outlet property="profileImage" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1718" y="-717"/>
+            <point key="canvasLocation" x="1717.5" y="-717.25352112676057"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1bB-yv-dmE">
