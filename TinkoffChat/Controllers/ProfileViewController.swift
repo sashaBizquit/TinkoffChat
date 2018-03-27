@@ -11,26 +11,29 @@ import UIKit
 class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITextFieldDelegate, UITextViewDelegate {
     
     @IBOutlet weak var profileImage: UIImageView!
-    @IBOutlet weak var editProfileInfoButton: UIButton!
     @IBOutlet weak var editPhotoButton: UIButton!
-    @IBOutlet var descriptionTextView: UITextView!
+    @IBOutlet weak var descriptionTextView: UITextView!
+    @IBOutlet weak var nameTextField: UITextField!
+    @IBOutlet weak var leftButton: UIButton!
+    @IBOutlet weak var rightButton: UIButton!
     
-    @IBOutlet var nameTextField: UITextField!
     var content = ("Name","Description")
     private var bottomLine: CALayer?
+    
     override func viewDidLoad() {
-        
-        editPhotoButton.isHidden = true
-        
-        nameTextField.isEnabled = false
+
         nameTextField.delegate = self
         nameTextField.text = content.0
+        leftButton.titleLabel?.text = "Редактировать"
+        rightButton.isHidden = true
         
-        descriptionTextView.isEditable = false
         descriptionTextView.delegate = self
         descriptionTextView.text = content.1
-        descriptionTextView.layer.borderWidth = 1.0
+        descriptionTextView.layer.borderWidth = 1
         descriptionTextView.layer.borderColor = UIColor.clear.cgColor
+        
+        leftButton.layer.borderWidth = 1
+        rightButton.layer.borderWidth = 1
         
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
 
@@ -69,7 +72,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 //    }
     
     @objc func keyboardWillShow(sender: NSNotification) {
-        print("nu privet")
         if let keyboardSize = (sender.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
             let keyboardHeight = keyboardSize.height
             self.view.frame.origin.y = -1.0 * keyboardHeight
@@ -84,21 +86,23 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         
         bottomLine = CALayer()
         bottomLine?.frame = CGRect(x: 0.0, y: nameTextField.frame.height - 1, width: nameTextField.frame.width, height: 1.0)
-        bottomLine?.backgroundColor = UIColor.black.cgColor
+        //bottomLine?.backgroundColor = UIColor.clear.cgColor
+        nameTextField.layer.addSublayer(bottomLine!)
         
         
-        let cornerRadius = CGFloat.minimum(editPhotoButton.frame.width, editPhotoButton.frame.height) / 2.0
-        profileImage.layer.cornerRadius = cornerRadius
-        editPhotoButton.layer.cornerRadius = cornerRadius
+        let imagesCornerRadius = CGFloat.minimum(editPhotoButton.frame.width, editPhotoButton.frame.height) / 2.0
+        profileImage.layer.cornerRadius = imagesCornerRadius
+        editPhotoButton.layer.cornerRadius = imagesCornerRadius
         
-        let inset = cornerRadius * (1.0 - 1.0/sqrt(2.0))
+        let inset = imagesCornerRadius * (1.0 - 1.0/sqrt(2.0))
         editPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(inset, inset, inset, inset)
         
-        editProfileInfoButton.layer.cornerRadius = editProfileInfoButton.frame.height / 4.0
-        editProfileInfoButton.layer.borderColor = UIColor.black.cgColor
-        editProfileInfoButton.layer.borderWidth = 1.5
+        let buttonsCornerRadius = leftButton.frame.height / 4.0
+        descriptionTextView.layer.cornerRadius = buttonsCornerRadius
+        //descriptionTextView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
         
-        descriptionTextView.layer.cornerRadius = editProfileInfoButton.layer.cornerRadius
+        leftButton.layer.cornerRadius = buttonsCornerRadius
+        rightButton.layer.cornerRadius = buttonsCornerRadius
     }
 
     @IBAction func editPhoto(_ sender: UIButton) {
@@ -143,16 +147,33 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBAction func cancelAction(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }
-    @IBAction func editProfileInfo(_ sender: UIButton) {
-        self.enterEditMode()
+    
+    @IBAction func leftButtonAction(_ sender: Any) {
+        rightButton.isHidden ? self.inEditMode(true) : gcdSave()
     }
     
-    private func enterEditMode() {
-        nameTextField.layer.addSublayer(bottomLine!)
-        descriptionTextView.layer.borderColor = UIColor.black.cgColor
-        descriptionTextView.isEditable = true
-        nameTextField.isEnabled = true
-        editPhotoButton.isHidden = false
+    @IBAction func rightButtonAction(_ sender: Any) {
+        nsoSave()
+    }
+    private func gcdSave() {
+        // type nso saving commands
+        self.inEditMode(false)
+    }
+    
+    private func nsoSave() {
+        // type gcd saving commands
+        self.inEditMode(false)
+    }
+    
+    private func inEditMode(_ flag: Bool) {
+        let color = flag ? UIColor.black.cgColor : UIColor.white.cgColor
+        bottomLine?.backgroundColor = color
+        descriptionTextView.layer.borderColor = color
+        descriptionTextView.isEditable = flag
+        nameTextField.isEnabled = flag
+        editPhotoButton.isHidden = !flag
+        rightButton.isHidden = !flag
+        leftButton.setTitle(flag ? "GCD" : "Редактировать", for: .normal)
     }
     
     deinit {

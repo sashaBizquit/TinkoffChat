@@ -51,10 +51,6 @@ class ConversationViewController: UITableViewController {
             tableView.rowHeight = UITableViewAutomaticDimension
             tableView.estimatedRowHeight = avgHeight
         }
-        
-//        if messages.count > 0 {
-//            self.tableView.scrollToRow(at: IndexPath(row: messages.count-1, section: 0), at: .bottom, animated: true)
-//        }
     }
 
     // MARK: - Table view data source
