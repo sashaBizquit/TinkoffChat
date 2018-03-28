@@ -17,11 +17,29 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBOutlet weak var leftButton: UIButton!
     @IBOutlet weak var rightButton: UIButton!
     
+    private var storedNameURL: URL {
+        get {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            return documentsDirectory.appendingPathComponent("profile-\(content.0)-name")
+        }
+    }
+    private var storedDescriptionURL: URL {
+        get {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            return documentsDirectory.appendingPathComponent("profile-\(content.0)-description")
+        }
+    }
+    private var storedImageURL: URL {
+        get {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            return documentsDirectory.appendingPathComponent("profile-\(content.0)-image")
+        }
+    }
+    
     var content = ("Name","Description")
     private var bottomLine: CALayer?
     
     override func viewDidLoad() {
-
         nameTextField.delegate = self
         nameTextField.text = content.0
         leftButton.titleLabel?.text = "Редактировать"
@@ -53,6 +71,15 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 //        return true
 //    }
     
+    private func safeTrunc(of someString: String, offsetBy offset: Int) -> String {
+        let safeOffset = min(offset,someString.endIndex.encodedOffset)
+        let index = someString.index(someString.startIndex, offsetBy: safeOffset)
+        return String(someString[..<index])
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.text = safeTrunc(of: textField.text!, offsetBy: 25)
+    }
 //    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
 //        bottomLine?.removeFromSuperlayer()
 //        return true
@@ -67,9 +94,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 //        textView.layer.borderColor = UIColor.black.cgColor
 //    }
     
-//    func textViewDidEndEditing(_ textView: UITextView) {
-//        textView.layer.borderColor = UIColor.clear.cgColor
-//    }
+    func textViewDidEndEditing(_ textView: UITextView) {
+        textView.text = safeTrunc(of: textView.text!, offsetBy: 300)
+    }
     
     @objc func keyboardWillShow(sender: NSNotification) {
         if let keyboardSize = (sender.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
@@ -155,13 +182,89 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBAction func rightButtonAction(_ sender: Any) {
         nsoSave()
     }
-    private func gcdSave() {
-        // type nso saving commands
-        self.inEditMode(false)
+    
+    private func write(_ image: UIImage, toURL url: URL) throws {
+        let imageData = UIImagePNGRepresentation(image)!
+        let archivedData = NSKeyedArchiver.archivedData(withRootObject: imageData)
+        try archivedData.write(to: url, options: .atomic)
     }
     
+    private func getImage(from url: URL) throws -> UIImage  {
+        
+        guard let imageData = NSKeyedUnarchiver.unarchiveObject(withFile: url.path) as? Data else {
+            
+            throw NSError(domain: "", code: 1, userInfo: nil)
+        }
+
+        
+        guard let image = UIImage(data: imageData) else {
+            
+            throw NSError(domain: "", code: 1, userInfo: nil)
+        }
+        
+        return image
+    }
+    
+    private func gcdSave() {
+        leftButton.isEnabled = false
+        rightButton.isEnabled = false
+        do {
+            try nameTextField.text?.write(to: storedNameURL, atomically: true, encoding: .utf8)
+            try descriptionTextView.text.write(to: storedDescriptionURL, atomically: true, encoding: .utf8)
+            try write(profileImage.image!, toURL: storedImageURL)
+            print("saved!")
+            
+            let storedName = try String(contentsOf: storedNameURL)
+            let storedDescription = try String(contentsOf: storedDescriptionURL)
+            let storedImage = try getImage(from: storedImageURL)
+            print("restored!")
+        } catch {
+            print("failed to save!")
+        }
+        self.inEditMode(false)
+        leftButton.isEnabled = true
+        rightButton.isEnabled = true
+    }
+    
+//    private func saveToOneFile() {
+//        do {
+//            let nameData = nameTextField.text!.data(using: .utf8)
+//            let descriptionData = descriptionTextView.text.data(using: .utf8)
+//            let imageData = UIImagePNGRepresentation(profileImage.image!)
+//            //let arr = [nameTextField.text!, descriptionTextView.text, imageData!] as [Any]
+//            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//            let filename = documentsDirectory.appendingPathComponent("profile-\(content.0)")
+//            let isCreated = FileManager.default.fileExists(atPath: filename.absoluteString)
+//            print(isCreated)
+//
+//
+//            //            let lol = NSKeyedArchiver.archivedData(withRootObject: arr)
+//            //            try lol.write(to: filename, options: .atomic)
+//            let file = try FileHandle(forWritingTo: filename)
+//
+//            file.write(nameData!)
+//
+//            print(file.offsetInFile)
+//
+//            file.write(descriptionData!)
+//            print(file.offsetInFile)
+//
+//            file.write(imageData!)
+//            print(file.offsetInFile)
+//
+//            print("saved!")
+//            //            let savedArr = NSArray(contentsOf: filename)
+//            //            let savedName = savedArr?[0] as? String
+//            //            print(savedName ?? "name")
+//            //            let savedDescription = savedArr?[1] as? String!
+//            //            print(savedDescription ?? "description")
+//        } catch {
+//            print("failed to save")
+//        }
+//    }
+    
     private func nsoSave() {
-        // type gcd saving commands
+        // type nso saving commands
         self.inEditMode(false)
     }
     
