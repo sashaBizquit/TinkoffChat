@@ -78,7 +78,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.text = safeTrunc(of: textField.text!, offsetBy: 25)
+        textField.text = safeTrunc(of: textField.text!.condensedWhitespace, offsetBy: 25)
     }
 //    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
 //        bottomLine?.removeFromSuperlayer()
@@ -208,19 +208,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     private func gcdSave() {
         leftButton.isEnabled = false
         rightButton.isEnabled = false
-        do {
-            try nameTextField.text?.write(to: storedNameURL, atomically: true, encoding: .utf8)
-            try descriptionTextView.text.write(to: storedDescriptionURL, atomically: true, encoding: .utf8)
-            try write(profileImage.image!, toURL: storedImageURL)
-            print("saved!")
-            
-            let storedName = try String(contentsOf: storedNameURL)
-            let storedDescription = try String(contentsOf: storedDescriptionURL)
-            let storedImage = try getImage(from: storedImageURL)
-            print("restored!")
-        } catch {
-            print("failed to save!")
-        }
+        // SAVE HERE
         self.inEditMode(false)
         leftButton.isEnabled = true
         rightButton.isEnabled = true

@@ -13,12 +13,12 @@ class ThemesViewController: UIViewController {
     var model: Themes?
     
     var themeDidChanged: ((Theme) -> Void)?
-    var getCurrentThemeBackroundColor: (()-> UIColor?)?
+    //var getCurrentThemeBackroundColor: (()-> UIColor?)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = getCurrentThemeBackroundColor?()
+        view.backgroundColor = UINavigationBar.appearance().barTintColor
         model = Themes()
         model?.theme1 = Theme.sharedBlack()
         model?.theme2 = Theme.sharedWhite()

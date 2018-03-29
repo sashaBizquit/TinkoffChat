@@ -29,7 +29,7 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
 //            self.navigationController?.navigationBar.barTintColor = storedTheme.backgroundColor
 //            self.navigationController?.navigationBar.tintColor = storedTheme.tintColor
 //        } else {
-            self.navigationController?.navigationBar.barTintColor = .white
+            UINavigationBar.appearance().barTintColor = .white
 //        }
         
         let boolArray = [true,false,true,true]
@@ -131,13 +131,6 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
                         if let strongSelf = self {
                             strongSelf.logThemeChanging(selectedTheme: theme)
                         }
-                    }
-                    
-                    themesVC.getCurrentThemeBackroundColor = { [weak self] in
-                        if let strongSelf = self {
-                            return strongSelf.navigationController?.navigationBar.barTintColor
-                        }
-                        return .white
                     }
                 }
             }
