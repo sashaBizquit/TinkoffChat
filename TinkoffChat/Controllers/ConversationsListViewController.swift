@@ -108,8 +108,7 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
         if segue.identifier == "toProfile" {
             if let navigationVC = segue.destination as? UINavigationController,
                 let profileVC = navigationVC.topViewController as? ProfileViewController {
-                profileVC.content.0 = "Александр Лыков"
-                profileVC.content.1 = "Love 🇷🇺 Live in MSU, looking for iOS family 📟"
+                    profileVC.id = 0
             }
         } else if segue.identifier == "toConversation" {
             if let conversationVC = segue.destination as? ConversationViewController,

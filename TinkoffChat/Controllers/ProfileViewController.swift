@@ -10,55 +10,53 @@ import UIKit
 
 class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITextFieldDelegate, UITextViewDelegate {
     
-    @IBOutlet weak var profileImage: UIImageView!
+    @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var editPhotoButton: UIButton!
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var leftButton: UIButton!
     @IBOutlet weak var rightButton: UIButton!
     
-    private var storedNameURL: URL {
-        get {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsDirectory.appendingPathComponent("profile-\(content.0)-name")
-        }
-    }
-    private var storedDescriptionURL: URL {
-        get {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsDirectory.appendingPathComponent("profile-\(content.0)-description")
-        }
-    }
-    private var storedImageURL: URL {
-        get {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsDirectory.appendingPathComponent("profile-\(content.0)-image")
-        }
-    }
+    private var dataManager: DataManager!
     
-    var content = ("Name","Description")
+    var id: UInt = 0
     private var bottomLine: CALayer?
     
     override func viewDidLoad() {
+        
+        dataManager = DataManager(withId: id)
+        dataManager.delegate = self
+        
         nameTextField.delegate = self
-        nameTextField.text = content.0
-        leftButton.titleLabel?.text = "Редактировать"
-        rightButton.isHidden = true
+        nameTextField.text = dataManager.profileName ?? DataManager.defaultName //dataManager.getStoredName() /* (to do) */
         
         descriptionTextView.delegate = self
-        descriptionTextView.text = content.1
+        descriptionTextView.text = dataManager.profileDescription ?? DataManager.defaultDescription //dataManager.getStoredDescription() /* (to do) */
         descriptionTextView.layer.borderWidth = 1
         descriptionTextView.layer.borderColor = UIColor.clear.cgColor
         
+        profileImageView.image = dataManager.profileImage ?? DataManager.defaultImage //dataManager.getStoredImage() /* (to do) */
+        
         leftButton.layer.borderWidth = 1
+        leftButton.setTitleColor(.gray, for: .disabled)
+        leftButton.titleLabel?.text = "Редактировать"
+        
+        rightButton.isHidden = true
+        rightButton.setTitleColor(.gray, for: .disabled)
         rightButton.layer.borderWidth = 1
         
+        nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
 
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillHide(sender:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        nameTextField.removeTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
     @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
@@ -72,10 +70,19 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 //    }
     
     private func safeTrunc(of someString: String, offsetBy offset: Int) -> String {
-        let safeOffset = min(offset,someString.endIndex.encodedOffset)
+        
+        let safeOffset = min(offset,someString.count)
         let index = someString.index(someString.startIndex, offsetBy: safeOffset)
         return String(someString[..<index])
     }
+    
+    private func buttonsEnabled(equal to: Bool) {
+        for button in [leftButton, rightButton] {
+            button?.isEnabled = to
+            button?.layer.borderColor = to ? UIColor.black.cgColor : UIColor.gray.cgColor
+        }
+    }
+    
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         textField.text = safeTrunc(of: textField.text!.condensedWhitespace, offsetBy: 25)
@@ -84,6 +91,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 //        bottomLine?.removeFromSuperlayer()
 //        return true
 //    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        buttonsEnabled(equal: true)
+    }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         self.view.endEditing(true)
@@ -96,6 +107,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     
     func textViewDidEndEditing(_ textView: UITextView) {
         textView.text = safeTrunc(of: textView.text!, offsetBy: 300)
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        buttonsEnabled(equal: true)
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {
@@ -118,7 +133,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         
         
         let imagesCornerRadius = CGFloat.minimum(editPhotoButton.frame.width, editPhotoButton.frame.height) / 2.0
-        profileImage.layer.cornerRadius = imagesCornerRadius
+        profileImageView.layer.cornerRadius = imagesCornerRadius
         editPhotoButton.layer.cornerRadius = imagesCornerRadius
         
         let inset = imagesCornerRadius * (1.0 - 1.0/sqrt(2.0))
@@ -139,25 +154,27 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     // MARK: - UIAlertController
     
     private func callEditPhotoAlert() {
-        func presentImagePicker(for sourceType: UIImagePickerControllerSourceType) {
+        func presentImagePicker(by strongSelf: ProfileViewController, for sourceType: UIImagePickerControllerSourceType) {
             if UIImagePickerController.isSourceTypeAvailable(sourceType) {
                 let imagePicker = UIImagePickerController()
-                imagePicker.delegate = self
+                imagePicker.delegate = strongSelf
                 imagePicker.sourceType = sourceType
                 imagePicker.allowsEditing = true
-                self.present(imagePicker, animated: true, completion: nil)
-            }
-            else {
-                //dismiss(animated: true, completion: nil)
+                strongSelf.present(imagePicker, animated: true, completion: nil)
             }
         }
+        
         let alertController = UIAlertController(title: "Выбери изображение профиля", message: nil, preferredStyle: .alert)
-        let galleryAction = UIAlertAction(title: "Установить из галлереи", style: .default) { action in
-            presentImagePicker(for: .photoLibrary)
+        let galleryAction = UIAlertAction(title: "Установить из галлереи", style: .default) { [weak self] action in
+            if let strongSelf = self {
+                presentImagePicker(by: strongSelf, for: .photoLibrary)
+            }
         }
         alertController.addAction(galleryAction)
-        let cameraAction = UIAlertAction(title: "Сделать фото", style: .default) { action in
-            presentImagePicker(for: .camera)
+        let cameraAction = UIAlertAction(title: "Сделать фото", style: .default) { [weak self] action in
+            if let strongSelf = self {
+                presentImagePicker(by: strongSelf, for: .camera)
+            }
         }
         alertController.addAction(cameraAction)
         self.present(alertController, animated: true) { [weak self] in
@@ -176,6 +193,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     @IBAction func leftButtonAction(_ sender: Any) {
+        nameTextField.endEditing(false)
+        descriptionTextView.endEditing(false)
+        buttonsEnabled(equal: false)
         rightButton.isHidden ? self.inEditMode(true) : gcdSave()
     }
     
@@ -183,73 +203,11 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         nsoSave()
     }
     
-    private func write(_ image: UIImage, toURL url: URL) throws {
-        let imageData = UIImagePNGRepresentation(image)!
-        let archivedData = NSKeyedArchiver.archivedData(withRootObject: imageData)
-        try archivedData.write(to: url, options: .atomic)
-    }
-    
-    private func getImage(from url: URL) throws -> UIImage  {
-        
-        guard let imageData = NSKeyedUnarchiver.unarchiveObject(withFile: url.path) as? Data else {
-            
-            throw NSError(domain: "", code: 1, userInfo: nil)
-        }
-
-        
-        guard let image = UIImage(data: imageData) else {
-            
-            throw NSError(domain: "", code: 1, userInfo: nil)
-        }
-        
-        return image
-    }
-    
     private func gcdSave() {
-        leftButton.isEnabled = false
-        rightButton.isEnabled = false
-        // SAVE HERE
+        dataManager.save(nameTextField.text!, descriptionTextView.text!, profileImageView.image!)
         self.inEditMode(false)
-        leftButton.isEnabled = true
-        rightButton.isEnabled = true
+        buttonsEnabled(equal: true)
     }
-    
-//    private func saveToOneFile() {
-//        do {
-//            let nameData = nameTextField.text!.data(using: .utf8)
-//            let descriptionData = descriptionTextView.text.data(using: .utf8)
-//            let imageData = UIImagePNGRepresentation(profileImage.image!)
-//            //let arr = [nameTextField.text!, descriptionTextView.text, imageData!] as [Any]
-//            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//            let filename = documentsDirectory.appendingPathComponent("profile-\(content.0)")
-//            let isCreated = FileManager.default.fileExists(atPath: filename.absoluteString)
-//            print(isCreated)
-//
-//
-//            //            let lol = NSKeyedArchiver.archivedData(withRootObject: arr)
-//            //            try lol.write(to: filename, options: .atomic)
-//            let file = try FileHandle(forWritingTo: filename)
-//
-//            file.write(nameData!)
-//
-//            print(file.offsetInFile)
-//
-//            file.write(descriptionData!)
-//            print(file.offsetInFile)
-//
-//            file.write(imageData!)
-//            print(file.offsetInFile)
-//
-//            print("saved!")
-//            //            let savedArr = NSArray(contentsOf: filename)
-//            //            let savedName = savedArr?[0] as? String
-//            //            print(savedName ?? "name")
-//            //            let savedDescription = savedArr?[1] as? String!
-//            //            print(savedDescription ?? "description")
-//        } catch {
-//            print("failed to save")
-//        }
-//    }
     
     private func nsoSave() {
         // type nso saving commands
@@ -273,18 +231,36 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
 }
 
-
 // MARK: - UIImagePickerControllerDelegate
 
 extension ProfileViewController: UIImagePickerControllerDelegate {
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
-            profileImage.image = editedImage
+            profileImageView.image = editedImage
+            dataManager.isImageChanged = true
+            buttonsEnabled(equal: true)
         }
         else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            profileImage.image = originalImage
+            profileImageView.image = originalImage
+            dataManager.isImageChanged = true
+            buttonsEnabled(equal: true)
         }
         dismiss(animated: true, completion: nil)
     }
 }
 
+// MARK: - String
+
+extension String {
+    var condensedWhitespace: String {
+        var newString = String()
+        self.enumerateLines { line, _ in
+            var elem = line.trimmingCharacters(in: .whitespaces)
+            if !(elem.isEmpty) {
+                elem = elem.components(separatedBy: .whitespacesAndNewlines).filter{!$0.isEmpty}.joined(separator: " ")
+                newString.append(elem.appending("\n"))
+            }
+        }
+        return newString.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}

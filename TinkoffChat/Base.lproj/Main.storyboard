@@ -338,7 +338,7 @@
                         <outlet property="editPhotoButton" destination="Rct-Mw-63F" id="1Db-WN-fEv"/>
                         <outlet property="leftButton" destination="CQZ-Z4-1Zg" id="7nw-fi-HYx"/>
                         <outlet property="nameTextField" destination="3hm-gL-QpS" id="NMa-uw-wy6"/>
-                        <outlet property="profileImage" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
+                        <outlet property="profileImageView" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
                         <outlet property="rightButton" destination="WDu-Yo-eGk" id="gS9-xo-X1N"/>
                     </connections>
                 </viewController>
