@@ -59,11 +59,10 @@ class OperationDataManager: Operation {
         
         let cancelAction = UIAlertAction(title: "Ок", style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
-        
-        OperationQueue.main.addOperation { [weak self] in
-            guard let strongSelf = self else {return}
-            strongSelf.indicator?.removeFromSuperview()
-            strongSelf.delegate.present(alertController, animated: true, completion: nil)
+
+        OperationQueue.main.addOperation {
+            self.indicator?.removeFromSuperview()
+            self.delegate.present(alertController, animated: true, completion: nil)
         }
         
         // < только ради ДЗ/ТЗ - потом удалить этот код
