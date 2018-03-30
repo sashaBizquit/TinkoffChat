@@ -29,38 +29,17 @@ class OperationDataManager: Operation {
         }
     }
     
-    public enum State: String {
-        case ready, executing, finished
-        
-        fileprivate var keyPath: String {
-            return "is" + rawValue.capitalized
-        }
-    }
-    
-    public var state = State.ready {
-        willSet {
-            willChangeValue(forKey: newValue.keyPath)
-            willChangeValue(forKey: state.keyPath)
-        }
-        didSet {
-            didChangeValue(forKey: oldValue.keyPath)
-            didChangeValue(forKey: state.keyPath)
-        }
-    }
+    private var profileId: UInt!
+    var profileName: String?
+    var profileDescription: String?
+    var profileImage: UIImage?
+    var isImageChanged = true
+    weak var delegate: UIViewController!
+    weak var indicator: UIActivityIndicatorView?
     
     override convenience init() {
         self.init(withId: 0, name: nil, description: nil, image: nil)
     }
-    
-    /*private /* (to do) */ */ var profileName: String?
-    /*private /* (to do) */ */ var profileDescription: String?
-    /*private /* (to do) */ */ var profileImage: UIImage?
-    private var profileId: UInt!
-    
-    weak var delegate: UIViewController!
-    weak var indicator: UIActivityIndicatorView?
-    
-    var isImageChanged = true
     
     init(withId id: UInt, name: String?, description: String?, image: UIImage?) {
         profileId = id
@@ -68,28 +47,6 @@ class OperationDataManager: Operation {
         self.profileDescription = description
         self.profileImage = image
         super.init()
-    }
-    
-    override func main() {
-        let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] action in
-            guard let strongSelf = self else {return}
-            strongSelf.main()
-        }
-        
-        do {
-            try self.saveName()
-            try self.saveDescription()
-            try self.saveImage()
-            self.savedMessage(withTitle: "Данные сохранены",
-                                    message: nil,
-                                    additionAction: nil)
-        } catch {
-            self.savedMessage(withTitle: "Ошибка",
-                                    message: "Не удалось сохранить данные",
-                                    additionAction: repeatAction)
-        }
-        
-        self.state = .finished
     }
     
     private func savedMessage(withTitle title: String, message: String?, additionAction: UIAlertAction?) {
@@ -130,20 +87,19 @@ class OperationDataManager: Operation {
                 let profileVC = strongSelf.delegate as? ProfileViewController else {return}
             profileVC.profileImageView.image = image
         }
-        
         // только ради ДЗ/ТЗ - потом удалить этот код >
     }
     
+    //MARK: - Serial Save
+    
     private func saveName() throws {
-        if profileName ==  nil {return}
+        if profileName ==  nil { return }
         try profileName!.write(to: storedNameURL, atomically: true, encoding: .utf8)
-        print("name saved")
     }
     
     private func saveDescription() throws {
-        if profileDescription ==  nil {return}
+        if profileDescription ==  nil { return }
         try profileDescription!.write(to: storedDescriptionURL, atomically: true, encoding: .utf8)
-        print("description saved")
     }
     
     private func saveImage() throws {
@@ -153,30 +109,23 @@ class OperationDataManager: Operation {
         }
         
         try newImageData.write(to: storedImageURL, options: .atomic)
-        print("image saved")
         isImageChanged = false
     }
     
     //MARK: - Concurrent Getters
     
     func getStoredName(execute work: @escaping CompletionStringHandler) {
-            guard let storedName = self.getStoredName() else {
-                return
-            }
+            guard let storedName = self.getStoredName() else { return }
             OperationQueue.main.addOperation {work(storedName)}
     }
     
     func getStoredDescription(execute work: @escaping CompletionStringHandler) {
-            guard let storedDescription = self.getStoredDescription() else {
-                return
-            }
+            guard let storedDescription = self.getStoredDescription() else { return }
             OperationQueue.main.addOperation {work(storedDescription)}
     }
     
     func getStoredImage(execute work: @escaping CompletionImageHandler) {
-            guard let storedImage = self.getStoredImage() else {
-                return
-            }
+            guard let storedImage = self.getStoredImage() else { return }
             OperationQueue.main.addOperation {work(storedImage)}
     }
     
@@ -187,10 +136,8 @@ class OperationDataManager: Operation {
         //if profileName != nil {return profileName}
         do {
             let storedName = try String(contentsOf: storedNameURL)
-            print("name restored")
             return storedName
         } catch {
-            print("name wtf")
             return nil
         }
     }
@@ -198,12 +145,9 @@ class OperationDataManager: Operation {
     private func getStoredDescription() -> String? {
         //if profileDescription != nil {return profileDescription}
         do {
-            
             let storedDescription = try String(contentsOf: storedDescriptionURL)
-            print("description restored")
             return storedDescription
         } catch {
-            print("description wtf")
             return nil
         }
     }
@@ -212,18 +156,53 @@ class OperationDataManager: Operation {
         //if profileImage != nil {return profileImage}
         do {
             let imageData = try Data(contentsOf: storedImageURL)
-            
-            guard let storedImage = UIImage(data: imageData) else {
-                print("image wtf1")
-                return nil
-            }
-            
-            print("image restored")
+            guard let storedImage = UIImage(data: imageData) else { return nil }
             return storedImage
         } catch {
-            print("image wtf2")
             return nil
         }
+    }
+    
+    // MARK: - Operation
+    
+    public enum State: String {
+        case ready, executing, finished
+        
+        fileprivate var keyPath: String {
+            return "is" + rawValue.capitalized
+        }
+    }
+    
+    public var state = State.ready {
+        willSet {
+            willChangeValue(forKey: newValue.keyPath)
+            willChangeValue(forKey: state.keyPath)
+        }
+        didSet {
+            didChangeValue(forKey: oldValue.keyPath)
+            didChangeValue(forKey: state.keyPath)
+        }
+    }
+    
+    override func main() {
+        let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] action in
+            guard let strongSelf = self else { return }
+            strongSelf.main()
+        }
+        
+        do {
+            try self.saveName()
+            try self.saveDescription()
+            try self.saveImage()
+            self.savedMessage(withTitle: "Данные сохранены",
+                              message: nil,
+                              additionAction: nil)
+        } catch {
+            self.savedMessage(withTitle: "Ошибка",
+                              message: "Не удалось сохранить данные",
+                              additionAction: repeatAction)
+        }
+        self.state = .finished
     }
     
     override func start() {

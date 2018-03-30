@@ -33,6 +33,12 @@ class ThemesViewController: UIViewController {
         themeDidChanged?(theme)
     }
     
+    static func set(theme newTheme: Theme, to bar: UINavigationBar) {
+        bar.tintColor = newTheme.tintColor
+        bar.barTintColor = newTheme.backgroundColor
+        bar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: newTheme.tintColor]
+    }
+    
     @IBAction func closeAction(_ sender: UIBarButtonItem) {
         self.dismiss(animated: true, completion: nil)
     }

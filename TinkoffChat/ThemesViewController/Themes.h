@@ -10,8 +10,8 @@
 #import <UIKit/UIKit.h>
 
 @interface Theme : NSObject <NSCoding>
-@property (copy) UIColor* backgroundColor;
-@property (copy) UIColor* tintColor;
+@property (retain) UIColor* backgroundColor;
+@property (retain) UIColor* tintColor;
 
 + (instancetype)sharedWhiteTheme;
 + (instancetype)sharedBlackTheme;
@@ -19,7 +19,7 @@
 @end
 
 @interface Themes : NSObject
-    @property (assign) Theme* theme1;
-    @property (assign) Theme* theme2;
-    @property (assign) Theme* theme3;
+    @property (retain) Theme* theme1;
+    @property (retain) Theme* theme2;
+    @property (retain) Theme* theme3;
 @end

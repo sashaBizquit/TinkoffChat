@@ -8,7 +8,16 @@
 
 import UIKit
 
-class ConversationsListViewController: UITableViewController, ThemesViewControllerDelegate {
+class ConversationsListViewController: UITableViewController {
+    
+    private static var backgroundColorURL: URL {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documentsDirectory.appendingPathComponent("profile-theme-backgroundColor")
+    }
+    private static var tintColorURL : URL {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documentsDirectory.appendingPathComponent("profile-theme-tintColor")
+    }
     
     private let defaultsKey = "storedTheme"
     @IBOutlet weak var profileButton: UIButton!
@@ -21,16 +30,19 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        //attempt to get saved data (failed)
-//        let defaults = UserDefaults.standard
-//        if let storedData = defaults.object(forKey: defaultsKey) as? Data,
-//            let storedTheme = NSKeyedUnarchiver.unarchiveObject(with: storedData) as? Theme {
-//
-//            self.navigationController?.navigationBar.barTintColor = storedTheme.backgroundColor
-//            self.navigationController?.navigationBar.tintColor = storedTheme.tintColor
-//        } else {
-            UINavigationBar.appearance().barTintColor = .white
-//        }
+        let backgroundColorPath = ConversationsListViewController.backgroundColorURL.path
+        let tintColorPath = ConversationsListViewController.tintColorURL.path
+        let theme: Theme!
+        if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
+            let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
+            theme = Theme()
+            theme.backgroundColor = backgroundColor
+            theme.tintColor = tintColor
+        } else {
+            theme = Theme.sharedWhite()
+        }
+        ThemesViewController.set(theme: theme, to: self.navigationController!.navigationBar)
+        self.logThemeChanging(selectedTheme: theme)
         
         let boolArray = [true,false,true,true]
         outerloop: for status in boolArray {
@@ -123,39 +135,33 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
             }
         } else if segue.identifier == "toThemePicker" {
             if let navigationVC = segue.destination as? UINavigationController {
-                if let themesVC = navigationVC.topViewController as? ThemePickerProtocol {
-                    themesVC.delegate = self
-                } else if let themesVC = navigationVC.topViewController as? TinkoffChat.ThemesViewController {
+                if let themesVC = navigationVC.topViewController as? ThemesViewController {
                     themesVC.themeDidChanged = { [weak self] (theme: Theme) in
                         if let strongSelf = self {
                             strongSelf.logThemeChanging(selectedTheme: theme)
+                            strongSelf.saveTheme(selectedTheme: theme)
                         }
                     }
                 }
             }
         }
     }
-    // MARK: - ThemesViewControllerDelegate
     
-    @objc func themesViewController(_ controller: ThemePickerProtocol, didSelect selectedTheme: Theme) {
-        logThemeChanging(selectedTheme: selectedTheme)
+    func saveTheme(selectedTheme: Theme) {
+        DispatchQueue.global().async { [weak selectedTheme] in
+            guard let strongTheme = selectedTheme else {return}
+            let backgroundColor = strongTheme.backgroundColor!
+            let backgroundColorData =  NSKeyedArchiver.archivedData(withRootObject: backgroundColor)
+            try? backgroundColorData.write(to: ConversationsListViewController.backgroundColorURL)
+        
+            let tintColor = strongTheme.tintColor!
+            let tintColorData = NSKeyedArchiver.archivedData(withRootObject: tintColor)
+            try? tintColorData.write(to: ConversationsListViewController.tintColorURL)
+        }
     }
+    // MARK: - ThemesViewControllerDelegate
 
     private func logThemeChanging(selectedTheme: Theme) {
-        let currentBar = UINavigationBar.appearance()
-        currentBar.tintColor = selectedTheme.tintColor
-        currentBar.barTintColor = selectedTheme.backgroundColor
-        //currentBar.backgroundColor = UIColor.gray
-        currentBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: selectedTheme.tintColor]
-        print("Theme: [\(selectedTheme.backgroundColor!)] & [\(selectedTheme.tintColor!)]")
-        //selectedTheme.tintColor
-        DispatchQueue.global(qos: .userInitiated).async {
-            <#code#>
-        }
-        
-//        //attempt to save (failed)
-//        let defaults = UserDefaults.standard
-//        let data =  NSKeyedArchiver.archivedData(withRootObject: selectedTheme)
-//        defaults.set(data, forKey: defaultsKey)
+        ThemesViewController.set(theme: selectedTheme, to: UINavigationBar.appearance())
     }
 }

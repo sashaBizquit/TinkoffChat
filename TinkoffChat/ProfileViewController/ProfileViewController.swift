@@ -107,6 +107,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @objc func keyboardWillShow(sender: NSNotification) {
         if let keyboardSize = (sender.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
             let keyboardHeight = keyboardSize.height
+            print(keyboardHeight)
             self.view.frame.origin.y = -1.0 * keyboardHeight
         }
     }
@@ -208,7 +209,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         self.view.addSubview(activityIndicator)
         activityIndicator.frame = self.view.bounds
         activityIndicator.startAnimating()
-        
         let name, description: String?
         if nameTextField.text != dataManager.profileName {
             name = nameTextField.text
@@ -249,8 +249,8 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         descriptionTextView.isEditable = flag
         nameTextField.isEnabled = flag
         editPhotoButton.isHidden = !flag
-        rightButton.isHidden = !flag
         leftButton.setTitle(flag ? "GCD" : "Редактировать", for: .normal)
+        rightButton.isHidden = !flag
     }
     
     deinit {
@@ -262,8 +262,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 // MARK: - UIImagePickerControllerDelegate
 
 extension ProfileViewController: UIImagePickerControllerDelegate {
-    
-    
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             profileImageView.image = editedImage
