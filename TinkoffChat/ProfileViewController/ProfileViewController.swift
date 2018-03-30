@@ -105,11 +105,19 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {
-        if let keyboardSize = (sender.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-            let keyboardHeight = keyboardSize.height
-            print(keyboardHeight)
+            
+            guard let keyboardFrame = sender.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else {
+                return
+            }
+            
+            let keyboardHeight: CGFloat
+            if #available(iOS 11.0, *) {
+                keyboardHeight = keyboardFrame.cgRectValue.height - self.view.safeAreaInsets.bottom
+            } else {
+                keyboardHeight =  keyboardFrame.cgRectValue.height
+            }
+            
             self.view.frame.origin.y = -1.0 * keyboardHeight
-        }
     }
     
     @objc func keyboardWillHide(sender: NSNotification) {
