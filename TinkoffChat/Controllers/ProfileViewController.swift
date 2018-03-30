@@ -17,25 +17,29 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBOutlet weak var leftButton: UIButton!
     @IBOutlet weak var rightButton: UIButton!
     
-    private var dataManager: DataManager!
+    private var dataManager: GCDDataManager!
     
     var id: UInt = 0
     private var bottomLine: CALayer?
     
     override func viewDidLoad() {
         
-        dataManager = DataManager(withId: id)
+        dataManager = GCDDataManager(withId: id)
         dataManager.delegate = self
         
         nameTextField.delegate = self
-        nameTextField.text = dataManager.profileName ?? DataManager.defaultName //dataManager.getStoredName() /* (to do) */
+        nameTextField.text = dataManager.profileName ?? GCDDataManager.defaultName //dataManager.getStoredName() /* (to do) */
         
         descriptionTextView.delegate = self
-        descriptionTextView.text = dataManager.profileDescription ?? DataManager.defaultDescription //dataManager.getStoredDescription() /* (to do) */
+        descriptionTextView.text = dataManager.profileDescription ?? GCDDataManager.defaultDescription //dataManager.getStoredDescription() /* (to do) */
         descriptionTextView.layer.borderWidth = 1
         descriptionTextView.layer.borderColor = UIColor.clear.cgColor
         
-        profileImageView.image = dataManager.profileImage ?? DataManager.defaultImage //dataManager.getStoredImage() /* (to do) */
+        if dataManager.profileImage != nil {
+            dataManager.isImageChanged = false
+        }
+        
+        profileImageView.image = dataManager.profileImage ?? GCDDataManager.defaultImage //dataManager.getStoredImage() /* (to do) */
         
         leftButton.layer.borderWidth = 1
         leftButton.setTitleColor(.gray, for: .disabled)
@@ -64,11 +68,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         nameTextField.endEditing(true)
     }
     
-//    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-//        textField.layer.addSublayer(bottomLine!)
-//        return true
-//    }
-    
     private func safeTrunc(of someString: String, offsetBy offset: Int) -> String {
         
         let safeOffset = min(offset,someString.count)
@@ -87,10 +86,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     func textFieldDidEndEditing(_ textField: UITextField) {
         textField.text = safeTrunc(of: textField.text!.condensedWhitespace, offsetBy: 25)
     }
-//    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-//        bottomLine?.removeFromSuperlayer()
-//        return true
-//    }
     
     @objc func textFieldDidChange(_ textField: UITextField) {
         buttonsEnabled(equal: true)
@@ -100,10 +95,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         self.view.endEditing(true)
         return false
     }
-    
-//    func textViewDidBeginEditing(_ textView: UITextView) {
-//        textView.layer.borderColor = UIColor.black.cgColor
-//    }
     
     func textViewDidEndEditing(_ textView: UITextView) {
         textView.text = safeTrunc(of: textView.text!, offsetBy: 300)
@@ -200,6 +191,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     @IBAction func rightButtonAction(_ sender: Any) {
+        nameTextField.endEditing(false)
+        descriptionTextView.endEditing(false)
+        buttonsEnabled(equal: false)
         nsoSave()
     }
     
@@ -210,8 +204,42 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     private func nsoSave() {
-        // type nso saving commands
+        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        self.view.addSubview(activityIndicator)
+        activityIndicator.frame = self.view.bounds
+        activityIndicator.startAnimating()
+        
+        let name, description: String?
+        if nameTextField.text != dataManager.profileName {
+            name = nameTextField.text
+            dataManager.profileName = name
+        }
+        else {
+            name = nil
+        }
+        if descriptionTextView.text != dataManager.profileDescription {
+            description = descriptionTextView.text
+            dataManager.profileDescription = description
+        }
+        else {
+            description = nil
+        }
+        
+        let saveOperation = OperationDataManager(withId: id,
+                                                 name: name,
+                                                 description: description,
+                                                 image: profileImageView.image)
+
+        saveOperation.delegate = self
+        saveOperation.indicator = activityIndicator
+        saveOperation.isImageChanged = dataManager.isImageChanged
+        dataManager.isImageChanged = false
+        dataManager.profileImage = profileImageView.image
+        
+        OperationQueue().addOperation(saveOperation)
+        
         self.inEditMode(false)
+        buttonsEnabled(equal: true)
     }
     
     private func inEditMode(_ flag: Bool) {
@@ -234,6 +262,8 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 // MARK: - UIImagePickerControllerDelegate
 
 extension ProfileViewController: UIImagePickerControllerDelegate {
+    
+    
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             profileImageView.image = editedImage

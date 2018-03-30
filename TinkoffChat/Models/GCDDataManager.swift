@@ -8,7 +8,10 @@
 
 import Foundation
 
-class DataManager/*: Operation*/ {
+typealias CompletionStringHandler = @convention(block) (_ result: String) -> Void
+typealias CompletionImageHandler = @convention(block) (_ result: UIImage) -> Void
+
+class GCDDataManager {
 
     /*private /* (to do) */ */ static let defaultName = "Александр Лыков"
     /*private /* (to do) */ */ static let defaultDescription = "Love 🇷🇺 Live in MSU, looking for iOS family 📟"
@@ -51,6 +54,8 @@ class DataManager/*: Operation*/ {
         profileImage = getStoredImage()
     }
     
+    //MARK: - Saving Methods
+    
     private func savedMessage(withTitle title: String, message: String?, additionAction: UIAlertAction?, _ indicator: UIActivityIndicatorView) {
         let alertController = UIAlertController(title: title,
                                                 message: message,
@@ -66,11 +71,34 @@ class DataManager/*: Operation*/ {
             guard let strongSelf = self else {return}
             indicator?.removeFromSuperview()
             strongSelf.delegate.present(alertController, animated: true, completion: nil)
+            
+            // < только ради ДЗ/ТЗ - потом удалить этот код
+            
+            // имя by контроллер = имя by память
+            strongSelf.getStoredName { [weak self] name in
+                guard let strongSelf = self,
+                       let profileVC = strongSelf.delegate as? ProfileViewController else {return}
+                profileVC.nameTextField.text = name
+            }
+            
+            // описание by контроллер = описание by память
+            strongSelf.getStoredDescription { [weak self] description in
+                guard let strongSelf = self,
+                    let profileVC = strongSelf.delegate as? ProfileViewController else {return}
+                profileVC.descriptionTextView.text = description
+            }
+            // картинка by контроллер = картинка by память
+            strongSelf.getStoredImage { [weak self] image in
+                guard let strongSelf = self,
+                    let profileVC = strongSelf.delegate as? ProfileViewController else {return}
+                profileVC.profileImageView.image = image
+            }
+            
+            // только ради ДЗ/ТЗ - потом удалить этот код >
         }
     }
     
     func save(_ name: String, _ description: String, _ image: UIImage) {
-        
         let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         self.delegate.view.addSubview(activityIndicator)
         activityIndicator.frame = self.delegate.view.bounds
@@ -79,9 +107,10 @@ class DataManager/*: Operation*/ {
         DispatchQueue.global(qos: .userInitiated).async { [weak self, weak activityIndicator] in
             guard let strongSelf = self, let strongActivator = activityIndicator else {return}
             
-            let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] action in
+            let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self, weak image] action in
                 guard let strongSelf = self else {return}
-                strongSelf.save(name, description, image)
+                guard let strongImage = image else {return}
+                strongSelf.save(name, description, strongImage)
             }
             
             do {
@@ -129,7 +158,39 @@ class DataManager/*: Operation*/ {
         self.profileImage = newImage
     }
     
-    func getStoredName() -> String? {
+    //MARK: - Concurrent Getters
+    
+    func getStoredName(execute work: @escaping CompletionStringHandler) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self , let storedName = strongSelf.getStoredName() else {
+                return
+            }
+            DispatchQueue.main.async{work(storedName)}
+        }
+    }
+    
+    func getStoredDescription(execute work: @escaping CompletionStringHandler) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self , let storedDescription = strongSelf.getStoredDescription() else {
+                return
+            }
+            DispatchQueue.main.async {work(storedDescription)}
+        }
+    }
+    
+    func getStoredImage(execute work: @escaping CompletionImageHandler) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self , let storedImage = strongSelf.getStoredImage() else {
+                return
+            }
+
+            DispatchQueue.main.async {work(storedImage)}
+        }
+    }
+    
+    //MARK: - Serial Getters
+    
+    private func getStoredName() -> String? {
         //if profileName != nil {return profileName}
         do {
             let storedName = try String(contentsOf: storedNameURL)
@@ -141,9 +202,10 @@ class DataManager/*: Operation*/ {
         }
     }
     
-    func getStoredDescription() -> String? {
+    private func getStoredDescription() -> String? {
         //if profileDescription != nil {return profileDescription}
         do {
+            
             let storedDescription = try String(contentsOf: storedDescriptionURL)
             print("description restored")
             return storedDescription
@@ -153,14 +215,14 @@ class DataManager/*: Operation*/ {
         }
     }
     
-    func getStoredImage() -> UIImage? {
+    private func getStoredImage() -> UIImage? {
         //if profileImage != nil {return profileImage}
         do {
             let imageData = try Data(contentsOf: storedImageURL)
             
             guard let storedImage = UIImage(data: imageData) else {
                 print("image wtf1")
-                return profileImage ?? DataManager.defaultImage
+                return profileImage
             }
             
             print("image restored")
@@ -169,7 +231,5 @@ class DataManager/*: Operation*/ {
             print("image wtf2")
             return profileImage
         }
-        
-
     }
 }

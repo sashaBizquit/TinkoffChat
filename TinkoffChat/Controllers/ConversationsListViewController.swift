@@ -148,6 +148,10 @@ class ConversationsListViewController: UITableViewController, ThemesViewControll
         //currentBar.backgroundColor = UIColor.gray
         currentBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: selectedTheme.tintColor]
         print("Theme: [\(selectedTheme.backgroundColor!)] & [\(selectedTheme.tintColor!)]")
+        //selectedTheme.tintColor
+        DispatchQueue.global(qos: .userInitiated).async {
+            <#code#>
+        }
         
 //        //attempt to save (failed)
 //        let defaults = UserDefaults.standard
