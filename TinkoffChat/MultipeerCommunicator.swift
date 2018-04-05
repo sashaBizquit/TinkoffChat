@@ -20,21 +20,68 @@ protocol CommunicatorDelegate {
 }
 
 protocol Communicator {
-    func sendMessage(string: String, to userID: String, completionHandler: ((_ success: Bool, _ error: Error)->())?)
+    func sendMessage(string: String, to userID: String, completionHandler: ((_ success: Bool, _ error: Error?)->())?)
     var delegate: CommunicatorDelegate? {get set}
     var online: Bool {get set}
 }
 
 class MultipeerCommunicator: NSObject, Communicator {
     
-    var delegate: CommunicatorDelegate?
+    var delegate: CommunicatorDelegate? {
+        didSet {
+            self.serviceAdvertiser.startAdvertisingPeer()
+            self.serviceBrowser.startBrowsingForPeers()
+        }
+    }
+    
+    private var sessions = [MCPeerID:MCSession]()
     var online: Bool
     private var serviceAdvertiser : MCNearbyServiceAdvertiser!
     private var serviceBrowser : MCNearbyServiceBrowser!
     private let serviceType = "tinkoff-chat"
     private let myPeerId = MCPeerID(displayName: "Lykov Aleksandr")
     
-    func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error) -> ())?) {
+    func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
+        let jsonObject: [String:String]  = [
+            "eventType": "TextMessage",
+            "text": string,
+            "messageId": generateMessageId()
+        ]
+
+        if JSONSerialization.isValidJSONObject(jsonObject) {
+            do {
+                var tuple: (MCPeerID, MCSession)?
+                for elem in sessions {
+                    if elem.key.displayName == userID {
+                        tuple = (elem.key, elem.value)
+                    }
+                }
+                if let strongTuple = tuple {
+                    let data = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
+                    try strongTuple.1.send(data, toPeers: [strongTuple.0], with: .reliable)
+                    completionHandler?(true, nil)
+                }
+                else {completionHandler?(false, NSError(domain: "Сессия для \(userID) не найдена", code: -1, userInfo: nil)) }
+            }
+            catch {
+                completionHandler?(false, error)
+            }
+        }
+        else {
+            completionHandler?(false, NSError(domain: "Объект JSON не был создан", code: -2, userInfo: nil))
+        }
+    }
+    
+    private func addSession(forId userId: MCPeerID) -> MCSession {
+        for elem in sessions {
+            if elem.key.displayName == userId.displayName {
+                return elem.value
+            }
+        }
+        let session = MCSession(peer: self.myPeerId)
+        session.delegate = self
+        sessions[userId] = session
+        return session
     }
     
     override init() {
@@ -48,10 +95,7 @@ class MultipeerCommunicator: NSObject, Communicator {
         self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: serviceType)
         
         self.serviceAdvertiser.delegate = self
-        self.serviceAdvertiser.startAdvertisingPeer()
-        
         self.serviceBrowser.delegate = self
-        self.serviceBrowser.startBrowsingForPeers()
     }
     
     func generateMessageId() -> String {
@@ -61,83 +105,63 @@ class MultipeerCommunicator: NSObject, Communicator {
 
 extension MultipeerCommunicator : MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        print("didReceiveInvitationFromPeer \(peerID)")
-        //invitationHandler(true, self.session)
+        
+        let session = addSession(forId: peerID)
+        invitationHandler(online, session)
     }
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
-        print("didNotStartAdvertisingPeer: \(error)")
+        delegate?.failedToStartAdvertising(error: error)
     }
 }
 
 extension MultipeerCommunicator : MCNearbyServiceBrowserDelegate {
 
     func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
-        print("didNotStartBrowsingForPeers: \(error)")
+        delegate?.failedToStartBrowsingForUsers(error: error)
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-        if let peerName = info?["userName"] {
-            let session = MCSession(peer: self.myPeerId)
-            session.delegate = self
-            print("foundPeer: \(peerName)")
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
-        }
-        print("foundPeer: \(peerID)")
+        let session = addSession(forId: peerID)
+        browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
+        delegate?.didFoundUser(userID: peerID.displayName, userName: info?["userName"])
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-        print("lostPeer: \(peerID)")
+        delegate?.didLostUser(userID: peerID.displayName)
     }
 }
 
 extension MultipeerCommunicator : MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-//        if peerID == peerId {
-//            if state != .connected { return}
-//            if flag {return}
-//            flag = true
-//            let jsonObject: [String:String]  = [
-//                "eventType": "TextMessage",
-//                "text": "ЛЫКОВ",
-//                "messageId": gen()
-//            ]
-//
-//            if JSONSerialization.isValidJSONObject(jsonObject) {
-//                do {
-//
-//                    let data = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
-//                    print("yes json")
-//                    try session.send(data, toPeers: [peerID], with: .unreliable)
-//                    print("yes send")
-//                }
-//                catch {
-//                    print(error)
-//                }
-//            }
-//        }
-        print("\(peerID) didChangeState")
+        switch state {
+        case .connected:
+            delegate?.didFoundUser(userID: peerID.displayName, userName: nil)
+            break
+        case .notConnected:
+            delegate?.didLostUser(userID: peerID.displayName)
+            break
+        default:
+            break
+        }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-//        if peerID == peerId {
-//            //let jsonString = String(data: data, encoding: .utf8)
-//            do {
-//
-//                let dict = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: String]
-//                print("готов парсить")
-//                if let text = dict?["text"] {
-//                    print("тЕКСТ")
-//                    print("ПОЛУЧИЛ: \(text)")
-//                }
-//            }
-//            catch {
-//                print("ошибочка")
-//                print(error)
-//            }
-//
-//        }
+        
+        do {
+            let dict = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: String]
+            if let text = dict?["text"] {
+                delegate?.didReceiveMessage(text: text, fromUser: peerID.displayName, toUser: "")
+            }
+            else {
+                print("мне прислали кал")
+            }
+        }
+        catch {
+            print("ошибочка: \(error.localizedDescription)")
+        }
+        
         print("didReceiveData")
     }
 

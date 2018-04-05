@@ -25,33 +25,15 @@ class ConversationsListViewController: UITableViewController {
         case Online = "Онлайн", Offline = "Офлайн"
     }
     
-    private var dialogs: Conversations!
-    private func getConversations()-> Conversations {
-        return Conversations()
-    }
-    
-    private func getStoredTheme() -> Theme {
-        let backgroundColorPath = ConversationsListViewController.backgroundColorURL.path
-        let tintColorPath = ConversationsListViewController.tintColorURL.path
-        
-        let theme: Theme!
-        if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
-            let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
-            theme = Theme()
-            theme.backgroundColor = backgroundColor
-            theme.tintColor = tintColor
-        } else {
-            theme = Theme.sharedWhite()
-        }
-        return theme
-    }
+    private var conversations: Conversations = Conversations()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         logThemeChanging(selectedTheme: getStoredTheme())
         
-        dialogs = getConversations()
+        tableView.dataSource = conversations
+        conversations.tableViewController = self
         
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
         
@@ -76,39 +58,6 @@ class ConversationsListViewController: UITableViewController {
         self.title = ""
     }
     
-    // MARK: - Table view data source
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? dialogs.onlineConversations!.count : dialogs.offlineConversations!.count
-    }
-
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        var cell: ConversationListCell
-        if let dequeuedCell = tableView.dequeueReusableCell(withIdentifier: "conversationIdentifier", for: indexPath) as? ConversationListCell {
-            cell = dequeuedCell
-        } else {
-            cell = ConversationListCell()
-        }
-        let conversation = indexPath.section == 0 ?  dialogs.onlineConversations![indexPath.row] : dialogs.offlineConversations![indexPath.row]
-        
-        cell.name = conversation.interlocutor
-        cell.message = conversation.messages == nil ? ConversationListCell.noMessagesConst : conversation.lastMessage!.text
-        cell.date = conversation.lastMessage?.date
-        cell.hasUnreadMessages = conversation.hasUnreadMessages
-        cell.online = conversation.online
-
-        return cell
-    }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return section == 0 ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
-    }
-    
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -123,8 +72,9 @@ class ConversationsListViewController: UITableViewController {
                 let selectedIndex = tableView.indexPath(for: conversationCell) {
                 
                 conversationCell.hasUnreadMessages = false
-                let conversation = selectedIndex.section == 0 ? dialogs.onlineConversations![selectedIndex.row] : dialogs.offlineConversations![selectedIndex.row]
+                let conversation = selectedIndex.section == 0 ? conversations.onlineConversations![selectedIndex.row] : conversations.offlineConversations![selectedIndex.row]
                 conversationVC.conversation = conversation
+                //conversationVC.conversation.tableViewController = conversationVC
             }
         } else if segue.identifier == "toThemePicker",
             let navigationVC = segue.destination as? UINavigationController,
@@ -136,6 +86,7 @@ class ConversationsListViewController: UITableViewController {
             }
     }
     
+    // MARK: - Theme
     func saveTheme(selectedTheme: Theme) {
         DispatchQueue.global().async { [weak selectedTheme] in
             guard let strongTheme = selectedTheme else {return}
@@ -148,8 +99,24 @@ class ConversationsListViewController: UITableViewController {
             try? tintColorData.write(to: ConversationsListViewController.tintColorURL)
         }
     }
+    
+    private func getStoredTheme() -> Theme {
+        let backgroundColorPath = ConversationsListViewController.backgroundColorURL.path
+        let tintColorPath = ConversationsListViewController.tintColorURL.path
+        
+        let theme: Theme!
+        if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
+            let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
+            theme = Theme()
+            theme.backgroundColor = backgroundColor
+            theme.tintColor = tintColor
+        } else {
+            theme = Theme.sharedWhite()
+        }
+        return theme
+    }
+    
     // MARK: - ThemesViewControllerDelegate
-
     private func logThemeChanging(selectedTheme: Theme) {
         ThemesViewController.set(theme: selectedTheme, to: self.navigationController!.navigationBar)
         ThemesViewController.set(theme: selectedTheme, to: UINavigationBar.appearance())

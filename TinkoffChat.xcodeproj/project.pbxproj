@@ -67,7 +67,6 @@
 				2A83AE3620541812004AED5B /* ConversationListCell.swift */,
 				2A0E26E62074FC7600F61B8C /* Conversations.swift */,
 				2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */,
-				2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */,
 			);
 			path = ConversationListViewController;
 			sourceTree = "<group>";
@@ -124,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				2AFF7472203DD342006FF139 /* AppDelegate.swift */,
+				2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */,
 				2A0E26E32074E89400F61B8C /* ConversationListViewController */,
 				2A7DCC92206EC7D200627C9C /* ConversationViewController */,
 				2A7DCC90206EC77000627C9C /* ThemesViewController */,
