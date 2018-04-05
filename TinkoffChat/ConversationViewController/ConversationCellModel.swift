@@ -8,25 +8,17 @@
 
 import Foundation
 
-extension Array {
-    var showRandomElement: Element {
-        get {
-            return self[Int(arc4random_uniform(UInt32(self.count)))]
-        }
-    }
-}
-
 protocol ConversationCellConfiguration {
-    var name: String? {get set}
+    var name: String {get set}
     var message: String? {get set}
     var date: Date? {get set}
     var online: Bool {get set}
-    var hasUnreadMessages:Bool {get set}
+    var hasUnreadMessages: Bool {get set}
 }
 
 struct ConversationCellModel: ConversationCellConfiguration {
     
-    var name: String?
+    var name: String
     var message: String?
     var date: Date?
     var online = true
@@ -75,12 +67,21 @@ struct ConversationCellModel: ConversationCellConfiguration {
     }
     
     static func getNewConversation(online status: Bool, andNotRead isRead: Bool) -> ConversationCellModel? {
-        guard let someName = self.getName() else { return nil }
+        guard let someName = self.getName() else { print("нил"); return nil }
+        print("биз нила")
         return ConversationCellModel(name: someName,
                                      message: storedMessages.showRandomElement,
                                      date: storedDates.showRandomElement,
                                      online: status,
                                      hasUnreadMessages: isRead
         )
+    }
+}
+
+extension Array {
+    var showRandomElement: Element {
+        get {
+            return self[Int(arc4random_uniform(UInt32(self.count)))]
+        }
     }
 }

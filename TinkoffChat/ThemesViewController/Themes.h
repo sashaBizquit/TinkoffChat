@@ -9,6 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+@protocol ThemeProtocol
+    @property UIColor* backgroundColor;
+    @property UIColor* tintColor;
+@end
+
 @interface Theme : NSObject <NSCoding>
 @property (retain) UIColor* backgroundColor;
 @property (retain) UIColor* tintColor;
@@ -16,6 +21,7 @@
 + (instancetype)sharedWhiteTheme;
 + (instancetype)sharedBlackTheme;
 + (instancetype)sharedChampainTheme;
++ (void) setTheme: (Theme*) themeFrom to: (id<ThemeProtocol>) themeTo;
 @end
 
 @interface Themes : NSObject

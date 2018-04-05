@@ -8,8 +8,6 @@
 
 import UIKit
 
-typealias Message = (String, Bool)
-
 class ConversationViewController: UITableViewController {
     
     private let botMessage = "Я на выборы никогда не ходил, но в этот раз точно пойду за Грудинина голосовать. Кандидат от народа!"
@@ -18,6 +16,8 @@ class ConversationViewController: UITableViewController {
         ("Привет!", true),
         ("Пока!", false)
     ]
+    
+    var conversation: Conversation!
     
     var interlocutor: String?
 

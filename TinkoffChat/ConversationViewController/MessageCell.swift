@@ -28,13 +28,6 @@ class MessageCell: UITableViewCell {
         didSet {
             messageView.backgroundColor = isIncoming ? #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1) : #colorLiteral(red: 0.5563425422, green: 0.9793455005, blue: 0, alpha: 1)
             
-//            let margins = contentView.layoutMarginsGuide // обращение к contentView было до добавления messageView
-//            margins.bottomAnchor.constraint(equalTo: label.bottomAnchor).isActive = true // Работало
-//            margins.topAnchor.constraint(equalTo: label.topAnchor).isActive = true // Работало
-//            margins.leadingAnchor.constraint(equalTo: label.leadingAnchor).isActive = true // НЕ РАБОТАЛО
-//            // Пришлось делать через сториборд + аутлетить констрейнты
-
-
             if rightConstraint == nil {
                 rightConstraint = storedRight
             } else {

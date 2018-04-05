@@ -33,6 +33,7 @@ class ThemesViewController: UIViewController {
         themeDidChanged?(theme)
     }
     
+    
     static func set(theme newTheme: Theme, to bar: UINavigationBar) {
         bar.tintColor = newTheme.tintColor
         bar.barTintColor = newTheme.backgroundColor

@@ -19,7 +19,6 @@ class ConversationsListViewController: UITableViewController {
         return documentsDirectory.appendingPathComponent("profile-theme-tintColor")
     }
     
-    private let defaultsKey = "storedTheme"
     @IBOutlet weak var profileButton: UIButton!
     
     private var conversations: [SectionsNames: [ConversationCellModel]] = [.Online: [ConversationCellModel](), .Offline: [ConversationCellModel]()]
@@ -28,10 +27,15 @@ class ConversationsListViewController: UITableViewController {
         case Online = "Онлайн", Offline = "Офлайн"
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    private var dialogs: Conversations!
+    private func getConversations()-> Conversations {
+        return Conversations()
+    }
+    
+    private func getStoredTheme() -> Theme {
         let backgroundColorPath = ConversationsListViewController.backgroundColorURL.path
         let tintColorPath = ConversationsListViewController.tintColorURL.path
+        
         let theme: Theme!
         if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
             let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
@@ -41,15 +45,27 @@ class ConversationsListViewController: UITableViewController {
         } else {
             theme = Theme.sharedWhite()
         }
-        ThemesViewController.set(theme: theme, to: self.navigationController!.navigationBar)
-        self.logThemeChanging(selectedTheme: theme)
+        return theme
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
+        logThemeChanging(selectedTheme: getStoredTheme())
+        
+        // from - <
+        //dialogs = getConversations()
+        // from - >
+        
+        // to - <
         let boolArray = [true,false,true,true]
         outerloop: for status in boolArray {
             for readStatus in boolArray.reversed() {
                 if let newChat = ConversationCellModel.getNewConversation(online: status, andNotRead: readStatus) {
+                    print("шо то аппенд")
                     newChat.online ? conversations[.Online]!.append(newChat): conversations[.Offline]!.append(newChat)
                 } else {
+                    print("ни шо аппенд")
                     break outerloop
                 }
             }
@@ -58,16 +74,19 @@ class ConversationsListViewController: UITableViewController {
         conversations[.Online]!.sort {$0.date! > $1.date!}
         conversations[.Offline]!.sort {$0.date! > $1.date!}
         
+        // to - >
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
+        
+        // *
         let height = self.navigationController!.navigationBar.frame.size.height / CGFloat(2).squareRoot()
         profileButton.widthAnchor.constraint(equalToConstant: height).isActive = true
         profileButton.heightAnchor.constraint(equalToConstant: height).isActive = true
         profileButton.layer.masksToBounds = true
-        
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
         profileButton.layer.cornerRadius = profileButton.frame.width / 2.0
     }
     
@@ -125,7 +144,7 @@ class ConversationsListViewController: UITableViewController {
         } else if segue.identifier == "toConversation" {
             if let conversationVC = segue.destination as? ConversationViewController,
                 let conversation = sender as? ConversationListCell{
-                conversationVC.interlocutor = conversation.name!
+                conversationVC.interlocutor = conversation.name
                 conversation.hasUnreadMessages = false
                 if let message = conversation.message {
                     conversationVC.messages.insert((message, false), at: conversationVC.messages.endIndex)
@@ -162,6 +181,7 @@ class ConversationsListViewController: UITableViewController {
     // MARK: - ThemesViewControllerDelegate
 
     private func logThemeChanging(selectedTheme: Theme) {
+        ThemesViewController.set(theme: selectedTheme, to: self.navigationController!.navigationBar)
         ThemesViewController.set(theme: selectedTheme, to: UINavigationBar.appearance())
     }
 }

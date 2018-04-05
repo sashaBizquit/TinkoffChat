@@ -67,6 +67,11 @@
     return self;
 }
 
++ (void) setTheme: (Theme*) themeFrom to: (id<ThemeProtocol>)themeTo {
+    themeTo.backgroundColor = themeFrom.backgroundColor;
+    themeTo.tintColor = themeFrom.tintColor;
+}
+
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [aCoder encodeObject: _backgroundColor forKey: @"backgroundColor"];
     [aCoder encodeObject: _tintColor forKey: @"tintColor"];

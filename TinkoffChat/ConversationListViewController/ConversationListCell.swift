@@ -16,9 +16,9 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     
     static let noMessagesConst = "Сообщений пока нет"
     
-    var name: String? {
+    var name: String {
         get {
-            return nameLabel.text
+            return nameLabel.text!
         }
         set {
             nameLabel.text = newValue

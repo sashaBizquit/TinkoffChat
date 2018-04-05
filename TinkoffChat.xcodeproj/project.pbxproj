@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A0E26E52074E8D800F61B8C /* MultipeerCommunicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */; };
+		2A0E26E72074FC7600F61B8C /* Conversations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E26E62074FC7600F61B8C /* Conversations.swift */; };
+		2A0E26E92074FCC800F61B8C /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E26E82074FCC800F61B8C /* Conversation.swift */; };
 		2A2CBC1F2056A633007C98AA /* ConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2CBC1E2056A633007C98AA /* ConversationViewController.swift */; };
 		2A2CBC212057CABA007C98AA /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2CBC202057CABA007C98AA /* MessageCell.swift */; };
 		2A4ECBF7205437FC0091A040 /* ConversationCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */; };
@@ -24,6 +27,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipeerCommunicator.swift; sourceTree = "<group>"; };
+		2A0E26E62074FC7600F61B8C /* Conversations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversations.swift; sourceTree = "<group>"; };
+		2A0E26E82074FCC800F61B8C /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		2A2CBC1E2056A633007C98AA /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
 		2A2CBC202057CABA007C98AA /* MessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellModel.swift; sourceTree = "<group>"; };
@@ -55,6 +61,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A0E26E32074E89400F61B8C /* ConversationListViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2A83AE3620541812004AED5B /* ConversationListCell.swift */,
+				2A0E26E62074FC7600F61B8C /* Conversations.swift */,
+				2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */,
+				2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */,
+			);
+			path = ConversationListViewController;
+			sourceTree = "<group>";
+		};
 		2A7DCC90206EC77000627C9C /* ThemesViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -80,18 +97,11 @@
 			isa = PBXGroup;
 			children = (
 				2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */,
-				2A83AE3620541812004AED5B /* ConversationListCell.swift */,
+				2A0E26E82074FCC800F61B8C /* Conversation.swift */,
 				2A2CBC202057CABA007C98AA /* MessageCell.swift */,
 				2A2CBC1E2056A633007C98AA /* ConversationViewController.swift */,
 			);
 			path = ConversationViewController;
-			sourceTree = "<group>";
-		};
-		2A7DCC93206EC82800627C9C /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Controllers;
 			sourceTree = "<group>";
 		};
 		2AFF7466203DD342006FF139 = {
@@ -113,9 +123,8 @@
 		2AFF7471203DD342006FF139 /* TinkoffChat */ = {
 			isa = PBXGroup;
 			children = (
-				2A7DCC93206EC82800627C9C /* Controllers */,
 				2AFF7472203DD342006FF139 /* AppDelegate.swift */,
-				2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */,
+				2A0E26E32074E89400F61B8C /* ConversationListViewController */,
 				2A7DCC92206EC7D200627C9C /* ConversationViewController */,
 				2A7DCC90206EC77000627C9C /* ThemesViewController */,
 				2A7DCC91206EC79900627C9C /* ProfileViewController */,
@@ -154,7 +163,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0920;
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = Lykov;
 				TargetAttributes = {
 					2AFF746E203DD342006FF139 = {
@@ -200,8 +209,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A0E26E72074FC7600F61B8C /* Conversations.swift in Sources */,
 				2A83AE3720541812004AED5B /* ConversationListCell.swift in Sources */,
 				2AFF7475203DD342006FF139 /* ProfileViewController.swift in Sources */,
+				2A0E26E52074E8D800F61B8C /* MultipeerCommunicator.swift in Sources */,
+				2A0E26E92074FCC800F61B8C /* Conversation.swift in Sources */,
 				2A2CBC1F2056A633007C98AA /* ConversationViewController.swift in Sources */,
 				2A4ECBF7205437FC0091A040 /* ConversationCellModel.swift in Sources */,
 				2A9A3D8F2063FED40097F2E1 /* ThemesViewController.swift in Sources */,
@@ -250,6 +262,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -257,6 +270,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -284,7 +298,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -307,6 +321,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -314,6 +329,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -335,7 +351,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
