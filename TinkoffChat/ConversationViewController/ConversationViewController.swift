@@ -8,10 +8,11 @@
 
 import UIKit
 
-class ConversationViewController: UITableViewController {
+class ConversationViewController: UITableViewController, UITextViewDelegate{
     
     var conversation: Conversation!
     
+    @IBOutlet weak var messageTextView: UITextView!
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = conversation.interlocutor.userName ?? conversation.interlocutor.userId
@@ -32,5 +33,33 @@ class ConversationViewController: UITableViewController {
             tableView.rowHeight = UITableViewAutomaticDimension
             tableView.estimatedRowHeight = avgHeight
         }
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
+        self.view.addGestureRecognizer(tapGesture)
+        
+        self.messageTextView.delegate = self;
     }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if(text == "\n") {
+            textView.resignFirstResponder()
+            return false
+        }
+        return true
+    }
+    
+    @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
+        messageTextView.endEditing(true)
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if let text = textView.text  {
+            conversation.sendMessage(text: text)
+            textView.text = "Нажмите Enter, чтобы отправить"
+            conversation.messages?.append(Message(text: text, date: Date(), sender: User.me, isIncoming: false))
+            tableView.reloadData()
+        }
+
+    }
+
 }

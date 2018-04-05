@@ -50,8 +50,8 @@ class Conversations: NSObject {
     
     override init() {
         super.init()
-//        communicator = MultipeerCommunicator()
-//        communicator.delegate = self
+        communicator = MultipeerCommunicator()
+        communicator.delegate = self
 
         conversations = [Conversation]()
         

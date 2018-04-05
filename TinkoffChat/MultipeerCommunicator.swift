@@ -39,7 +39,7 @@ class MultipeerCommunicator: NSObject, Communicator {
     private var serviceAdvertiser : MCNearbyServiceAdvertiser!
     private var serviceBrowser : MCNearbyServiceBrowser!
     private let serviceType = "tinkoff-chat"
-    private let myPeerId = MCPeerID(displayName: "Lykov Aleksandr")
+    static let myPeerId = MCPeerID(displayName: "Lykov Aleksandr")
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
         let jsonObject: [String:String]  = [
@@ -78,7 +78,7 @@ class MultipeerCommunicator: NSObject, Communicator {
                 return elem.value
             }
         }
-        let session = MCSession(peer: self.myPeerId)
+        let session = MCSession(peer: MultipeerCommunicator.myPeerId)
         session.delegate = self
         sessions[userId] = session
         return session
@@ -88,11 +88,11 @@ class MultipeerCommunicator: NSObject, Communicator {
         online = true
         super.init()
         
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId,
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: MultipeerCommunicator.myPeerId,
                                                            discoveryInfo: ["userName": "Lykov Aleksandr"],
                                                            serviceType: serviceType)
         
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: serviceType)
+        self.serviceBrowser = MCNearbyServiceBrowser(peer: MultipeerCommunicator.myPeerId, serviceType: serviceType)
         
         self.serviceAdvertiser.delegate = self
         self.serviceBrowser.delegate = self

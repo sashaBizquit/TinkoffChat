@@ -105,9 +105,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <textView key="tableHeaderView" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Отправьте, нажав Enter" textAlignment="natural" id="qXx-VT-mGx">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="36"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" red="0.80778077411167515" green="0.80778077411167515" blue="0.80778077411167515" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        </textView>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="message" id="WWh-j6-zpA" customClass="MessageCell" customModule="TinkoffChat" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="320" height="44"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="WWh-j6-zpA" id="lji-7W-fDx">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -158,10 +165,13 @@
                             <outlet property="delegate" destination="dGt-GH-pLi" id="Rdu-xy-PPb"/>
                         </connections>
                     </tableView>
+                    <connections>
+                        <outlet property="messageTextView" destination="qXx-VT-mGx" id="fak-bP-Pb2"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8zh-20-x6E" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-257" y="469"/>
+            <point key="canvasLocation" x="-258.75" y="467.95774647887322"/>
         </scene>
         <!--Выберите тему-->
         <scene sceneID="so6-aP-fFh">

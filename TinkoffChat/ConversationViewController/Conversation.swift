@@ -18,6 +18,10 @@ struct Message {
 struct User {
     var userId: String
     var userName: String?
+    
+    static var me: User {
+        return User(userId: MultipeerCommunicator.myPeerId.displayName, userName: "Александр Лыков")
+    }
 }
 
 class Conversation: NSObject, UITableViewDataSource {
@@ -38,7 +42,7 @@ class Conversation: NSObject, UITableViewDataSource {
         online = status
     }
     
-    private func sendMessage(text: String) {
+    func sendMessage(text: String) {
         communicator?.sendMessage(string: text, to: interlocutor.userId) { flag, error in
             
         }
