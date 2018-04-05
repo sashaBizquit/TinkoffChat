@@ -18,36 +18,39 @@ struct Message {
 class Conversation {
     var interlocutor: String!
     var online: Bool = false
-    var messages: [Message]!
-    var lastMessage: Message {
-        return messages.last!
+    var hasUnreadMessages: Bool = false
+    var messages: [Message]?
+    var lastMessage: Message? {
+        return messages?.last
     }
     
     private let botMessage = "Я на выборы никогда не ходил, но в этот раз точно пойду за Грудинина голосовать. Кандидат от народа!"
     private func botInsert() {
         let lastViewed = messages!.popLast()!
-        messages.append(Message(text: botMessage + "\n" + botMessage + "\n" + botMessage, date: Date(), sender: "", isIncoming: true))
-        messages.append(Message(text: "Я", date: Date(), sender: "", isIncoming: false))
-        messages.append(Message(text: botMessage, date: Date(), sender: "", isIncoming: true))
-        messages.append(Message(text: botMessage, date: Date(), sender: "", isIncoming: false))
-        messages.append(Message(text: "Я", date: Date(), sender: "", isIncoming: true))
-        messages.append(Message(text: botMessage + "\n" + botMessage + "\n" + botMessage, date: Date(), sender: "", isIncoming: false))
+        messages!.append(Message(text: botMessage + "\n" + botMessage + "\n" + botMessage, date: Date(), sender: "", isIncoming: true))
+        messages!.append(Message(text: "Я", date: Date(), sender: "", isIncoming: false))
+        messages!.append(Message(text: botMessage, date: Date(), sender: "", isIncoming: true))
+        messages!.append(Message(text: botMessage, date: Date(), sender: "", isIncoming: false))
+        messages!.append(Message(text: "Я", date: Date(), sender: "", isIncoming: true))
+        messages!.append(Message(text: botMessage + "\n" + botMessage + "\n" + botMessage, date: Date(), sender: "", isIncoming: false))
         messages!.append(lastViewed)
     }
     
-    init?(withStatus status: Bool, andNotRead: Bool) {
-        guard let newChat = ConversationCellModel.getNewConversation(online: status, andNotRead: andNotRead) else {
+    init?(withStatus status: Bool, andNotRead readStatus: Bool) {
+        guard let newChat = ConversationCellModel.getNewConversation(online: status, andNotRead: readStatus) else {
             return nil
         }
-        messages = [Message]()
-        messages.append(Message(text: newChat.message, date: newChat.date, sender: newChat.name, isIncoming: true))
         
-        if newChat.message != nil {
-            self.botInsert()
+        if let message = newChat.message {
+            
+            messages = [Message]()
+            messages!.append(Message(text: message, date: newChat.date, sender: newChat.name, isIncoming: true))
+            botInsert()
         }
         
         interlocutor = newChat.name
         online = newChat.online
+        hasUnreadMessages = readStatus
     }
     
     init(withInterlocutor name: String, withStatus status: Bool) {

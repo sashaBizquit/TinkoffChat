@@ -21,8 +21,6 @@ class ConversationsListViewController: UITableViewController {
     
     @IBOutlet weak var profileButton: UIButton!
     
-    private var conversations: [SectionsNames: [ConversationCellModel]] = [.Online: [ConversationCellModel](), .Offline: [ConversationCellModel]()]
-    
     enum SectionsNames: String {
         case Online = "Онлайн", Offline = "Офлайн"
     }
@@ -53,31 +51,10 @@ class ConversationsListViewController: UITableViewController {
         
         logThemeChanging(selectedTheme: getStoredTheme())
         
-        // from - <
-        //dialogs = getConversations()
-        // from - >
+        dialogs = getConversations()
         
-        // to - <
-        let boolArray = [true,false,true,true]
-        outerloop: for status in boolArray {
-            for readStatus in boolArray.reversed() {
-                if let newChat = ConversationCellModel.getNewConversation(online: status, andNotRead: readStatus) {
-                    print("шо то аппенд")
-                    newChat.online ? conversations[.Online]!.append(newChat): conversations[.Offline]!.append(newChat)
-                } else {
-                    print("ни шо аппенд")
-                    break outerloop
-                }
-            }
-        }
-        
-        conversations[.Online]!.sort {$0.date! > $1.date!}
-        conversations[.Offline]!.sort {$0.date! > $1.date!}
-        
-        // to - >
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
         
-        // *
         let height = self.navigationController!.navigationBar.frame.size.height / CGFloat(2).squareRoot()
         profileButton.widthAnchor.constraint(equalToConstant: height).isActive = true
         profileButton.heightAnchor.constraint(equalToConstant: height).isActive = true
@@ -86,7 +63,6 @@ class ConversationsListViewController: UITableViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
         profileButton.layer.cornerRadius = profileButton.frame.width / 2.0
     }
     
@@ -103,11 +79,11 @@ class ConversationsListViewController: UITableViewController {
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return conversations.count
+        return 2
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? conversations[.Online]!.count : conversations[.Offline]!.count
+        return section == 0 ? dialogs.onlineConversations!.count : dialogs.offlineConversations!.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -118,13 +94,13 @@ class ConversationsListViewController: UITableViewController {
         } else {
             cell = ConversationListCell()
         }
-        let cellData = indexPath.section == 0 ? conversations[.Online]![indexPath.row] : conversations[.Offline]![indexPath.row]
+        let conversation = indexPath.section == 0 ?  dialogs.onlineConversations![indexPath.row] : dialogs.offlineConversations![indexPath.row]
         
-        cell.name = cellData.name
-        cell.message = cellData.message
-        cell.date = cellData.date
-        cell.hasUnreadMessages = cellData.hasUnreadMessages
-        cell.online = cellData.online
+        cell.name = conversation.interlocutor
+        cell.message = conversation.messages == nil ? ConversationListCell.noMessagesConst : conversation.lastMessage!.text
+        cell.date = conversation.lastMessage?.date
+        cell.hasUnreadMessages = conversation.hasUnreadMessages
+        cell.online = conversation.online
 
         return cell
     }
@@ -132,7 +108,7 @@ class ConversationsListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return section == 0 ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
     }
-
+    
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -143,27 +119,21 @@ class ConversationsListViewController: UITableViewController {
             }
         } else if segue.identifier == "toConversation" {
             if let conversationVC = segue.destination as? ConversationViewController,
-                let conversation = sender as? ConversationListCell{
-                conversationVC.interlocutor = conversation.name
-                conversation.hasUnreadMessages = false
-                if let message = conversation.message {
-                    conversationVC.messages.insert((message, false), at: conversationVC.messages.endIndex)
-                } else {
-                    conversationVC.messages.removeAll()
-                }
+                let conversationCell = sender as? ConversationListCell,
+                let selectedIndex = tableView.indexPath(for: conversationCell) {
+                
+                conversationCell.hasUnreadMessages = false
+                let conversation = selectedIndex.section == 0 ? dialogs.onlineConversations![selectedIndex.row] : dialogs.offlineConversations![selectedIndex.row]
+                conversationVC.conversation = conversation
             }
-        } else if segue.identifier == "toThemePicker" {
-            if let navigationVC = segue.destination as? UINavigationController {
-                if let themesVC = navigationVC.topViewController as? ThemesViewController {
+        } else if segue.identifier == "toThemePicker",
+            let navigationVC = segue.destination as? UINavigationController,
+            let themesVC = navigationVC.topViewController as? ThemesViewController {
                     themesVC.themeDidChanged = { [weak self] (theme: Theme) in
-                        if let strongSelf = self {
-                            strongSelf.logThemeChanging(selectedTheme: theme)
-                            strongSelf.saveTheme(selectedTheme: theme)
-                        }
+                        self?.logThemeChanging(selectedTheme: theme)
+                        self?.saveTheme(selectedTheme: theme)
                     }
-                }
             }
-        }
     }
     
     func saveTheme(selectedTheme: Theme) {

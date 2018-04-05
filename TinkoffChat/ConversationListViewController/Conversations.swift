@@ -44,8 +44,8 @@ class Conversations {
             }
         }
         conversations!.sort { first, second in
-            if let firstDate = first.lastMessage.date,
-                let secondDate = second.lastMessage.date {
+            if let firstDate = first.lastMessage?.date,
+                let secondDate = second.lastMessage?.date {
                 return firstDate > secondDate
             }
             return first.interlocutor > second.interlocutor

@@ -67,8 +67,9 @@ struct ConversationCellModel: ConversationCellConfiguration {
     }
     
     static func getNewConversation(online status: Bool, andNotRead isRead: Bool) -> ConversationCellModel? {
-        guard let someName = self.getName() else { print("нил"); return nil }
-        print("биз нила")
+        guard let someName = getName() else {
+                return nil
+        }
         return ConversationCellModel(name: someName,
                                      message: storedMessages.showRandomElement,
                                      date: storedDates.showRandomElement,
