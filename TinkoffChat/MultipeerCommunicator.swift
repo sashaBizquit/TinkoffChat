@@ -39,7 +39,8 @@ class MultipeerCommunicator: NSObject, Communicator {
     private var serviceAdvertiser : MCNearbyServiceAdvertiser!
     private var serviceBrowser : MCNearbyServiceBrowser!
     private let serviceType = "tinkoff-chat"
-    static let myPeerId = MCPeerID(displayName: "Lykov Aleksandr")
+    static let userName = "Lykov Aleksandr"
+    static let myPeerId = MCPeerID(displayName: MultipeerCommunicator.userName)
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
         let jsonObject: [String:String]  = [
@@ -58,7 +59,7 @@ class MultipeerCommunicator: NSObject, Communicator {
                 }
                 if let strongTuple = tuple {
                     let data = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
-                    try strongTuple.1.send(data, toPeers: [strongTuple.0], with: .reliable)
+                    try strongTuple.1.send(data, toPeers: [strongTuple.0], with: .unreliable)
                     completionHandler?(true, nil)
                 }
                 else {completionHandler?(false, NSError(domain: "Сессия для \(userID) не найдена", code: -1, userInfo: nil)) }
@@ -78,9 +79,11 @@ class MultipeerCommunicator: NSObject, Communicator {
                 return elem.value
             }
         }
-        let session = MCSession(peer: MultipeerCommunicator.myPeerId)
+        
+        let session = MCSession(peer: MultipeerCommunicator.myPeerId, securityIdentity: nil, encryptionPreference: .none)
         session.delegate = self
         sessions[userId] = session
+        print("добавил")
         return session
     }
     
@@ -89,7 +92,7 @@ class MultipeerCommunicator: NSObject, Communicator {
         super.init()
         
         self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: MultipeerCommunicator.myPeerId,
-                                                           discoveryInfo: ["userName": "Lykov Aleksandr"],
+                                                           discoveryInfo: ["userName": MultipeerCommunicator.userName],
                                                            serviceType: serviceType)
         
         self.serviceBrowser = MCNearbyServiceBrowser(peer: MultipeerCommunicator.myPeerId, serviceType: serviceType)
@@ -105,8 +108,9 @@ class MultipeerCommunicator: NSObject, Communicator {
 
 extension MultipeerCommunicator : MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        
+        if sessions.contains(where: {$0.key.displayName == peerID.displayName}) {print("advertiser - уже есть"); return}
         let session = addSession(forId: peerID)
+        print("online")
         invitationHandler(online, session)
     }
 
@@ -122,12 +126,17 @@ extension MultipeerCommunicator : MCNearbyServiceBrowserDelegate {
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
+        if sessions.contains(where: {$0.key.displayName == peerID.displayName}) {print("browser - уже есть"); return}
         let session = addSession(forId: peerID)
         browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
-        delegate?.didFoundUser(userID: peerID.displayName, userName: info?["userName"])
+        //delegate?.didFoundUser(userID: peerID.displayName, userName: info?["userName"])
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+        //print("lostUser")
+        if let index = sessions.index(where: {$0.key.displayName == peerID.displayName}) {
+            sessions.remove(at: index)
+        }
         delegate?.didLostUser(userID: peerID.displayName)
     }
 }
@@ -139,9 +148,10 @@ extension MultipeerCommunicator : MCSessionDelegate {
         case .connected:
             delegate?.didFoundUser(userID: peerID.displayName, userName: nil)
             break
-        case .notConnected:
-            delegate?.didLostUser(userID: peerID.displayName)
-            break
+//        case .notConnected:
+//            print("notConnected")
+//            delegate?.didLostUser(userID: peerID.displayName)
+//            break
         default:
             break
         }
@@ -155,7 +165,7 @@ extension MultipeerCommunicator : MCSessionDelegate {
                 delegate?.didReceiveMessage(text: text, fromUser: peerID.displayName, toUser: "")
             }
             else {
-                print("мне прислали кал")
+                print("мне прислали не то")
             }
         }
         catch {

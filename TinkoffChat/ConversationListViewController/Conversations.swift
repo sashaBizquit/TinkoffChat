@@ -16,7 +16,7 @@ enum SectionsNames: String {
 class Conversations: NSObject {
     private var conversations: [Conversation]!
     weak var tableViewController: UITableViewController?
-    weak var communicator: MultipeerCommunicator!
+    var communicator: MultipeerCommunicator!
     
     var onlineConversations: [Conversation]? {
         guard let conv = conversations else {
@@ -39,12 +39,27 @@ class Conversations: NSObject {
         outerloop: for status in boolArray {
             for readStatus in boolArray.reversed() {
                 if let conversation = Conversation(withStatus: status, andNotRead: !readStatus) {
-                    conversation.communicator = communicator
+                    conversation.dialogs = self
+                    //conversation.communicator = communicator
                     conversations?.append(conversation)
                 } else {
                     break outerloop
                 }
             }
+        }
+    }
+    
+    func sortDialogs() {
+        conversations!.sort { first, second in
+            if let firstDate = first.lastActivityDate,
+                let secondDate = second.lastActivityDate {
+                return firstDate > secondDate
+            }
+            if let firstName = first.interlocutor.userName,
+                let secondName = second.interlocutor.userName {
+                return firstName > secondName
+            }
+            return first.interlocutor.userId > second.interlocutor.userId
         }
     }
     
@@ -57,17 +72,7 @@ class Conversations: NSObject {
         
         getTestConversations()
         
-        conversations!.sort { first, second in
-            if let firstDate = first.lastMessage?.date,
-                let secondDate = second.lastMessage?.date {
-                return firstDate > secondDate
-            }
-            if let firstName = first.interlocutor.userName,
-                let secondName = second.interlocutor.userName {
-                return firstName > secondName
-            }
-            return first.interlocutor.userId > second.interlocutor.userId
-        }
+        sortDialogs()
     }
 }
 
@@ -84,7 +89,6 @@ extension Conversations : UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         var cell: ConversationListCell
         if let dequeuedCell = tableView.dequeueReusableCell(withIdentifier: "conversationIdentifier", for: indexPath) as? ConversationListCell {
             cell = dequeuedCell
@@ -92,10 +96,10 @@ extension Conversations : UITableViewDataSource {
             cell = ConversationListCell()
         }
         let conversation = indexPath.section == 0 ?  onlineConversations![indexPath.row] : offlineConversations![indexPath.row]
-        
         cell.name = conversation.interlocutor.userName ?? conversation.interlocutor.userId
         cell.message = conversation.messages == nil ? ConversationListCell.noMessagesConst : conversation.lastMessage!.text
-        cell.date = conversation.lastMessage?.date
+        
+        cell.date = conversation.lastActivityDate
         cell.hasUnreadMessages = conversation.isUnread
         cell.online = conversation.online
         
@@ -113,27 +117,32 @@ extension Conversations : CommunicatorDelegate {
     func didFoundUser(userID: String, userName: String?) {
         let user = User(userId: userID, userName: userName)
         if let index = conversations.indexFor(user: user) {
-            if (conversations[index].online ==  true) {return}
+            if (conversations[index].online == true) {print("нашел добавленный онлайн");return}
             conversations[index].online = true
+            DispatchQueue.main.async { [weak self] in
+                self?.tableViewController?.tableView.reloadData()
+            }
         } else {
             let newUser = User(userId: userID, userName: userName)
             let newConversation = Conversation(withInterlocutor: newUser, andStatus: true)
-            newConversation.communicator = communicator
+            newConversation.dialogs = self
+
             conversations.append(newConversation)
-        }
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.tableViewController?.tableView.reloadSections([0], with: .right)
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.tableViewController?.tableView.reloadSections([0], with: .automatic)
+            }
         }
     }
     
     func didLostUser(userID: String) {
         let user = User(userId: userID, userName: nil)
         if let index = conversations.indexFor(user: user) {
-            if (conversations[index].online ==  false) {return}
+            if (conversations[index].online == false) {return}
             conversations[index].online = false
+            //conversations[index].tex
             DispatchQueue.main.async { [weak self] in
-                self?.tableViewController?.tableView.reloadSections([0], with: .left)
+                self?.tableViewController?.tableView.reloadData()
             }
         }
 
@@ -149,21 +158,21 @@ extension Conversations : CommunicatorDelegate {
     
     func didReceiveMessage(text: String, fromUser: String, toUser: String) {
         let user = User(userId: fromUser, userName: fromUser)
-        guard let index = onlineConversations!.indexFor(user: user) else {
+        guard let index = conversations.indexFor(user: user) else {
             print("didReceiveMessage NOT ONLINE")
             return
         }
-        let currentConversation = conversations[index]
-        if  currentConversation.messages == nil {
+        
+        if  conversations[index].messages == nil {
             conversations[index].messages = [Message]()
         }
+        let currentConversation = conversations[index]
         let newMessage = Message(text: text, date: Date(), sender: currentConversation.interlocutor, isIncoming: true)
         currentConversation.messages!.append(newMessage)
-        
+       
         DispatchQueue.main.async { [weak self] in
-            self?.tableViewController?.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
-            //self?.tableViewController?.tableView.reloadSections([0], with: .left)
-        
+            
+            self?.tableViewController?.tableView.reloadData()
             currentConversation.tableViewController?.tableView.reloadData()
         }
     }

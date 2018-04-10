@@ -34,19 +34,23 @@ class ConversationsListViewController: UITableViewController {
         
         tableView.dataSource = conversations
         conversations.tableViewController = self
-        
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
-        
-        let height = self.navigationController!.navigationBar.frame.size.height / CGFloat(2).squareRoot()
-        profileButton.widthAnchor.constraint(equalToConstant: height).isActive = true
-        profileButton.heightAnchor.constraint(equalToConstant: height).isActive = true
         profileButton.layer.masksToBounds = true
+
+        let height = self.navigationController!.navigationBar.frame.height
+        
+        profileButton.heightAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
+        profileButton.widthAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
+        profileButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        //self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         profileButton.layer.cornerRadius = profileButton.frame.width / 2.0
+
     }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -74,6 +78,7 @@ class ConversationsListViewController: UITableViewController {
                 conversationCell.hasUnreadMessages = false
                 let conversation = selectedIndex.section == 0 ? conversations.onlineConversations![selectedIndex.row] : conversations.offlineConversations![selectedIndex.row]
                 conversationVC.conversation = conversation
+                conversation.isUnread = false
                 //conversationVC.conversation.tableViewController = conversationVC
             }
         } else if segue.identifier == "toThemePicker",

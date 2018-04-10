@@ -52,14 +52,17 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
         messageTextView.endEditing(true)
     }
     
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        textView.text = ""
+    }
+    
     func textViewDidEndEditing(_ textView: UITextView) {
         if let text = textView.text  {
-            conversation.sendMessage(text: text)
-            textView.text = "Нажмите Enter, чтобы отправить"
-            conversation.messages?.append(Message(text: text, date: Date(), sender: User.me, isIncoming: false))
-            tableView.reloadData()
+            if text.count == 0 {return}
+            if conversation.online {
+                conversation.sendMessage(text: text)
+            }
+            textView.text = "Нажмите, чтобы написать сообщение"
         }
-
     }
-
 }

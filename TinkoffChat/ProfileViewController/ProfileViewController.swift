@@ -49,6 +49,11 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         rightButton.setTitleColor(.gray, for: .disabled)
         rightButton.layer.borderWidth = 1
         
+        bottomLine = CALayer()
+        bottomLine?.frame = CGRect(x: 0.0, y: nameTextField.frame.height - 1, width: nameTextField.frame.width, height: 1.0)
+        //bottomLine?.backgroundColor = UIColor.clear.cgColor
+        nameTextField.layer.addSublayer(bottomLine!)
+        
         nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
 
@@ -105,19 +110,18 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {
-            
-            guard let keyboardFrame = sender.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else {
-                return
-            }
-            
-            let keyboardHeight: CGFloat
-            if #available(iOS 11.0, *) {
-                keyboardHeight = keyboardFrame.cgRectValue.height - self.view.safeAreaInsets.bottom
-            } else {
-                keyboardHeight =  keyboardFrame.cgRectValue.height
-            }
-            
-            self.view.frame.origin.y = -1.0 * keyboardHeight
+        guard let keyboardFrame = sender.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else {
+            return
+        }
+        
+        let keyboardHeight: CGFloat
+        if #available(iOS 11.0, *) {
+            keyboardHeight = keyboardFrame.cgRectValue.height - self.view.safeAreaInsets.bottom
+        } else {
+            keyboardHeight =  keyboardFrame.cgRectValue.height
+        }
+        
+        self.view.frame.origin.y = -1.0 * keyboardHeight
     }
     
     @objc func keyboardWillHide(sender: NSNotification) {
@@ -125,12 +129,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        bottomLine = CALayer()
-        bottomLine?.frame = CGRect(x: 0.0, y: nameTextField.frame.height - 1, width: nameTextField.frame.width, height: 1.0)
-        //bottomLine?.backgroundColor = UIColor.clear.cgColor
-        nameTextField.layer.addSublayer(bottomLine!)
-        
         
         let imagesCornerRadius = CGFloat.minimum(editPhotoButton.frame.width, editPhotoButton.frame.height) / 2.0
         profileImageView.layer.cornerRadius = imagesCornerRadius
@@ -208,7 +206,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     
     private func gcdSave() {
         dataManager.save(nameTextField.text!, descriptionTextView.text!, profileImageView.image!)
-        self.inEditMode(false)
+        inEditMode(false)
         buttonsEnabled(equal: true)
     }
     
