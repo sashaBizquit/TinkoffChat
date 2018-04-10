@@ -48,7 +48,6 @@ class ConversationsListViewController: UITableViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         profileButton.layer.cornerRadius = profileButton.frame.width / 2.0
-
     }
     
     

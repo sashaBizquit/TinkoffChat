@@ -11,14 +11,14 @@ import Foundation
 typealias CompletionStringHandler = @convention(block) (_ result: String) -> Void
 typealias CompletionImageHandler = @convention(block) (_ result: UIImage) -> Void
 
-class GCDDataManager {
+class DataManager {
 
-    /*private /* (to do) */ */ static let defaultName = "Александр Лыков"
-    /*private /* (to do) */ */ static let defaultDescription = "Love 🇷🇺 Live in MSU, looking for iOS family 📟"
-    /*private /* (to do) */ */ static let defaultImage = #imageLiteral(resourceName: "placeholder-user")
-    /*private /* (to do) */ */ var profileName: String?
-    /*private /* (to do) */ */ var profileDescription: String?
-    /*private /* (to do) */ */ var profileImage: UIImage?
+    private static let defaultName = "Александр Лыков"
+    private static let defaultDescription = "Love 🇷🇺 Live in MSU, looking for iOS family 📟"
+    private static let defaultImage = #imageLiteral(resourceName: "placeholder-user")
+    private var profileName: String?
+    private var profileDescription: String?
+    private var profileImage: UIImage?
     private var profileId: UInt!
     weak var delegate: UIViewController!
     var isImageChanged = true
@@ -67,33 +67,8 @@ class GCDDataManager {
         alertController.addAction(cancelAction)
         
         DispatchQueue.main.async { [weak self, weak indicator] in
-            guard let strongSelf = self else { return }
             indicator?.removeFromSuperview()
-            strongSelf.delegate.present(alertController, animated: true, completion: nil)
-            
-            // < только ради ДЗ/ТЗ - потом удалить этот код
-            
-            // имя by контроллер = имя by память
-            strongSelf.getStoredName { [weak self] name in
-                guard let strongSelf = self,
-                       let profileVC = strongSelf.delegate as? ProfileViewController else { return }
-                profileVC.nameTextField.text = name
-            }
-            
-            // описание by контроллер = описание by память
-            strongSelf.getStoredDescription { [weak self] description in
-                guard let strongSelf = self,
-                    let profileVC = strongSelf.delegate as? ProfileViewController else { return }
-                profileVC.descriptionTextView.text = description
-            }
-            // картинка by контроллер = картинка by память
-            strongSelf.getStoredImage { [weak self] image in
-                guard let strongSelf = self,
-                    let profileVC = strongSelf.delegate as? ProfileViewController else { return }
-                profileVC.profileImageView.image = image
-            }
-            
-            // только ради ДЗ/ТЗ - потом удалить этот код >
+            self?.delegate.present(alertController, animated: true, completion: nil)
         }
     }
     
@@ -154,33 +129,10 @@ class GCDDataManager {
         self.profileImage = newImage
     }
     
-    //MARK: - Concurrent Getters
-    
-    func getStoredName(execute work: @escaping CompletionStringHandler) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let strongSelf = self , let storedName = strongSelf.getStoredName() else { return }
-            DispatchQueue.main.async{work(storedName)}
-        }
-    }
-    
-    func getStoredDescription(execute work: @escaping CompletionStringHandler) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let strongSelf = self , let storedDescription = strongSelf.getStoredDescription() else { return }
-            DispatchQueue.main.async {work(storedDescription)}
-        }
-    }
-    
-    func getStoredImage(execute work: @escaping CompletionImageHandler) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let strongSelf = self , let storedImage = strongSelf.getStoredImage() else { return }
-            DispatchQueue.main.async {work(storedImage)}
-        }
-    }
-    
     //MARK: - Serial Getters
     
-    private func getStoredName() -> String? {
-        //if profileName != nil {return profileName}
+    func getStoredName() -> String? {
+        if profileName != nil {return profileName}
         do {
             let storedName = try String(contentsOf: storedNameURL)
             return storedName
@@ -189,8 +141,8 @@ class GCDDataManager {
         }
     }
     
-    private func getStoredDescription() -> String? {
-        //if profileDescription != nil {return profileDescription}
+    func getStoredDescription() -> String? {
+        if profileDescription != nil {return profileDescription}
         do {
             let storedDescription = try String(contentsOf: storedDescriptionURL)
             return storedDescription
@@ -199,8 +151,8 @@ class GCDDataManager {
         }
     }
     
-    private func getStoredImage() -> UIImage? {
-        //if profileImage != nil {return profileImage}
+    func getStoredImage() -> UIImage? {
+        if profileImage != nil {return profileImage}
         do {
             let imageData = try Data(contentsOf: storedImageURL)
             guard let storedImage = UIImage(data: imageData) else {

@@ -14,44 +14,34 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBOutlet weak var editPhotoButton: UIButton!
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var nameTextField: UITextField!
-    @IBOutlet weak var leftButton: UIButton!
-    @IBOutlet weak var rightButton: UIButton!
+    @IBOutlet weak var editButton: UIButton!
     
-    private var dataManager: GCDDataManager!
+    private var dataManager: DataManager!
     
     var id: UInt = 0
     private var bottomLine: CALayer?
     
     override func viewDidLoad() {
         
-        dataManager = GCDDataManager(withId: id)
+        dataManager = DataManager(withId: id)
         dataManager.delegate = self
         
         nameTextField.delegate = self
-        nameTextField.text = dataManager.profileName ?? GCDDataManager.defaultName //dataManager.getStoredName() /* (to do) */
+        nameTextField.text = dataManager.getStoredName()
         
         descriptionTextView.delegate = self
-        descriptionTextView.text = dataManager.profileDescription ?? GCDDataManager.defaultDescription //dataManager.getStoredDescription() /* (to do) */
+        descriptionTextView.text = dataManager.getStoredDescription()
         descriptionTextView.layer.borderWidth = 1
         descriptionTextView.layer.borderColor = UIColor.clear.cgColor
         
-        if dataManager.profileImage != nil {
-            dataManager.isImageChanged = false
-        }
+        profileImageView.image = dataManager.getStoredImage()
         
-        profileImageView.image = dataManager.profileImage ?? GCDDataManager.defaultImage //dataManager.getStoredImage() /* (to do) */
-        
-        leftButton.layer.borderWidth = 1
-        leftButton.setTitleColor(.gray, for: .disabled)
-        leftButton.titleLabel?.text = "Редактировать"
-        
-        rightButton.isHidden = true
-        rightButton.setTitleColor(.gray, for: .disabled)
-        rightButton.layer.borderWidth = 1
-        
+        editButton.layer.borderWidth = 1
+        editButton.setTitleColor(.gray, for: .disabled)
+        editButton.titleLabel?.text = "Редактировать"
+
         bottomLine = CALayer()
         bottomLine?.frame = CGRect(x: 0.0, y: nameTextField.frame.height - 1, width: nameTextField.frame.width, height: 1.0)
-        //bottomLine?.backgroundColor = UIColor.clear.cgColor
         nameTextField.layer.addSublayer(bottomLine!)
         
         nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
@@ -74,17 +64,14 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     private func safeTrunc(of someString: String, offsetBy offset: Int) -> String {
-        
         let safeOffset = min(offset,someString.count)
         let index = someString.index(someString.startIndex, offsetBy: safeOffset)
         return String(someString[..<index])
     }
     
     private func buttonsEnabled(equal to: Bool) {
-        for button in [leftButton, rightButton] {
-            button?.isEnabled = to
-            button?.layer.borderColor = to ? UIColor.black.cgColor : UIColor.gray.cgColor
-        }
+        editButton?.isEnabled = to
+        editButton?.layer.borderColor = to ? UIColor.black.cgColor : UIColor.gray.cgColor
     }
     
     
@@ -137,12 +124,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         let inset = imagesCornerRadius * (1.0 - 1.0/sqrt(2.0))
         editPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(inset, inset, inset, inset)
         
-        let buttonsCornerRadius = leftButton.frame.height / 4.0
+        let buttonsCornerRadius = editButton.frame.height / 4.0
         descriptionTextView.layer.cornerRadius = buttonsCornerRadius
-        //descriptionTextView.setContentOffset(CGPoint(x: 0, y: 0), animated: false)
         
-        leftButton.layer.cornerRadius = buttonsCornerRadius
-        rightButton.layer.cornerRadius = buttonsCornerRadius
+        editButton.layer.cornerRadius = buttonsCornerRadius
     }
 
     @IBAction func editPhoto(_ sender: UIButton) {
@@ -194,57 +179,12 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         nameTextField.endEditing(false)
         descriptionTextView.endEditing(false)
         buttonsEnabled(equal: false)
-        rightButton.isHidden ? self.inEditMode(true) : gcdSave()
-    }
-    
-    @IBAction func rightButtonAction(_ sender: Any) {
-        nameTextField.endEditing(false)
-        descriptionTextView.endEditing(false)
-        buttonsEnabled(equal: false)
-        nsoSave()
+        editPhotoButton.isHidden ? self.inEditMode(true) : gcdSave()
     }
     
     private func gcdSave() {
         dataManager.save(nameTextField.text!, descriptionTextView.text!, profileImageView.image!)
         inEditMode(false)
-        buttonsEnabled(equal: true)
-    }
-    
-    private func nsoSave() {
-        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-        self.view.addSubview(activityIndicator)
-        activityIndicator.frame = self.view.bounds
-        activityIndicator.startAnimating()
-        let name, description: String?
-        if nameTextField.text != dataManager.profileName {
-            name = nameTextField.text
-            dataManager.profileName = name
-        }
-        else {
-            name = nil
-        }
-        if descriptionTextView.text != dataManager.profileDescription {
-            description = descriptionTextView.text
-            dataManager.profileDescription = description
-        }
-        else {
-            description = nil
-        }
-        
-        let saveOperation = OperationDataManager(withId: id,
-                                                 name: name,
-                                                 description: description,
-                                                 image: profileImageView.image)
-
-        saveOperation.delegate = self
-        saveOperation.indicator = activityIndicator
-        saveOperation.isImageChanged = dataManager.isImageChanged
-        dataManager.isImageChanged = false
-        dataManager.profileImage = profileImageView.image
-        
-        OperationQueue().addOperation(saveOperation)
-        
-        self.inEditMode(false)
         buttonsEnabled(equal: true)
     }
     
@@ -255,8 +195,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         descriptionTextView.isEditable = flag
         nameTextField.isEnabled = flag
         editPhotoButton.isHidden = !flag
-        leftButton.setTitle(flag ? "GCD" : "Редактировать", for: .normal)
-        rightButton.isHidden = !flag
+        editButton.setTitle(flag ? "Сохранить" : "Редактировать", for: .normal)
     }
     
     deinit {

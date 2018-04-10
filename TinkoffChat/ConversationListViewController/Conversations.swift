@@ -33,6 +33,20 @@ class Conversations: NSObject {
         let filteredConv = conv.filter {!$0.online}
         return filteredConv.count > 0 ? filteredConv : nil
     }
+
+    
+    override init() {
+        super.init()
+        communicator = MultipeerCommunicator()
+        communicator.delegate = self
+
+        conversations = [Conversation]()
+        
+        getTestConversations()
+        
+        sortDialogs()
+    }
+    
     
     private func getTestConversations() {
         let boolArray = [false,false,false]
@@ -62,18 +76,6 @@ class Conversations: NSObject {
             return first.interlocutor.userId > second.interlocutor.userId
         }
     }
-    
-    override init() {
-        super.init()
-        communicator = MultipeerCommunicator()
-        communicator.delegate = self
-
-        conversations = [Conversation]()
-        
-        getTestConversations()
-        
-        sortDialogs()
-    }
 }
 
 // MARK: - Table view data source
@@ -84,8 +86,8 @@ extension Conversations : UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let conversation = section == 0 ? onlineConversations?.count : offlineConversations?.count
-        return conversation ?? 0
+        let conversationLength = section == 0 ? onlineConversations?.count : offlineConversations?.count
+        return conversationLength ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -96,9 +98,9 @@ extension Conversations : UITableViewDataSource {
             cell = ConversationListCell()
         }
         let conversation = indexPath.section == 0 ?  onlineConversations![indexPath.row] : offlineConversations![indexPath.row]
+        
         cell.name = conversation.interlocutor.userName ?? conversation.interlocutor.userId
         cell.message = conversation.messages == nil ? ConversationListCell.noMessagesConst : conversation.lastMessage!.text
-        
         cell.date = conversation.lastActivityDate
         cell.hasUnreadMessages = conversation.isUnread
         cell.online = conversation.online
@@ -126,7 +128,6 @@ extension Conversations : CommunicatorDelegate {
             let newUser = User(userId: userID, userName: userName)
             let newConversation = Conversation(withInterlocutor: newUser, andStatus: true)
             newConversation.dialogs = self
-
             conversations.append(newConversation)
             
             DispatchQueue.main.async { [weak self] in
@@ -140,7 +141,6 @@ extension Conversations : CommunicatorDelegate {
         if let index = conversations.indexFor(user: user) {
             if (conversations[index].online == false) {return}
             conversations[index].online = false
-            //conversations[index].tex
             DispatchQueue.main.async { [weak self] in
                 self?.tableViewController?.tableView.reloadData()
             }

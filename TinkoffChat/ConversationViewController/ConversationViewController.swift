@@ -37,7 +37,15 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)
         
-        self.messageTextView.delegate = self;
+        
+        messageTextView.delegate = self
+        messageTextView.layer.masksToBounds = true
+        
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        self.messageTextView.layer.cornerRadius = self.messageTextView.layer.frame.height / 2.0
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {

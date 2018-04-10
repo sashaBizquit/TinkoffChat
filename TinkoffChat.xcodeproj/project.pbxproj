@@ -15,8 +15,7 @@
 		2A4ECBF7205437FC0091A040 /* ConversationCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */; };
 		2A83AE35205414FD004AED5B /* ConversationsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */; };
 		2A83AE3720541812004AED5B /* ConversationListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A83AE3620541812004AED5B /* ConversationListCell.swift */; };
-		2A992387206AF43B003B206A /* GCDDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A992386206AF43B003B206A /* GCDDataManager.swift */; };
-		2A992389206AF449003B206A /* OperationDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A992388206AF449003B206A /* OperationDataManager.swift */; };
+		2A992387206AF43B003B206A /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A992386206AF43B003B206A /* DataManager.swift */; };
 		2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A9A3D8C2063D1680097F2E1 /* Themes.m */; };
 		2A9A3D8F2063FED40097F2E1 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9A3D8E2063FED40097F2E1 /* ThemesViewController.swift */; };
 		2ADC828F20470BB600447C57 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2ADC828D20470BB600447C57 /* Main.storyboard */; };
@@ -35,8 +34,7 @@
 		2A4ECBF6205437FC0091A040 /* ConversationCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellModel.swift; sourceTree = "<group>"; };
 		2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsListViewController.swift; sourceTree = "<group>"; };
 		2A83AE3620541812004AED5B /* ConversationListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListCell.swift; sourceTree = "<group>"; };
-		2A992386206AF43B003B206A /* GCDDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDDataManager.swift; sourceTree = "<group>"; };
-		2A992388206AF449003B206A /* OperationDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationDataManager.swift; sourceTree = "<group>"; };
+		2A992386206AF43B003B206A /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		2A9A3D8C2063D1680097F2E1 /* Themes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Themes.m; sourceTree = "<group>"; };
 		2A9A3D8E2063FED40097F2E1 /* ThemesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesViewController.swift; sourceTree = "<group>"; };
 		2AB117C9205C6981000DB688 /* TinkoffChat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TinkoffChat-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -85,8 +83,7 @@
 		2A7DCC91206EC79900627C9C /* ProfileViewController */ = {
 			isa = PBXGroup;
 			children = (
-				2A992388206AF449003B206A /* OperationDataManager.swift */,
-				2A992386206AF43B003B206A /* GCDDataManager.swift */,
+				2A992386206AF43B003B206A /* DataManager.swift */,
 				2AFF7474203DD342006FF139 /* ProfileViewController.swift */,
 			);
 			path = ProfileViewController;
@@ -220,9 +217,8 @@
 				2A83AE35205414FD004AED5B /* ConversationsListViewController.swift in Sources */,
 				2AFF7473203DD342006FF139 /* AppDelegate.swift in Sources */,
 				2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */,
-				2A992387206AF43B003B206A /* GCDDataManager.swift in Sources */,
+				2A992387206AF43B003B206A /* DataManager.swift in Sources */,
 				2A2CBC212057CABA007C98AA /* MessageCell.swift in Sources */,
-				2A992389206AF449003B206A /* OperationDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

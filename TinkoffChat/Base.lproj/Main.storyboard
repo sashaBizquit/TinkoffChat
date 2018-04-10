@@ -293,23 +293,13 @@
                                 <rect key="frame" x="16" y="516" width="288" height="36"/>
                                 <subviews>
                                     <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CQZ-Z4-1Zg">
-                                        <rect key="frame" x="0.0" y="0.0" width="136" height="36"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="288" height="36"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                         <state key="normal" title="Редактировать">
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
                                         <connections>
                                             <action selector="leftButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qOP-e9-iwW"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WDu-Yo-eGk">
-                                        <rect key="frame" x="152" y="0.0" width="136" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                        <state key="normal" title="NSOperation">
-                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="rightButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="IXr-Wm-2Jd"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -345,11 +335,10 @@
                     </navigationItem>
                     <connections>
                         <outlet property="descriptionTextView" destination="I2T-4i-JhP" id="iMQ-eb-laq"/>
+                        <outlet property="editButton" destination="CQZ-Z4-1Zg" id="7nw-fi-HYx"/>
                         <outlet property="editPhotoButton" destination="Rct-Mw-63F" id="1Db-WN-fEv"/>
-                        <outlet property="leftButton" destination="CQZ-Z4-1Zg" id="7nw-fi-HYx"/>
                         <outlet property="nameTextField" destination="3hm-gL-QpS" id="NMa-uw-wy6"/>
                         <outlet property="profileImageView" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
-                        <outlet property="rightButton" destination="WDu-Yo-eGk" id="gS9-xo-X1N"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
