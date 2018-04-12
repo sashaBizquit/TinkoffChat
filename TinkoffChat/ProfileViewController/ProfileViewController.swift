@@ -19,7 +19,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     private var dataManager: DataManager!
 
     var id: String = User.me.id
-    private var bottomLine: CALayer?
+    private var textFieldBottomLine: CALayer?
     
     override func viewDidLoad() {
         
@@ -41,16 +41,18 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
                     self?.photoImageView.image = image
                 }
             }
-            
         }
         
         editButton.layer.borderWidth = 1
         editButton.setTitleColor(.gray, for: .disabled)
         editButton.titleLabel?.text = "Редактировать"
 
-        bottomLine = CALayer()
-        bottomLine?.frame = CGRect(x: 0.0, y: nameTextField.frame.height - 1, width: nameTextField.frame.width, height: 1.0)
-        nameTextField.layer.addSublayer(bottomLine!)
+        textFieldBottomLine = CALayer()
+        textFieldBottomLine?.frame = CGRect(x: 0.0,
+                                            y: nameTextField.frame.height - 1,
+                                            width: nameTextField.frame.width,
+                                            height: 1.0)
+        nameTextField.layer.addSublayer(textFieldBottomLine!)
         
         nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -198,7 +200,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     
     private func inEditMode(_ flag: Bool) {
         let color = flag ? UIColor.black.cgColor : UIColor.white.cgColor
-        bottomLine?.backgroundColor = color
+        textFieldBottomLine?.backgroundColor = color
         infoTextView.layer.borderColor = color
         infoTextView.isEditable = flag
         nameTextField.isEnabled = flag
@@ -229,12 +231,7 @@ extension ProfileViewController: UIImagePickerControllerDelegate {
         let image = photoImageView.image
         DispatchQueue.global(qos: .background).async { [weak self, weak image] in
             if let newImage = image {
-                do {
-                    try self?.dataManager.saveImage(newImage)
-                    print("сохранили")
-                } catch {
-                    print("слились")
-                }
+                try? self?.dataManager.saveImage(newImage)
             }
         }
         dismiss(animated: true, completion: nil)

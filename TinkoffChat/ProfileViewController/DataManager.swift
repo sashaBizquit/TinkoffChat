@@ -100,15 +100,12 @@ class DataManager {
     //MARK: - Photo Manager
     
     func saveImage(_ newImage: UIImage) throws {
-        
         if !isImageChanged { return }
         
         guard let newImageData = UIImagePNGRepresentation(newImage) else {
             throw NSError(domain: "Can't convert new image", code: -1, userInfo: nil)
         }
-        
         try newImageData.write(to: AppDelegate.getStoredImageURLForUser(withId: user.id), options: .atomic)
-        print("пикча сохранилась в документсах")
         isImageChanged = false
     }
 }

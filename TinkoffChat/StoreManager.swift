@@ -70,15 +70,12 @@ class StoreManager {
     fileprivate func performSave(context: NSManagedObjectContext, completionHandler: (()->Void)?) {
         
         guard context.hasChanges else {
-            print("Изменений нет")
             completionHandler?()
             return
         }
-        print("Изменения нашел")
         context.perform { [weak self] in
             do {
                 try context.save()
-                print("Сохранил")
             } catch  {
                 print("Context save error:\(error)")
             }
@@ -100,7 +97,6 @@ extension StoreManager {
             currentUser = appUser?.currentUser
         }
         else {
-            
             currentUser = AnyUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
         }
         
@@ -112,8 +108,6 @@ extension StoreManager {
         newUser.name = user.name
         newUser.info = user.info
         newUser.photoPath = user.photoURL?.path
-        
-        save{print("везде сохранилось")}
         return true
     }
     
@@ -189,7 +183,6 @@ extension AppUser {
         } catch {
             print("Failed to fetch AppUser: \(error)")
         }
-        
         if appUser == nil {
             appUser = AppUser.insertAppUser(in: context)
         }
@@ -198,7 +191,6 @@ extension AppUser {
     
     static func insertAppUser(in context: NSManagedObjectContext) -> AppUser? {
         guard let appUser = NSEntityDescription.insertNewObject(forEntityName: "AppUser", into: context) as? AppUser else {
-            print("Не создали Ентити")
             return nil
         }
         

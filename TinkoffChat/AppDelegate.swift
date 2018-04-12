@@ -21,9 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             User.me.name = "Александр Лыков"
             User.me.info = "MSU = 🧠, Tinkoff = 💛"
             
-            if newManager.put(user: User.me, current: true) {
-                print("AppDelegate: User.me saved!")
-            }
+            let _ = newManager.put(user: User.me, current: true)
         }
        
         AppDelegate.storeManager = newManager

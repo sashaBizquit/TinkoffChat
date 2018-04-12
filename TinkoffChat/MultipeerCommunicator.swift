@@ -148,10 +148,6 @@ extension MultipeerCommunicator : MCSessionDelegate {
         case .connected:
             delegate?.didFoundUser(userID: peerID.displayName, userName: nil)
             break
-//        case .notConnected:
-//            print("notConnected")
-//            delegate?.didLostUser(userID: peerID.displayName)
-//            break
         default:
             break
         }
@@ -164,12 +160,10 @@ extension MultipeerCommunicator : MCSessionDelegate {
             if let text = dict?["text"] {
                 delegate?.didReceiveMessage(text: text, fromUser: peerID.displayName, toUser: "")
             }
-            else {
-                print("мне прислали не то")
-            }
+
         }
         catch {
-            print("ошибочка: \(error.localizedDescription)")
+            print("Error: \(error.localizedDescription)")
         }
         
         print("didReceiveData")

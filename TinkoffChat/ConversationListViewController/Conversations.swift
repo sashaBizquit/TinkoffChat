@@ -119,7 +119,7 @@ extension Conversations : CommunicatorDelegate {
     func didFoundUser(userID: String, userName: String?) {
         let user = User(id: userID, name: userName)
         if let index = conversations.indexFor(user: user) {
-            if (conversations[index].online == true) {print("нашел добавленный онлайн");return}
+            if (conversations[index].online == true) {return}
             conversations[index].online = true
             DispatchQueue.main.async { [weak self] in
                 self?.tableViewController?.tableView.reloadData()
@@ -171,7 +171,6 @@ extension Conversations : CommunicatorDelegate {
         currentConversation.messages!.append(newMessage)
        
         DispatchQueue.main.async { [weak self] in
-            
             self?.tableViewController?.tableView.reloadData()
             currentConversation.tableViewController?.tableView.reloadData()
         }
