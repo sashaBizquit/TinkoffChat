@@ -23,11 +23,17 @@ struct User {
     static var me: User {
         return User(id: MultipeerCommunicator.myPeerId.displayName, name: MultipeerCommunicator.userName)
     }
-    init(id newID: String, name newName: String?) {
-        id = newID
+    init(id newId: String, name newName: String?) {
+        id = newId
         name = newName
         info = nil
         photoURL = nil
+    }
+    init(id newId: String, name newName: String?, photoURL url: URL?, info newInfo: String?) {
+        id = newId
+        name = newName
+        info = newInfo
+        photoURL = url
     }
 }
 

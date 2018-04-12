@@ -10,19 +10,19 @@ import Foundation
 import CoreData
 
 class StoreManager {
-    var storeURL: URL {
+    private var storeURL: URL {
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return documentsURL.appendingPathComponent("MyStore.sqlite")
     }
-    let dataModelName = "MyDataModel"
-    let dataModelExtension = "momd"
+    private let dataModelName = "MyDataModel"
+    private let dataModelExtension = "momd"
     
-    lazy var managedObjectModel: NSManagedObjectModel = {
+    private lazy var managedObjectModel: NSManagedObjectModel = {
         let modelURL = Bundle.main.url(forResource: dataModelName, withExtension: dataModelExtension)!
         return NSManagedObjectModel(contentsOf: modelURL)!
     }()
     
-    lazy var persistantStoreCoordinator: NSPersistentStoreCoordinator = {
+    private lazy var persistantStoreCoordinator: NSPersistentStoreCoordinator = {
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
         
         do {
@@ -36,7 +36,7 @@ class StoreManager {
         return coordinator
     }()
     
-    lazy var masterContext: NSManagedObjectContext = {
+    private lazy var masterContext: NSManagedObjectContext = {
         var masterContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         
         masterContext.persistentStoreCoordinator = persistantStoreCoordinator
@@ -45,7 +45,7 @@ class StoreManager {
         return masterContext
     }()
     
-    lazy var mainContext: NSManagedObjectContext = {
+    private lazy var mainContext: NSManagedObjectContext = {
         var mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         
         mainContext.parent = masterContext
@@ -54,7 +54,7 @@ class StoreManager {
         return mainContext
     }()
     
-    lazy var saveContext: NSManagedObjectContext = {
+    private lazy var saveContext: NSManagedObjectContext = {
         var saveContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         
         saveContext.parent = mainContext
@@ -64,7 +64,7 @@ class StoreManager {
     }()
     
     
-    public func performSave(context:NSManagedObjectContext, completionHandler: (()->Void)?) {
+    fileprivate func performSave(context: NSManagedObjectContext, completionHandler: (()->Void)?) {
         guard !context.hasChanges else {
             completionHandler?()
             return
@@ -82,14 +82,83 @@ class StoreManager {
             self?.performSave(context: parent, completionHandler: completionHandler)
         }
     }
+}
 
+extension StoreManager {
+    func put(user: User, current: Bool) -> Bool {
+        let currentUser: AnyUser?
+        if current {
+            let appUser = AppUser.findOrInsertAppUser(in: saveContext)
+            currentUser = appUser?.currentUser
+        }
+        else {
+            currentUser = AnyUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
+        }
+        guard let newUser = currentUser else {
+            return false
+        }
+        
+        newUser.id = user.id
+        newUser.name = user.name
+        newUser.info = user.info
+        newUser.photoPath = user.photoURL?.path
+        return true
+    }
+    
+    func getUser(withId id: String) -> User? {
+        if let anyUser = AnyUser.findUser(withId: id, in: mainContext) {
+            let userURL = anyUser.photoPath != nil ? URL(fileURLWithPath: anyUser.photoPath!) : nil
+            return User(id: anyUser.id!,
+                        name: anyUser.name,
+                        photoURL: userURL,
+                        info: anyUser.info)
+        }
+        return nil
+    }
+    
+    func save(completionHandler: (()->Void)?) {
+        performSave(context: saveContext, completionHandler: completionHandler)
+    }
+}
+
+extension AnyUser {
+    
+    static func findUser(withId id: String, in context: NSManagedObjectContext) -> AnyUser? {
+        var anyUser: AnyUser?
+        let fetchRequset = NSFetchRequest<AnyUser>(entityName: "AnyUser")
+        fetchRequset.predicate = NSPredicate(format: "id == %@", id)
+        
+        do {
+            let results = try context.fetch(fetchRequset)
+            assert(results.count < 2, "Multiple AnyUsers found with id = \(id)!")
+            if let foundUser = results.first {
+                anyUser = foundUser
+            }
+        } catch {
+            print("Failed to fetch AnyUser with id = \(id): \(error)")
+        }
+        return anyUser
+    }
+    
+    static func findOrInsertAnyUser(withId id: String, in context: NSManagedObjectContext) -> AnyUser? {
+        var anyUser: AnyUser? = findUser(withId: id, in: context)
+        
+        if anyUser == nil {
+            anyUser = NSEntityDescription.insertNewObject(forEntityName: "AnyUser", into: context) as? AnyUser
+            anyUser?.id = id
+        }
+        
+        return anyUser
+    }
+}
+
+extension AppUser {
     
     static func findOrInsertAppUser(in context: NSManagedObjectContext) -> AppUser? {
         guard let model = context.persistentStoreCoordinator?.managedObjectModel else {
             assert(false, "Model is not avaliable in context!")
             return nil
         }
-        //AppUser(
         var appUser: AppUser?
         guard let fetchRequset = AppUser.fetchRequestAppUser(model: model) else {
             assert(false, "No such request!")
@@ -109,32 +178,14 @@ class StoreManager {
         }
         return appUser
     }
-}
-
-extension StoreManager {
-    func save(user: User) {
-        guard let anyUser = NSEntityDescription.insertNewObject(forEntityName: "AnyUser", into: saveContext) as? AnyUser else {
-            assert(false, "Can't create AnyUser!")
-            return
-        }
-        
-        anyUser.id = user.id
-        anyUser.info = user.info
-        anyUser.name = user.name
-        anyUser.photoURL = user.photoURL?.absoluteString
-        
-        self.performSave(context: saveContext, completionHandler: nil)
-    }
-}
-
-extension AppUser {
     
     static func insertAppUser(in context: NSManagedObjectContext) -> AppUser? {
         guard let appUser = NSEntityDescription.insertNewObject(forEntityName: "AppUser", into: context) as? AppUser else {
             return nil
         }
         if appUser.currentUser == nil {
-            
+            let currentUser = AnyUser.findOrInsertAnyUser(withId: User.me.id, in: context)
+            appUser.currentUser = currentUser
         }
         return appUser
     }
