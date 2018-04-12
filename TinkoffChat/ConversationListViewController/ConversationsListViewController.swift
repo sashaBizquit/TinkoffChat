@@ -35,14 +35,11 @@ class ConversationsListViewController: UITableViewController {
         tableView.dataSource = conversations
         conversations.tableViewController = self
         profileButton.layer.masksToBounds = true
-
-        let height = self.navigationController!.navigationBar.frame.height
         
+        let height = self.navigationController!.navigationBar.frame.height
         profileButton.heightAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
         profileButton.widthAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
         profileButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        //self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileButton)
     }
 
     override func viewDidLayoutSubviews() {
@@ -54,6 +51,8 @@ class ConversationsListViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.title = "TinkoffChat"
+        let image = AppDelegate.getStoredImageForUser(withId: User.me.id)
+        profileButton.setImage(image ?? #imageLiteral(resourceName: "placeholder-user"), for: .normal)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -67,7 +66,7 @@ class ConversationsListViewController: UITableViewController {
         if segue.identifier == "toProfile" {
             if let navigationVC = segue.destination as? UINavigationController,
                 let profileVC = navigationVC.topViewController as? ProfileViewController {
-                    profileVC.id = 0
+                    profileVC.id = User.me.id
             }
         } else if segue.identifier == "toConversation" {
             if let conversationVC = segue.destination as? ConversationViewController,

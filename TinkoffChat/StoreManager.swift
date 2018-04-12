@@ -14,7 +14,7 @@ class StoreManager {
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return documentsURL.appendingPathComponent("MyStore.sqlite")
     }
-    private let dataModelName = "MyDataModel"
+    private let dataModelName = "Storage"
     private let dataModelExtension = "momd"
     
     private lazy var managedObjectModel: NSManagedObjectModel = {
@@ -40,7 +40,8 @@ class StoreManager {
         var masterContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         
         masterContext.persistentStoreCoordinator = persistantStoreCoordinator
-        masterContext.mergePolicy = NSOverwriteMergePolicy
+        masterContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+        masterContext.undoManager = nil
         
         return masterContext
     }()
@@ -49,7 +50,8 @@ class StoreManager {
         var mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         
         mainContext.parent = masterContext
-        mainContext.mergePolicy = NSOverwriteMergePolicy
+        mainContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+        mainContext.undoManager = nil
         
         return mainContext
     }()
@@ -58,20 +60,25 @@ class StoreManager {
         var saveContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         
         saveContext.parent = mainContext
-        saveContext.mergePolicy = NSOverwriteMergePolicy
+        saveContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+        saveContext.undoManager = nil
         
         return saveContext
     }()
     
     
     fileprivate func performSave(context: NSManagedObjectContext, completionHandler: (()->Void)?) {
-        guard !context.hasChanges else {
+        
+        guard context.hasChanges else {
+            print("Изменений нет")
             completionHandler?()
             return
         }
+        print("Изменения нашел")
         context.perform { [weak self] in
             do {
                 try context.save()
+                print("Сохранил")
             } catch  {
                 print("Context save error:\(error)")
             }
@@ -88,12 +95,15 @@ extension StoreManager {
     func put(user: User, current: Bool) -> Bool {
         let currentUser: AnyUser?
         if current {
+            
             let appUser = AppUser.findOrInsertAppUser(in: saveContext)
             currentUser = appUser?.currentUser
         }
         else {
+            
             currentUser = AnyUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
         }
+        
         guard let newUser = currentUser else {
             return false
         }
@@ -102,6 +112,8 @@ extension StoreManager {
         newUser.name = user.name
         newUser.info = user.info
         newUser.photoPath = user.photoURL?.path
+        
+        save{print("везде сохранилось")}
         return true
     }
     
@@ -113,6 +125,7 @@ extension StoreManager {
                         photoURL: userURL,
                         info: anyUser.info)
         }
+        
         return nil
     }
     
@@ -134,6 +147,7 @@ extension AnyUser {
             if let foundUser = results.first {
                 anyUser = foundUser
             }
+            
         } catch {
             print("Failed to fetch AnyUser with id = \(id): \(error)")
         }
@@ -145,6 +159,8 @@ extension AnyUser {
         
         if anyUser == nil {
             anyUser = NSEntityDescription.insertNewObject(forEntityName: "AnyUser", into: context) as? AnyUser
+            print(context.hasChanges)
+            
             anyUser?.id = id
         }
         
@@ -173,6 +189,7 @@ extension AppUser {
         } catch {
             print("Failed to fetch AppUser: \(error)")
         }
+        
         if appUser == nil {
             appUser = AppUser.insertAppUser(in: context)
         }
@@ -181,10 +198,13 @@ extension AppUser {
     
     static func insertAppUser(in context: NSManagedObjectContext) -> AppUser? {
         guard let appUser = NSEntityDescription.insertNewObject(forEntityName: "AppUser", into: context) as? AppUser else {
+            print("Не создали Ентити")
             return nil
         }
+        
         if appUser.currentUser == nil {
             let currentUser = AnyUser.findOrInsertAnyUser(withId: User.me.id, in: context)
+            
             appUser.currentUser = currentUser
         }
         return appUser

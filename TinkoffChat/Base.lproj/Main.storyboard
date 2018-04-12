@@ -78,9 +78,9 @@
                                 <segue destination="8ks-vi-ICo" kind="presentation" identifier="toThemePicker" id="2Xh-f3-qNk"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" landscapeImage="placeholder-user" style="done" id="pDh-Fj-k7E">
+                        <barButtonItem key="rightBarButtonItem" title="Item" style="done" id="pDh-Fj-k7E">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="W1w-tc-YgJ">
-                                <rect key="frame" x="50" y="0.0" width="254" height="44"/>
+                                <rect key="frame" x="104" y="0.0" width="200" height="44"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                 <state key="normal" image="placeholder-user"/>
                                 <connections>

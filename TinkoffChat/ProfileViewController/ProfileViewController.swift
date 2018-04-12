@@ -17,24 +17,32 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBOutlet weak var editButton: UIButton!
     
     private var dataManager: DataManager!
-    
-    var id: UInt = 0
+
+    var id: String = User.me.id
     private var bottomLine: CALayer?
     
     override func viewDidLoad() {
         
         dataManager = DataManager(withId: id)
         dataManager.delegate = self
-        
+        let user = dataManager.getStoredUser()
         nameTextField.delegate = self
-        nameTextField.text = dataManager.getStoredName()
+        nameTextField.text = user?.name
         
         infoTextView.delegate = self
-        infoTextView.text = dataManager.getStoredDescription()
+        infoTextView.text = user?.info
         infoTextView.layer.borderWidth = 1
         infoTextView.layer.borderColor = UIColor.clear.cgColor
         
-        photoImageView.image = dataManager.getStoredImage()
+        self.photoImageView.image = #imageLiteral(resourceName: "placeholder-user")
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            if let image = AppDelegate.getStoredImageForUser(withId: self!.id) {
+                DispatchQueue.main.async {
+                    self?.photoImageView.image = image
+                }
+            }
+            
+        }
         
         editButton.layer.borderWidth = 1
         editButton.setTitleColor(.gray, for: .disabled)
@@ -217,6 +225,17 @@ extension ProfileViewController: UIImagePickerControllerDelegate {
             photoImageView.image = originalImage
             dataManager.isImageChanged = true
             buttonsEnabled(equal: true)
+        }
+        let image = photoImageView.image
+        DispatchQueue.global(qos: .background).async { [weak self, weak image] in
+            if let newImage = image {
+                do {
+                    try self?.dataManager.saveImage(newImage)
+                    print("сохранили")
+                } catch {
+                    print("слились")
+                }
+            }
         }
         dismiss(animated: true, completion: nil)
     }

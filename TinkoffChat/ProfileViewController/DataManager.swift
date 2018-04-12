@@ -9,34 +9,19 @@
 import Foundation
 
 class DataManager {
-    private var profileName: String?
-    private var profileInfo: String?
-    private var profilePhoto: UIImage?
-    private var profileId: UInt!
-    private let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     
-    private var storedNameURL: URL {
-        return documentsURL.appendingPathComponent("profile-\(profileId)-name")
-    }
-    private var storedDescriptionURL: URL {
-        return documentsURL.appendingPathComponent("profile-\(profileId)-description")
-    }
-    private var storedImageURL: URL {
-        return documentsURL.appendingPathComponent("profile-\(profileId)-image")
-    }
+    private var user: User!
     
     weak var delegate: UIViewController!
     var isImageChanged = true
     
     convenience init() {
-        self.init(withId: 0)
+        self.init(withId: User.me.id)
     }
     
-    init(withId id: UInt) {
-        profileId = id
-        profileName = getStoredName()
-        profileInfo = getStoredDescription()
-        profilePhoto = getStoredImage()
+    init(withId id: String) {
+        user = User(id: id, name: nil)
+        user.photoURL = AppDelegate.getStoredImageURLForUser(withId: id)
     }
     
     //MARK: - Saving Methods
@@ -58,7 +43,7 @@ class DataManager {
         }
     }
     
-    func save(_ name: String, _ description: String, _ image: UIImage) {
+    func save(_ name: String, _ info: String, _ image: UIImage) {
         let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         self.delegate.view.addSubview(activityIndicator)
         activityIndicator.frame = self.delegate.view.bounds
@@ -70,39 +55,51 @@ class DataManager {
             let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self, weak image] action in
                 guard let strongSelf = self else { return }
                 guard let strongImage = image else { return }
-                strongSelf.save(name, description, strongImage)
+                strongSelf.save(name, info, strongImage)
             }
             
-            do {
-                try strongSelf.saveName(name)
-                try strongSelf.saveDescription(description)
-                try strongSelf.saveImage(image)
-                strongSelf.savedMessage(withTitle: "Данные сохранены",
-                             message: nil,
-                             additionAction: nil,
-                             strongActivator)
-            } catch {
-                strongSelf.savedMessage(withTitle: "Ошибка",
-                             message: "Не удалось сохранить данные",
-                             additionAction: repeatAction,
-                             strongActivator)
+            var changesHappened = false
+            let currentUser = strongSelf.user!
+            if (currentUser.name != name) {
+                strongSelf.user.name = name
+                changesHappened = true
             }
+            if (currentUser.info != info) {
+                strongSelf.user.info = info
+                changesHappened = true
+            }
+            
+            if (changesHappened || strongSelf.isImageChanged) {
+                if AppDelegate.storeManager.put(user: strongSelf.user, current: false) {
+                    AppDelegate.storeManager.save { [weak self] in
+                        self?.savedMessage(withTitle: "Данные сохранены",
+                                                message: nil,
+                                                additionAction: nil,
+                                                strongActivator)
+                    }
+                }
+                else {
+                    strongSelf.savedMessage(withTitle: "Ошибка",
+                                            message: "Не удалось сохранить данные",
+                                            additionAction: repeatAction,
+                                            strongActivator)
+                }
+            }
+            
         }
     }
-        
-    private func saveName(_ newName: String) throws {
-        if self.profileName == newName { return }
-        try newName.write(to: storedNameURL, atomically: true, encoding: .utf8)
-        self.profileName = newName
+    
+
+    
+    //MARK: - User Getter
+    
+    func getStoredUser() -> User? {
+        return AppDelegate.storeManager.getUser(withId: user.id)
     }
     
-    private func saveDescription(_ newDescription: String) throws {
-        if self.profileInfo == newDescription { return }
-        try newDescription.write(to: storedDescriptionURL, atomically: true, encoding: .utf8)
-        self.profileInfo = newDescription
-    }
+    //MARK: - Photo Manager
     
-    private func saveImage(_ newImage: UIImage) throws {
+    func saveImage(_ newImage: UIImage) throws {
         
         if !isImageChanged { return }
         
@@ -110,43 +107,8 @@ class DataManager {
             throw NSError(domain: "Can't convert new image", code: -1, userInfo: nil)
         }
         
-        try newImageData.write(to: storedImageURL, options: .atomic)
+        try newImageData.write(to: AppDelegate.getStoredImageURLForUser(withId: user.id), options: .atomic)
+        print("пикча сохранилась в документсах")
         isImageChanged = false
-        self.profilePhoto = newImage
-    }
-    
-    //MARK: - Serial Getters
-    
-    func getStoredName() -> String? {
-        if profileName != nil {return profileName}
-        do {
-            let storedName = try String(contentsOf: storedNameURL)
-            return storedName
-        } catch {
-            return profileName
-        }
-    }
-    
-    func getStoredDescription() -> String? {
-        if profileInfo != nil {return profileInfo}
-        do {
-            let storedDescription = try String(contentsOf: storedDescriptionURL)
-            return storedDescription
-        } catch {
-            return profileInfo
-        }
-    }
-    
-    func getStoredImage() -> UIImage? {
-        if profilePhoto != nil {return profilePhoto}
-        do {
-            let imageData = try Data(contentsOf: storedImageURL)
-            guard let storedImage = UIImage(data: imageData) else {
-                return profilePhoto
-            }
-            return storedImage
-        } catch {
-            return profilePhoto
-        }
     }
 }

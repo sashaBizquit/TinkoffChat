@@ -20,9 +20,9 @@ struct User {
     var info: String?
     var photoURL: URL?
     var name: String?
-    static var me: User {
+    static var me: User  = {
         return User(id: MultipeerCommunicator.myPeerId.displayName, name: MultipeerCommunicator.userName)
-    }
+    }()
     init(id newId: String, name newName: String?) {
         id = newId
         name = newName
