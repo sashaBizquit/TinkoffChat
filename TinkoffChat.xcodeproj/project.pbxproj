@@ -144,8 +144,8 @@
 				2A7DCC90206EC77000627C9C /* ThemesViewController */,
 				2A7DCC91206EC79900627C9C /* ProfileViewController */,
 				2ADC828D20470BB600447C57 /* Main.storyboard */,
-				2AFF7479203DD342006FF139 /* Assets.xcassets */,
 				2AFF747B203DD342006FF139 /* LaunchScreen.storyboard */,
+				2AFF7479203DD342006FF139 /* Assets.xcassets */,
 				2AFF747E203DD342006FF139 /* Info.plist */,
 			);
 			path = TinkoffChat;

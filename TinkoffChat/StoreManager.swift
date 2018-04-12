@@ -67,23 +67,25 @@ class StoreManager {
     }()
     
     
-    fileprivate func performSave(context: NSManagedObjectContext, completionHandler: (()->Void)?) {
+    fileprivate func performSave(context: NSManagedObjectContext, completionHandler: ((Bool)->Void)?) {
         
         guard context.hasChanges else {
-            completionHandler?()
+            completionHandler?(true)
             return
         }
         context.perform { [weak self] in
             do {
                 try context.save()
+                guard let parent = context.parent else {
+                    completionHandler?(true)
+                    return
+                }
+                self?.performSave(context: parent, completionHandler: completionHandler)
             } catch  {
                 print("Context save error:\(error)")
+                completionHandler?(false)
             }
-            guard let parent = context.parent else {
-                completionHandler?()
-                return
-            }
-            self?.performSave(context: parent, completionHandler: completionHandler)
+
         }
     }
 }
@@ -92,7 +94,6 @@ extension StoreManager {
     func put(user: User, current: Bool) -> Bool {
         let currentUser: AnyUser?
         if current {
-            
             let appUser = AppUser.findOrInsertAppUser(in: saveContext)
             currentUser = appUser?.currentUser
         }
@@ -108,6 +109,7 @@ extension StoreManager {
         newUser.name = user.name
         newUser.info = user.info
         newUser.photoPath = user.photoURL?.path
+        save(completionHandler: nil)
         return true
     }
     
@@ -123,7 +125,7 @@ extension StoreManager {
         return nil
     }
     
-    func save(completionHandler: (()->Void)?) {
+    func save(completionHandler: ((Bool)->Void)?) {
         performSave(context: saveContext, completionHandler: completionHandler)
     }
 }
@@ -153,8 +155,6 @@ extension AnyUser {
         
         if anyUser == nil {
             anyUser = NSEntityDescription.insertNewObject(forEntityName: "AnyUser", into: context) as? AnyUser
-            print(context.hasChanges)
-            
             anyUser?.id = id
         }
         

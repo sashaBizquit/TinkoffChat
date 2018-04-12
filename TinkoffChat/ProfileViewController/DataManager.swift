@@ -71,21 +71,21 @@ class DataManager {
             
             if (changesHappened || strongSelf.isImageChanged) {
                 if AppDelegate.storeManager.put(user: strongSelf.user, current: false) {
-                    AppDelegate.storeManager.save { [weak self] in
-                        self?.savedMessage(withTitle: "Данные сохранены",
-                                                message: nil,
-                                                additionAction: nil,
-                                                strongActivator)
+                    AppDelegate.storeManager.save { [weak self] flag in
+                        if flag {
+                            self?.savedMessage(withTitle: "Данные сохранены",
+                                               message: nil,
+                                               additionAction: nil,
+                                               strongActivator)
+                        } else {
+                            strongSelf.savedMessage(withTitle: "Ошибка",
+                                                    message: "Не удалось сохранить данные",
+                                                    additionAction: repeatAction,
+                                                    strongActivator)
+                        }
                     }
                 }
-                else {
-                    strongSelf.savedMessage(withTitle: "Ошибка",
-                                            message: "Не удалось сохранить данные",
-                                            additionAction: repeatAction,
-                                            strongActivator)
-                }
             }
-            
         }
     }
     

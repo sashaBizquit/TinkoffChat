@@ -18,10 +18,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let newManager = StoreManager()
         if newManager.getUser(withId: User.me.id) == nil {
-            User.me.name = "Александр Лыков"
-            User.me.info = "MSU = 🧠, Tinkoff = 💛"
-            
-            let _ = newManager.put(user: User.me, current: true)
+            var user = User.me
+            user.name = "Александр Лыков"
+            user.info = "MSU = 🧠, Tinkoff = 💛"
+            let _ = newManager.put(user: user, current: true)
         }
        
         AppDelegate.storeManager = newManager

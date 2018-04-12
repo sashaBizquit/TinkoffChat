@@ -22,7 +22,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     private var textFieldBottomLine: CALayer?
     
     override func viewDidLoad() {
-        
         dataManager = DataManager(withId: id)
         dataManager.delegate = self
         let user = dataManager.getStoredUser()
@@ -141,6 +140,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
 
     @IBAction func editPhoto(_ sender: UIButton) {
+        dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
         callEditPhotoAlert()
     }
     
