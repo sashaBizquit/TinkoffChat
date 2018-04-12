@@ -10,9 +10,9 @@ import UIKit
 
 class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITextFieldDelegate, UITextViewDelegate {
     
-    @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var photoImageView: UIImageView!
     @IBOutlet weak var editPhotoButton: UIButton!
-    @IBOutlet weak var descriptionTextView: UITextView!
+    @IBOutlet weak var infoTextView: UITextView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var editButton: UIButton!
     
@@ -29,12 +29,12 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         nameTextField.delegate = self
         nameTextField.text = dataManager.getStoredName()
         
-        descriptionTextView.delegate = self
-        descriptionTextView.text = dataManager.getStoredDescription()
-        descriptionTextView.layer.borderWidth = 1
-        descriptionTextView.layer.borderColor = UIColor.clear.cgColor
+        infoTextView.delegate = self
+        infoTextView.text = dataManager.getStoredDescription()
+        infoTextView.layer.borderWidth = 1
+        infoTextView.layer.borderColor = UIColor.clear.cgColor
         
-        profileImageView.image = dataManager.getStoredImage()
+        photoImageView.image = dataManager.getStoredImage()
         
         editButton.layer.borderWidth = 1
         editButton.setTitleColor(.gray, for: .disabled)
@@ -59,7 +59,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     }
     
     @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
-        descriptionTextView.endEditing(true)
+        infoTextView.endEditing(true)
         nameTextField.endEditing(true)
     }
     
@@ -118,14 +118,14 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         super.viewDidLayoutSubviews()
         
         let imagesCornerRadius = CGFloat.minimum(editPhotoButton.frame.width, editPhotoButton.frame.height) / 2.0
-        profileImageView.layer.cornerRadius = imagesCornerRadius
+        photoImageView.layer.cornerRadius = imagesCornerRadius
         editPhotoButton.layer.cornerRadius = imagesCornerRadius
         
         let inset = imagesCornerRadius * (1.0 - 1.0/sqrt(2.0))
         editPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(inset, inset, inset, inset)
         
         let buttonsCornerRadius = editButton.frame.height / 4.0
-        descriptionTextView.layer.cornerRadius = buttonsCornerRadius
+        infoTextView.layer.cornerRadius = buttonsCornerRadius
         
         editButton.layer.cornerRadius = buttonsCornerRadius
     }
@@ -177,13 +177,13 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     
     @IBAction func leftButtonAction(_ sender: Any) {
         nameTextField.endEditing(false)
-        descriptionTextView.endEditing(false)
+        infoTextView.endEditing(false)
         buttonsEnabled(equal: false)
         editPhotoButton.isHidden ? self.inEditMode(true) : gcdSave()
     }
     
     private func gcdSave() {
-        dataManager.save(nameTextField.text!, descriptionTextView.text!, profileImageView.image!)
+        dataManager.save(nameTextField.text!, infoTextView.text!, photoImageView.image!)
         inEditMode(false)
         buttonsEnabled(equal: true)
     }
@@ -191,8 +191,8 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     private func inEditMode(_ flag: Bool) {
         let color = flag ? UIColor.black.cgColor : UIColor.white.cgColor
         bottomLine?.backgroundColor = color
-        descriptionTextView.layer.borderColor = color
-        descriptionTextView.isEditable = flag
+        infoTextView.layer.borderColor = color
+        infoTextView.isEditable = flag
         nameTextField.isEnabled = flag
         editPhotoButton.isHidden = !flag
         editButton.setTitle(flag ? "Сохранить" : "Редактировать", for: .normal)
@@ -209,12 +209,12 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
 extension ProfileViewController: UIImagePickerControllerDelegate {
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
-            profileImageView.image = editedImage
+            photoImageView.image = editedImage
             dataManager.isImageChanged = true
             buttonsEnabled(equal: true)
         }
         else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            profileImageView.image = originalImage
+            photoImageView.image = originalImage
             dataManager.isImageChanged = true
             buttonsEnabled(equal: true)
         }

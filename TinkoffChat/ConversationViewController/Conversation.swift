@@ -16,11 +16,18 @@ struct Message {
 }
 
 struct User {
-    var userId: String
-    var userName: String?
-    
+    var id: String
+    var info: String?
+    var photoURL: URL?
+    var name: String?
     static var me: User {
-        return User(userId: MultipeerCommunicator.myPeerId.displayName, userName: MultipeerCommunicator.userName)
+        return User(id: MultipeerCommunicator.myPeerId.displayName, name: MultipeerCommunicator.userName)
+    }
+    init(id newID: String, name newName: String?) {
+        id = newID
+        name = newName
+        info = nil
+        photoURL = nil
     }
 }
 
@@ -45,7 +52,7 @@ class Conversation: NSObject, UITableViewDataSource {
     }
     
     func sendMessage(text: String) {
-        dialogs?.communicator.sendMessage(string: text, to: interlocutor.userId) { [weak self] flag, error in
+        dialogs?.communicator.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
             if let strongSelf = self {
                 //print(error)
                 
@@ -67,7 +74,7 @@ class Conversation: NSObject, UITableViewDataSource {
             return nil
         }
         super.init()
-        interlocutor = User(userId: newChat.name, userName: newChat.name)
+        interlocutor = User(id: newChat.name, name: newChat.name)
         online = newChat.online
         isUnread = readStatus
         

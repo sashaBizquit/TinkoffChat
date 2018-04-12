@@ -334,11 +334,11 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="descriptionTextView" destination="I2T-4i-JhP" id="iMQ-eb-laq"/>
                         <outlet property="editButton" destination="CQZ-Z4-1Zg" id="7nw-fi-HYx"/>
                         <outlet property="editPhotoButton" destination="Rct-Mw-63F" id="1Db-WN-fEv"/>
+                        <outlet property="infoTextView" destination="I2T-4i-JhP" id="iMQ-eb-laq"/>
                         <outlet property="nameTextField" destination="3hm-gL-QpS" id="NMa-uw-wy6"/>
-                        <outlet property="profileImageView" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
+                        <outlet property="photoImageView" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

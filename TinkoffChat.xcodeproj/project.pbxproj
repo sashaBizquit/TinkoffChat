@@ -19,6 +19,9 @@
 		2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A9A3D8C2063D1680097F2E1 /* Themes.m */; };
 		2A9A3D8F2063FED40097F2E1 /* ThemesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9A3D8E2063FED40097F2E1 /* ThemesViewController.swift */; };
 		2ADC828F20470BB600447C57 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2ADC828D20470BB600447C57 /* Main.storyboard */; };
+		2AE65810207F62AD002972EF /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE6580F207F62AD002972EF /* StoreManager.swift */; };
+		2AE65813207F6B37002972EF /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AE65812207F6B37002972EF /* CoreData.framework */; };
+		2AE65816207F6B78002972EF /* Storage.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2AE65814207F6B78002972EF /* Storage.xcdatamodeld */; };
 		2AFF7473203DD342006FF139 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFF7472203DD342006FF139 /* AppDelegate.swift */; };
 		2AFF7475203DD342006FF139 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFF7474203DD342006FF139 /* ProfileViewController.swift */; };
 		2AFF747A203DD342006FF139 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AFF7479203DD342006FF139 /* Assets.xcassets */; };
@@ -40,6 +43,9 @@
 		2AB117C9205C6981000DB688 /* TinkoffChat-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TinkoffChat-Bridging-Header.h"; sourceTree = "<group>"; };
 		2AB117CD205C6FF9000DB688 /* Themes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Themes.h; sourceTree = "<group>"; };
 		2ADC828E20470BB600447C57 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		2AE6580F207F62AD002972EF /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		2AE65812207F6B37002972EF /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		2AE65815207F6B78002972EF /* Storage.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Storage.xcdatamodel; sourceTree = "<group>"; };
 		2AFF746F203DD342006FF139 /* TinkoffChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TinkoffChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AFF7472203DD342006FF139 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2AFF7474203DD342006FF139 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -53,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AE65813207F6B37002972EF /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,11 +107,20 @@
 			path = ConversationViewController;
 			sourceTree = "<group>";
 		};
+		2AE65811207F6B37002972EF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2AE65812207F6B37002972EF /* CoreData.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2AFF7466203DD342006FF139 = {
 			isa = PBXGroup;
 			children = (
 				2AFF7471203DD342006FF139 /* TinkoffChat */,
 				2AFF7470203DD342006FF139 /* Products */,
+				2AE65811207F6B37002972EF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -120,6 +136,8 @@
 			isa = PBXGroup;
 			children = (
 				2AFF7472203DD342006FF139 /* AppDelegate.swift */,
+				2AE65814207F6B78002972EF /* Storage.xcdatamodeld */,
+				2AE6580F207F62AD002972EF /* StoreManager.swift */,
 				2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */,
 				2A0E26E32074E89400F61B8C /* ConversationListViewController */,
 				2A7DCC92206EC7D200627C9C /* ConversationViewController */,
@@ -207,6 +225,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A0E26E72074FC7600F61B8C /* Conversations.swift in Sources */,
+				2AE65810207F62AD002972EF /* StoreManager.swift in Sources */,
 				2A83AE3720541812004AED5B /* ConversationListCell.swift in Sources */,
 				2AFF7475203DD342006FF139 /* ProfileViewController.swift in Sources */,
 				2A0E26E52074E8D800F61B8C /* MultipeerCommunicator.swift in Sources */,
@@ -218,6 +237,7 @@
 				2AFF7473203DD342006FF139 /* AppDelegate.swift in Sources */,
 				2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */,
 				2A992387206AF43B003B206A /* DataManager.swift in Sources */,
+				2AE65816207F6B78002972EF /* Storage.xcdatamodeld in Sources */,
 				2A2CBC212057CABA007C98AA /* MessageCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -416,6 +436,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		2AE65814207F6B78002972EF /* Storage.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				2AE65815207F6B78002972EF /* Storage.xcdatamodel */,
+			);
+			currentVersion = 2AE65815207F6B78002972EF /* Storage.xcdatamodel */;
+			path = Storage.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 2AFF7467203DD342006FF139 /* Project object */;
 }

@@ -15,7 +15,7 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
     @IBOutlet weak var messageTextView: UITextView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = conversation.interlocutor.userName ?? conversation.interlocutor.userId
+        self.title = conversation.interlocutor.name ?? conversation.interlocutor.id
         tableView.dataSource = conversation
         conversation.tableViewController = self
         

@@ -8,39 +8,25 @@
 
 import Foundation
 
-typealias CompletionStringHandler = @convention(block) (_ result: String) -> Void
-typealias CompletionImageHandler = @convention(block) (_ result: UIImage) -> Void
-
 class DataManager {
-
-    private static let defaultName = "Александр Лыков"
-    private static let defaultDescription = "Love 🇷🇺 Live in MSU, looking for iOS family 📟"
-    private static let defaultImage = #imageLiteral(resourceName: "placeholder-user")
     private var profileName: String?
-    private var profileDescription: String?
-    private var profileImage: UIImage?
+    private var profileInfo: String?
+    private var profilePhoto: UIImage?
     private var profileId: UInt!
-    weak var delegate: UIViewController!
-    var isImageChanged = true
+    private let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     
     private var storedNameURL: URL {
-        get {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsDirectory.appendingPathComponent("profile-\(profileId)-name")
-        }
+        return documentsURL.appendingPathComponent("profile-\(profileId)-name")
     }
     private var storedDescriptionURL: URL {
-        get {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsDirectory.appendingPathComponent("profile-\(profileId)-description")
-        }
+        return documentsURL.appendingPathComponent("profile-\(profileId)-description")
     }
     private var storedImageURL: URL {
-        get {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            return documentsDirectory.appendingPathComponent("profile-\(profileId)-image")
-        }
+        return documentsURL.appendingPathComponent("profile-\(profileId)-image")
     }
+    
+    weak var delegate: UIViewController!
+    var isImageChanged = true
     
     convenience init() {
         self.init(withId: 0)
@@ -49,8 +35,8 @@ class DataManager {
     init(withId id: UInt) {
         profileId = id
         profileName = getStoredName()
-        profileDescription = getStoredDescription()
-        profileImage = getStoredImage()
+        profileInfo = getStoredDescription()
+        profilePhoto = getStoredImage()
     }
     
     //MARK: - Saving Methods
@@ -111,9 +97,9 @@ class DataManager {
     }
     
     private func saveDescription(_ newDescription: String) throws {
-        if self.profileDescription == newDescription { return }
+        if self.profileInfo == newDescription { return }
         try newDescription.write(to: storedDescriptionURL, atomically: true, encoding: .utf8)
-        self.profileDescription = newDescription
+        self.profileInfo = newDescription
     }
     
     private func saveImage(_ newImage: UIImage) throws {
@@ -126,7 +112,7 @@ class DataManager {
         
         try newImageData.write(to: storedImageURL, options: .atomic)
         isImageChanged = false
-        self.profileImage = newImage
+        self.profilePhoto = newImage
     }
     
     //MARK: - Serial Getters
@@ -142,25 +128,25 @@ class DataManager {
     }
     
     func getStoredDescription() -> String? {
-        if profileDescription != nil {return profileDescription}
+        if profileInfo != nil {return profileInfo}
         do {
             let storedDescription = try String(contentsOf: storedDescriptionURL)
             return storedDescription
         } catch {
-            return profileDescription
+            return profileInfo
         }
     }
     
     func getStoredImage() -> UIImage? {
-        if profileImage != nil {return profileImage}
+        if profilePhoto != nil {return profilePhoto}
         do {
             let imageData = try Data(contentsOf: storedImageURL)
             guard let storedImage = UIImage(data: imageData) else {
-                return profileImage
+                return profilePhoto
             }
             return storedImage
         } catch {
-            return profileImage
+            return profilePhoto
         }
     }
 }

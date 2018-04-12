@@ -69,11 +69,11 @@ class Conversations: NSObject {
                 let secondDate = second.lastActivityDate {
                 return firstDate > secondDate
             }
-            if let firstName = first.interlocutor.userName,
-                let secondName = second.interlocutor.userName {
+            if let firstName = first.interlocutor.name,
+                let secondName = second.interlocutor.name {
                 return firstName > secondName
             }
-            return first.interlocutor.userId > second.interlocutor.userId
+            return first.interlocutor.id > second.interlocutor.id
         }
     }
 }
@@ -99,7 +99,7 @@ extension Conversations : UITableViewDataSource {
         }
         let conversation = indexPath.section == 0 ?  onlineConversations![indexPath.row] : offlineConversations![indexPath.row]
         
-        cell.name = conversation.interlocutor.userName ?? conversation.interlocutor.userId
+        cell.name = conversation.interlocutor.name ?? conversation.interlocutor.id
         cell.message = conversation.messages == nil ? ConversationListCell.noMessagesConst : conversation.lastMessage!.text
         cell.date = conversation.lastActivityDate
         cell.hasUnreadMessages = conversation.isUnread
@@ -117,7 +117,7 @@ extension Conversations : UITableViewDataSource {
 extension Conversations : CommunicatorDelegate {
     
     func didFoundUser(userID: String, userName: String?) {
-        let user = User(userId: userID, userName: userName)
+        let user = User(id: userID, name: userName)
         if let index = conversations.indexFor(user: user) {
             if (conversations[index].online == true) {print("нашел добавленный онлайн");return}
             conversations[index].online = true
@@ -125,7 +125,7 @@ extension Conversations : CommunicatorDelegate {
                 self?.tableViewController?.tableView.reloadData()
             }
         } else {
-            let newUser = User(userId: userID, userName: userName)
+            let newUser = User(id: userID, name: userName)
             let newConversation = Conversation(withInterlocutor: newUser, andStatus: true)
             newConversation.dialogs = self
             conversations.append(newConversation)
@@ -137,7 +137,7 @@ extension Conversations : CommunicatorDelegate {
     }
     
     func didLostUser(userID: String) {
-        let user = User(userId: userID, userName: nil)
+        let user = User(id: userID, name: nil)
         if let index = conversations.indexFor(user: user) {
             if (conversations[index].online == false) {return}
             conversations[index].online = false
@@ -157,7 +157,7 @@ extension Conversations : CommunicatorDelegate {
     }
     
     func didReceiveMessage(text: String, fromUser: String, toUser: String) {
-        let user = User(userId: fromUser, userName: fromUser)
+        let user = User(id: fromUser, name: fromUser)
         guard let index = conversations.indexFor(user: user) else {
             print("didReceiveMessage NOT ONLINE")
             return
@@ -182,10 +182,10 @@ extension Array where Element: Conversation {
     func indexFor(user: User) -> Int? {
         var resultIndex: Int? = nil
         for (index, element) in self.enumerated() {
-            if element.interlocutor.userId == user.userId {
+            if element.interlocutor.id == user.id {
                 resultIndex = index
-                if let newName = user.userName {
-                    element.interlocutor.userName = newName
+                if let newName = user.name {
+                    element.interlocutor.name = newName
                 }
             }
         }
