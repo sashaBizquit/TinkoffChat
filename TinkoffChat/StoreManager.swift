@@ -100,7 +100,6 @@ extension StoreManager {
         else {
             currentUser = AnyUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
         }
-        
         guard let newUser = currentUser else {
             return false
         }

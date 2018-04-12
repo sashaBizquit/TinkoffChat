@@ -60,7 +60,7 @@ class Conversation: NSObject, UITableViewDataSource {
     func sendMessage(text: String) {
         dialogs?.communicator.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
             if let strongSelf = self {
-                // Finish offline send develpment
+                // To do - Finish offline send develpment
                 if (flag || !(strongSelf.online)) {
                     let newMessage = Message(text: text, date: Date(), sender: User.me, isIncoming: false)
                     strongSelf.lastActivityDate = newMessage.date
