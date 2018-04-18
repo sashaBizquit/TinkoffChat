@@ -8,7 +8,8 @@
 import Photos
 import UIKit
 
-class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITextFieldDelegate, UITextViewDelegate {
+class ProfileViewController: UIViewController, UINavigationControllerDelegate {
+    // MARK: IBOutlets
     
     @IBOutlet weak var photoImageView: UIImageView!
     @IBOutlet weak var editPhotoButton: UIButton!
@@ -16,17 +17,44 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var editButton: UIButton!
     
+    // MARK: Properties
+    
     private var dataManager: DataManager!
-
-    var id: String = User.me.id
     private var textFieldBottomLine: CALayer?
+    var id: String = User.me.id
+    
+    // MARK: UIViewController Lifecycle
     
     override func viewDidLoad() {
+        self.setModel()
+        self.setTexts()
+        self.setImage()
+        self.setButton()
+        self.addObservers()
+        self.addRecognizer()
+    }
+    
+    private func setModel() {
         dataManager = DataManager(withId: id)
         dataManager.delegate = self
+    }
+    
+    private func setTexts() {
+        let user = dataManager.getStoredUser()
+        nameTextField.delegate = self
+        nameTextField.text = user?.name
+        textFieldBottomLine = CALayer()
+        nameTextField.layer.addSublayer(textFieldBottomLine!)
         
-        self.initTexts()
+        infoTextView.delegate = self
+        infoTextView.text = user?.info
+        infoTextView.layer.borderWidth = 1
+        infoTextView.layer.borderColor = UIColor.clear.cgColor
         
+        nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+    }
+    
+    private func setImage() {
         self.photoImageView.image = #imageLiteral(resourceName: "placeholder-user")
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             if let image = AppDelegate.getStoredImageForUser(withId: self!.id) {
@@ -35,104 +63,25 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
                 }
             }
         }
-        
+    }
+    
+    private func setButton() {
         editButton.layer.borderWidth = 1
         editButton.setTitleColor(.gray, for: .disabled)
         editButton.titleLabel?.text = "Редактировать"
-
-        textFieldBottomLine = CALayer()
-        
-        nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+    }
+    
+    private func addObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillHide(sender:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillHide(sender:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    private func addRecognizer() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)
     }
-    
-    private func initTexts() {
-        let user = dataManager.getStoredUser()
-        nameTextField.delegate = self
-        nameTextField.text = user?.name
-        
-        infoTextView.delegate = self
-        infoTextView.text = user?.info
-        infoTextView.layer.borderWidth = 1
-        infoTextView.layer.borderColor = UIColor.clear.cgColor
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        textFieldBottomLine?.frame = CGRect(x: 0.0,
-                                            y: nameTextField.frame.height - 1,
-                                            width: nameTextField.frame.width,
-                                            height: 1.0)
-        nameTextField.layer.addSublayer(textFieldBottomLine!)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        nameTextField.removeTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        
-    }
-    
-    @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
-        infoTextView.endEditing(true)
-        nameTextField.endEditing(true)
-    }
-    
-    private func safeTrunc(of someString: String, offsetBy offset: Int) -> String {
-        let safeOffset = min(offset,someString.count)
-        let index = someString.index(someString.startIndex, offsetBy: safeOffset)
-        return String(someString[..<index])
-    }
-    
-    private func buttonsEnabled(equal to: Bool) {
-        editButton?.isEnabled = to
-        editButton?.layer.borderColor = to ? UIColor.black.cgColor : UIColor.gray.cgColor
-    }
-    
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.text = safeTrunc(of: textField.text!.condensedWhitespace, offsetBy: 25)
-    }
-    
-    @objc func textFieldDidChange(_ textField: UITextField) {
-        buttonsEnabled(equal: true)
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        self.view.endEditing(true)
-        return false
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        textView.text = safeTrunc(of: textView.text!, offsetBy: 300)
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        buttonsEnabled(equal: true)
-    }
-    
-    @objc func keyboardWillShow(sender: NSNotification) {
-        guard let keyboardFrame = sender.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else {
-            return
-        }
-        
-        let keyboardHeight: CGFloat
-        if #available(iOS 11.0, *) {
-            keyboardHeight = keyboardFrame.cgRectValue.height - self.view.safeAreaInsets.bottom
-        } else {
-            keyboardHeight =  keyboardFrame.cgRectValue.height
-        }
-        
-        self.view.frame.origin.y = -1.0 * keyboardHeight
-    }
-    
-    @objc func keyboardWillHide(sender: NSNotification) {
-        self.view.frame.origin.y = 0
-    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -147,14 +96,61 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         infoTextView.layer.cornerRadius = buttonsCornerRadius
         
         editButton.layer.cornerRadius = buttonsCornerRadius
+        textFieldBottomLine?.frame = CGRect(x: 0.0,
+                                            y: nameTextField.frame.height - 1,
+                                            width: nameTextField.frame.width,
+                                            height: 1.0)
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        nameTextField.removeTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+    }
+    
+    // MARK: IBActions
 
     @IBAction func editPhoto(_ sender: UIButton) {
         dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
         callEditPhotoAlert()
     }
     
-    // MARK: - UIAlertController
+    @IBAction func cancel(_ sender: UIBarButtonItem) {
+        dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func changeEditMode(_ sender: Any) {
+        nameTextField.endEditing(false)
+        infoTextView.endEditing(false)
+        buttonsEnabled(equal: false)
+        editPhotoButton.isHidden ? self.isInEditMode(true) : saveData()
+    }
+    
+    // MARK: Interface Changings
+    
+    private func buttonsEnabled(equal to: Bool) {
+        editButton?.isEnabled = to
+        editButton?.layer.borderColor = to ? UIColor.black.cgColor : UIColor.gray.cgColor
+    }
+    
+    private func saveData() {
+        dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
+        dataManager.save(nameTextField.text!, infoTextView.text!, photoImageView.image!)
+        isInEditMode(false)
+        buttonsEnabled(equal: true)
+    }
+    
+    private func isInEditMode(_ flag: Bool) {
+        let color = flag ? UIColor.black.cgColor : UIColor.white.cgColor
+        textFieldBottomLine?.backgroundColor = color
+        infoTextView.layer.borderColor = color
+        infoTextView.isEditable = flag
+        nameTextField.isEnabled = flag
+        editPhotoButton.isHidden = !flag
+        editButton.setTitle(flag ? "Сохранить" : "Редактировать", for: .normal)
+    }
+    
+    // MARK: UIAlertController
     
     private func callEditPhotoAlert() {
         func presentImagePicker(by strongSelf: ProfileViewController, for sourceType: UIImagePickerControllerSourceType) {
@@ -187,40 +183,69 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         }
     }
     
+    // MARK: Observers Methods
+    
     @objc func alertControllerBackgroundTapped() {
         self.dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func cancelAction(_ sender: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
+    @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
+        infoTextView.endEditing(true)
+        nameTextField.endEditing(true)
     }
     
-    @IBAction func leftButtonAction(_ sender: Any) {
-        nameTextField.endEditing(false)
-        infoTextView.endEditing(false)
-        buttonsEnabled(equal: false)
-        editPhotoButton.isHidden ? self.inEditMode(true) : gcdSave()
+    @objc func keyboardWillShow(sender: NSNotification) {
+        guard let keyboardFrame = sender.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else {
+            return
+        }
+        
+        let keyboardHeight: CGFloat
+        if #available(iOS 11.0, *) {
+            keyboardHeight = keyboardFrame.cgRectValue.height - self.view.safeAreaInsets.bottom
+        } else {
+            keyboardHeight =  keyboardFrame.cgRectValue.height
+        }
+        
+        self.view.frame.origin.y = -1.0 * keyboardHeight
     }
     
-    private func gcdSave() {
-        dataManager.save(nameTextField.text!, infoTextView.text!, photoImageView.image!)
-        inEditMode(false)
-        buttonsEnabled(equal: true)
-    }
-    
-    private func inEditMode(_ flag: Bool) {
-        let color = flag ? UIColor.black.cgColor : UIColor.white.cgColor
-        textFieldBottomLine?.backgroundColor = color
-        infoTextView.layer.borderColor = color
-        infoTextView.isEditable = flag
-        nameTextField.isEnabled = flag
-        editPhotoButton.isHidden = !flag
-        editButton.setTitle(flag ? "Сохранить" : "Редактировать", for: .normal)
+    @objc func keyboardWillHide(sender: NSNotification) {
+        self.view.frame.origin.y = 0
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+}
+
+// MARK: - UITextViewDelegate
+
+extension ProfileViewController: UITextViewDelegate {
+    func textViewDidEndEditing(_ textView: UITextView) {
+        textView.text = textView.text!.offsetBy(300)
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        buttonsEnabled(equal: true)
+    }
+}
+
+
+// MARK: - UITextFieldDelegate
+
+extension ProfileViewController: UITextFieldDelegate {
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.text = textField.text!.offsetBy(25)
+    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        buttonsEnabled(equal: true)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        self.view.endEditing(true)
+        return false
     }
 }
 
@@ -261,5 +286,11 @@ extension String {
             }
         }
         return newString.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    func offsetBy(_ offset: Int) -> String {
+        let safeOffset = min(offset, self.count)
+        let index = self.index(self.startIndex, offsetBy: safeOffset)
+        return String(self[..<index])
     }
 }

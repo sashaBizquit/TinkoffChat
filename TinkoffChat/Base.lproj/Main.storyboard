@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="hVv-xt-tjc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="hVv-xt-tjc">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -299,7 +299,7 @@
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
                                         <connections>
-                                            <action selector="leftButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qOP-e9-iwW"/>
+                                            <action selector="changeEditMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qOP-e9-iwW"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -329,7 +329,7 @@
                     <navigationItem key="navigationItem" title="Ваш профиль" id="fGa-La-uMf">
                         <barButtonItem key="leftBarButtonItem" title="Закрыть" id="8M4-LM-hkq">
                             <connections>
-                                <action selector="cancelAction:" destination="BYZ-38-t0r" id="mzK-ZR-OQ2"/>
+                                <action selector="cancel:" destination="BYZ-38-t0r" id="mzK-ZR-OQ2"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
