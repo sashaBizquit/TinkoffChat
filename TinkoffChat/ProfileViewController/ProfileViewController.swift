@@ -24,14 +24,8 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
     override func viewDidLoad() {
         dataManager = DataManager(withId: id)
         dataManager.delegate = self
-        let user = dataManager.getStoredUser()
-        nameTextField.delegate = self
-        nameTextField.text = user?.name
         
-        infoTextView.delegate = self
-        infoTextView.text = user?.info
-        infoTextView.layer.borderWidth = 1
-        infoTextView.layer.borderColor = UIColor.clear.cgColor
+        self.initTexts()
         
         self.photoImageView.image = #imageLiteral(resourceName: "placeholder-user")
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -47,11 +41,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         editButton.titleLabel?.text = "Редактировать"
 
         textFieldBottomLine = CALayer()
-        textFieldBottomLine?.frame = CGRect(x: 0.0,
-                                            y: nameTextField.frame.height - 1,
-                                            width: nameTextField.frame.width,
-                                            height: 1.0)
-        nameTextField.layer.addSublayer(textFieldBottomLine!)
         
         nameTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -62,9 +51,30 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate, U
         self.view.addGestureRecognizer(tapGesture)
     }
     
+    private func initTexts() {
+        let user = dataManager.getStoredUser()
+        nameTextField.delegate = self
+        nameTextField.text = user?.name
+        
+        infoTextView.delegate = self
+        infoTextView.text = user?.info
+        infoTextView.layer.borderWidth = 1
+        infoTextView.layer.borderColor = UIColor.clear.cgColor
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        textFieldBottomLine?.frame = CGRect(x: 0.0,
+                                            y: nameTextField.frame.height - 1,
+                                            width: nameTextField.frame.width,
+                                            height: 1.0)
+        nameTextField.layer.addSublayer(textFieldBottomLine!)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         nameTextField.removeTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        
     }
     
     @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
