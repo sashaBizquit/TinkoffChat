@@ -8,6 +8,7 @@
 
 import Foundation
 import MultipeerConnectivity
+import CoreData
 
 enum SectionsNames: String {
     case Online = "Онлайн", Offline = "Офлайн"
@@ -15,7 +16,7 @@ enum SectionsNames: String {
 
 class Conversations: NSObject {
     private var conversations: [Conversation]!
-    weak var tableViewController: UITableViewController?
+    weak var tableView: UITableView?
     var communicator: MultipeerCommunicator!
     
     var onlineConversations: [Conversation]? {
@@ -34,19 +35,22 @@ class Conversations: NSObject {
         return filteredConv.count > 0 ? filteredConv : nil
     }
 
-    
     override init() {
         super.init()
-        communicator = MultipeerCommunicator()
-        communicator.delegate = self
-
-        conversations = [Conversation]()
-        
-        getTestConversations()
-        
-        sortDialogs()
+        self.setCommunicator()
+        self.setConversations()
     }
     
+    private func setCommunicator() {
+        communicator = MultipeerCommunicator()
+        communicator.delegate = self
+    }
+    
+    private func setConversations() {
+        conversations = [Conversation]()
+        getTestConversations()
+        sortDialogs()
+    }
     
     private func getTestConversations() {
         let boolArray = [false,false,false]
@@ -113,6 +117,12 @@ extension Conversations : UITableViewDataSource {
     }
 }
 
+// MARK: - NSFetchedResultsControllerDelegate
+
+extension Conversations : NSFetchedResultsControllerDelegate {
+    
+}
+
 // MARK: - CommunicatorDelegate
 extension Conversations : CommunicatorDelegate {
     
@@ -122,7 +132,7 @@ extension Conversations : CommunicatorDelegate {
             if (conversations[index].online == true) {return}
             conversations[index].online = true
             DispatchQueue.main.async { [weak self] in
-                self?.tableViewController?.tableView.reloadData()
+                self?.tableView?.reloadData()
             }
         } else {
             let newUser = User(id: userID, name: userName)
@@ -131,7 +141,7 @@ extension Conversations : CommunicatorDelegate {
             conversations.append(newConversation)
             
             DispatchQueue.main.async { [weak self] in
-                self?.tableViewController?.tableView.reloadSections([0], with: .automatic)
+                self?.tableView?.reloadSections([0], with: .automatic)
             }
         }
     }
@@ -142,7 +152,7 @@ extension Conversations : CommunicatorDelegate {
             if (conversations[index].online == false) {return}
             conversations[index].online = false
             DispatchQueue.main.async { [weak self] in
-                self?.tableViewController?.tableView.reloadData()
+                self?.tableView?.reloadData()
             }
         }
 
@@ -159,7 +169,7 @@ extension Conversations : CommunicatorDelegate {
     func didReceiveMessage(text: String, fromUser: String, toUser: String) {
         let user = User(id: fromUser, name: fromUser)
         guard let index = conversations.indexFor(user: user) else {
-            print("didReceiveMessage NOT ONLINE")
+            print("didReceiveMessage NOT ONLINE?")
             return
         }
         
@@ -171,8 +181,8 @@ extension Conversations : CommunicatorDelegate {
         currentConversation.messages!.append(newMessage)
        
         DispatchQueue.main.async { [weak self] in
-            self?.tableViewController?.tableView.reloadData()
-            currentConversation.tableViewController?.tableView.reloadData()
+            self?.tableView?.reloadData()
+            currentConversation.tableView?.reloadData()
         }
     }
 }

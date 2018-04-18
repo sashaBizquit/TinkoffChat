@@ -12,11 +12,11 @@ class ConversationsListViewController: UITableViewController {
     
     private static var backgroundColorURL: URL {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return documentsDirectory.appendingPathComponent("profile-theme-backgroundColor")
+        return documentsDirectory.appendingPathComponent("theme-backgroundColor")
     }
     private static var tintColorURL : URL {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return documentsDirectory.appendingPathComponent("profile-theme-tintColor")
+        return documentsDirectory.appendingPathComponent("theme-tintColor")
     }
     
     @IBOutlet weak var profileButton: UIButton!
@@ -33,7 +33,7 @@ class ConversationsListViewController: UITableViewController {
         logThemeChanging(selectedTheme: getStoredTheme())
         
         tableView.dataSource = conversations
-        conversations.tableViewController = self
+        conversations.tableView = self.tableView
         profileButton.layer.masksToBounds = true
         
         let height = self.navigationController!.navigationBar.frame.height
@@ -47,7 +47,6 @@ class ConversationsListViewController: UITableViewController {
         profileButton.layer.cornerRadius = profileButton.frame.width / 2.0
     }
     
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.title = "TinkoffChat"
@@ -57,7 +56,7 @@ class ConversationsListViewController: UITableViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.title = ""
+        //self.title = ""
     }
     
     // MARK: - Navigation

@@ -17,7 +17,7 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
         super.viewDidLoad()
         self.title = conversation.interlocutor.name ?? conversation.interlocutor.id
         tableView.dataSource = conversation
-        conversation.tableViewController = self
+        conversation.tableView = self.tableView
         
         if let messages = conversation.messages {
             var avgHeight = CGFloat(0)
@@ -46,6 +46,7 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         self.messageTextView.layer.cornerRadius = self.messageTextView.layer.frame.height / 2.0
+        //self.navigationController?.navigationItem.leftBarButtonItem?.title = ""
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
