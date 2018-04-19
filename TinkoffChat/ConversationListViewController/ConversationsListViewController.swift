@@ -25,15 +25,15 @@ class ConversationsListViewController: UITableViewController {
         case Online = "Онлайн", Offline = "Офлайн"
     }
     
-    private var conversations: Conversations = Conversations()
+    private var conversations: ConversationsManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         logThemeChanging(selectedTheme: getStoredTheme())
-        
+        conversations = ConversationsManager(with: self.tableView)
         tableView.dataSource = conversations
-        conversations.tableView = self.tableView
+        //conversations.tableView = self.tableView
         profileButton.layer.masksToBounds = true
         
         let height = self.navigationController!.navigationBar.frame.height
@@ -71,11 +71,13 @@ class ConversationsListViewController: UITableViewController {
             if let conversationVC = segue.destination as? ConversationViewController,
                 let conversationCell = sender as? ConversationListCell,
                 let selectedIndex = tableView.indexPath(for: conversationCell) {
-                
+                //conversations
+                conversationVC.conversation = Conversation(withManager: conversations,
+                                                           userId: conversations.getIdForIndexPath(selectedIndex))
                 conversationCell.hasUnreadMessages = false
-                let conversation = selectedIndex.section == 0 ? conversations.onlineConversations![selectedIndex.row] : conversations.offlineConversations![selectedIndex.row]
-                conversationVC.conversation = conversation
-                conversation.isUnread = false
+//                let conversation = selectedIndex.section == 0 ? conversations.onlineConversations![selectedIndex.row] : conversations.offlineConversations![selectedIndex.row]
+//                conversationVC.conversation = conversation
+//                conversation.isUnread = false
                 //conversationVC.conversation.tableViewController = conversationVC
             }
         } else if segue.identifier == "toThemePicker",

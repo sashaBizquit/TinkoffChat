@@ -1,18 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E199" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="AnyUser" representedClassName="AnyUser" syncable="YES" codeGenerationType="class">
+    <entity name="AppUser" representedClassName="AppUser" syncable="YES" codeGenerationType="class">
+        <relationship name="currentUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDUser" inverseName="appUser" inverseEntity="CDUser" syncable="YES"/>
+    </entity>
+    <entity name="CDConversation" representedClassName="CDConversation" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="hasUnreadMessages" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="online" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="interlocutor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDUser" inverseName="conversations" inverseEntity="CDUser" syncable="YES"/>
+        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDMessage" inverseName="conversation" inverseEntity="CDMessage" syncable="YES"/>
+    </entity>
+    <entity name="CDMessage" representedClassName="CDMessage" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="incoming" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="conversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDConversation" inverseName="messages" inverseEntity="CDConversation" syncable="YES"/>
+    </entity>
+    <entity name="CDUser" representedClassName="CDUser" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="info" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="online" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="photoPath" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="appUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AppUser" inverseName="currentUser" inverseEntity="AppUser" syncable="YES"/>
-    </entity>
-    <entity name="AppUser" representedClassName="AppUser" syncable="YES" codeGenerationType="class">
-        <relationship name="currentUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AnyUser" inverseName="appUser" inverseEntity="AnyUser" syncable="YES"/>
+        <relationship name="conversations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDConversation" inverseName="interlocutor" inverseEntity="CDConversation" syncable="YES"/>
     </entity>
     <fetchRequest name="AppUserRequest" entity="AppUser"/>
+    <fetchRequest name="ConversationsOnline" entity="CDConversation" predicateString="online == 1"/>
+    <fetchRequest name="ConversationWithId" entity="CDConversation" predicateString="id == &quot;$ID&quot;"/>
+    <fetchRequest name="ConversationWithUser" entity="CDConversation" predicateString="interlocutor.id == $ID"/>
+    <fetchRequest name="MessagesInConversationWithId" entity="CDMessage" predicateString="conversation.id == $ID"/>
+    <fetchRequest name="OnlineUsers" entity="CDUser" predicateString="online == 1"/>
+    <fetchRequest name="UserWithId" entity="CDUser" predicateString="id == &quot;$ID&quot;"/>
     <elements>
-        <element name="AppUser" positionX="-306" positionY="36" width="128" height="60"/>
-        <element name="AnyUser" positionX="-45" positionY="27" width="128" height="118"/>
+        <element name="AppUser" positionX="-209" positionY="27" width="128" height="60"/>
+        <element name="CDConversation" positionX="126" positionY="45" width="128" height="148"/>
+        <element name="CDMessage" positionX="117" positionY="210" width="128" height="118"/>
+        <element name="CDUser" positionX="-45" positionY="63" width="128" height="148"/>
     </elements>
 </model>

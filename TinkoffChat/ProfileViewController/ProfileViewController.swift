@@ -9,6 +9,7 @@ import Photos
 import UIKit
 
 class ProfileViewController: UIViewController, UINavigationControllerDelegate {
+    
     // MARK: IBOutlets
     
     @IBOutlet weak var photoImageView: UIImageView!

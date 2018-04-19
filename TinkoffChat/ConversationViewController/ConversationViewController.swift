@@ -19,20 +19,21 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
         tableView.dataSource = conversation
         conversation.tableView = self.tableView
         
-        if let messages = conversation.messages {
-            var avgHeight = CGFloat(0)
-            let windowWidth = UIScreen.main.bounds.width
-            let constraintRect = CGSize(width: windowWidth, height: .greatestFiniteMagnitude)
-            
-            for message in messages {
-                let boundingBox = message.text!.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 17)], context: nil)
-                avgHeight += boundingBox.height
-            }
-            avgHeight = avgHeight / CGFloat(messages.count)
-            
-            tableView.rowHeight = UITableViewAutomaticDimension
-            tableView.estimatedRowHeight = avgHeight
-        }
+//        if let messages = conversation.messages {
+//            var avgHeight = CGFloat(0)
+//            let windowWidth = UIScreen.main.bounds.width
+//            let constraintRect = CGSize(width: windowWidth, height: .greatestFiniteMagnitude)
+//
+//            for message in messages {
+//                let boundingBox = message.text!.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 17)], context: nil)
+//                avgHeight += boundingBox.height
+//            }
+//            avgHeight = avgHeight / CGFloat(messages.count)
+//
+//
+//            tableView.estimatedRowHeight = avgHeight
+//        }
+        tableView.rowHeight = UITableViewAutomaticDimension
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)

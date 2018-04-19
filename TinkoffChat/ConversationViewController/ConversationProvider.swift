@@ -16,7 +16,7 @@ protocol ConversationCellConfiguration {
     var hasUnreadMessages: Bool {get set}
 }
 
-struct ConversationCellModel: ConversationCellConfiguration {
+struct ConversationProvider: ConversationCellConfiguration {
     
     var name: String
     var message: String?
@@ -57,20 +57,20 @@ struct ConversationCellModel: ConversationCellConfiguration {
     ]
     
     private static func getName() -> String? {
-        guard ConversationCellModel.storedNames.count > 0 else {
+        guard ConversationProvider.storedNames.count > 0 else {
             return nil
         }
-        let index = Int(arc4random_uniform(UInt32(ConversationCellModel.storedNames.count)))
-        let elem = ConversationCellModel.storedNames[index]
-        ConversationCellModel.storedNames.remove(at: index)
+        let index = Int(arc4random_uniform(UInt32(ConversationProvider.storedNames.count)))
+        let elem = ConversationProvider.storedNames[index]
+        ConversationProvider.storedNames.remove(at: index)
         return elem
     }
     
-    static func getNewConversation(online status: Bool, andNotRead isRead: Bool) -> ConversationCellModel? {
+    static func getNewConversation(online status: Bool, andNotRead isRead: Bool) -> ConversationProvider? {
         guard let someName = getName() else {
                 return nil
         }
-        return ConversationCellModel(name: someName,
+        return ConversationProvider(name: someName,
                                      message: storedMessages.showRandomElement,
                                      date: storedDates.showRandomElement,
                                      online: status,

@@ -46,7 +46,7 @@ class StoreManager {
         return masterContext
     }()
     
-    private lazy var mainContext: NSManagedObjectContext = {
+    lazy var mainContext: NSManagedObjectContext = {
         var mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         
         mainContext.parent = masterContext
@@ -56,7 +56,7 @@ class StoreManager {
         return mainContext
     }()
     
-    private lazy var saveContext: NSManagedObjectContext = {
+    lazy var saveContext: NSManagedObjectContext = {
         var saveContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         
         saveContext.parent = mainContext
@@ -92,13 +92,13 @@ class StoreManager {
 
 extension StoreManager {
     func put(user: User, current: Bool) -> Bool {
-        let currentUser: AnyUser?
+        let currentUser: CDUser?
         if current {
             let appUser = AppUser.findOrInsertAppUser(in: saveContext)
             currentUser = appUser?.currentUser
         }
         else {
-            currentUser = AnyUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
+            currentUser = CDUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
         }
         guard let newUser = currentUser else {
             return false
@@ -113,7 +113,7 @@ extension StoreManager {
     }
     
     func getUser(withId id: String) -> User? {
-        if let anyUser = AnyUser.findUser(withId: id, in: mainContext) {
+        if let anyUser = CDUser.findUser(withId: id, in: mainContext) {
             let userURL = anyUser.photoPath != nil ? URL(fileURLWithPath: anyUser.photoPath!) : nil
             return User(id: anyUser.id!,
                         name: anyUser.name,
@@ -129,11 +129,11 @@ extension StoreManager {
     }
 }
 
-extension AnyUser {
+extension CDUser {
     
-    static func findUser(withId id: String, in context: NSManagedObjectContext) -> AnyUser? {
-        var anyUser: AnyUser?
-        let fetchRequset = NSFetchRequest<AnyUser>(entityName: "AnyUser")
+    static func findUser(withId id: String, in context: NSManagedObjectContext) -> CDUser? {
+        var anyUser: CDUser?
+        let fetchRequset = NSFetchRequest<CDUser>(entityName: "CDUser")
         fetchRequset.predicate = NSPredicate(format: "id == %@", id)
         
         do {
@@ -149,11 +149,11 @@ extension AnyUser {
         return anyUser
     }
     
-    static func findOrInsertAnyUser(withId id: String, in context: NSManagedObjectContext) -> AnyUser? {
-        var anyUser: AnyUser? = findUser(withId: id, in: context)
+    static func findOrInsertAnyUser(withId id: String, in context: NSManagedObjectContext) -> CDUser? {
+        var anyUser: CDUser? = findUser(withId: id, in: context)
         
         if anyUser == nil {
-            anyUser = NSEntityDescription.insertNewObject(forEntityName: "AnyUser", into: context) as? AnyUser
+            anyUser = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: context) as? CDUser
             anyUser?.id = id
         }
         
@@ -194,7 +194,7 @@ extension AppUser {
         }
         
         if appUser.currentUser == nil {
-            let currentUser = AnyUser.findOrInsertAnyUser(withId: User.me.id, in: context)
+            let currentUser = CDUser.findOrInsertAnyUser(withId: User.me.id, in: context)
             
             appUser.currentUser = currentUser
         }
