@@ -187,8 +187,8 @@ extension Conversation: UITableViewDataSource {
             print("Не понял, сколько элементов в секциях")
             return 0
         }
-        
-        return sections[section].numberOfObjects
+        let value = sections[section].numberOfObjects
+        return value
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
