@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E199" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13772" systemVersion="17E199" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="AppUser" representedClassName="AppUser" syncable="YES" codeGenerationType="class">
         <relationship name="currentUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDUser" inverseName="appUser" inverseEntity="CDUser" syncable="YES"/>
     </entity>
@@ -30,11 +30,11 @@
     </entity>
     <fetchRequest name="AppUserRequest" entity="AppUser"/>
     <fetchRequest name="ConversationsOnline" entity="CDConversation" predicateString="online == 1"/>
-    <fetchRequest name="ConversationWithId" entity="CDConversation" predicateString="id == &quot;$ID&quot;"/>
+    <fetchRequest name="ConversationWithId" entity="CDConversation" predicateString="id == 0"/>
     <fetchRequest name="ConversationWithUser" entity="CDConversation" predicateString="interlocutor.id == $ID"/>
     <fetchRequest name="MessagesInConversationWithId" entity="CDMessage" predicateString="conversation.id == $ID"/>
     <fetchRequest name="OnlineUsers" entity="CDUser" predicateString="online == 1"/>
-    <fetchRequest name="UserWithId" entity="CDUser" predicateString="id == &quot;$ID&quot;"/>
+    <fetchRequest name="UserWithId" entity="CDUser" predicateString="id == $ID"/>
     <elements>
         <element name="AppUser" positionX="-209" positionY="27" width="128" height="60"/>
         <element name="CDConversation" positionX="126" positionY="45" width="128" height="148"/>

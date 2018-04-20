@@ -25,14 +25,14 @@ class ConversationsListViewController: UITableViewController {
         case Online = "Онлайн", Offline = "Офлайн"
     }
     
-    private var conversations: ConversationsManager!
+    private var manager: ConversationsManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         logThemeChanging(selectedTheme: getStoredTheme())
-        conversations = ConversationsManager(with: self.tableView)
-        tableView.dataSource = conversations
+        manager = ConversationsManager(with: self.tableView)
+        tableView.dataSource = manager
         //conversations.tableView = self.tableView
         profileButton.layer.masksToBounds = true
         
@@ -72,10 +72,10 @@ class ConversationsListViewController: UITableViewController {
                 let conversationCell = sender as? ConversationListCell,
                 let selectedIndex = tableView.indexPath(for: conversationCell) {
                 //conversations
-                conversationVC.conversation = Conversation(withManager: conversations,
-                                                           userId: conversations.getIdForIndexPath(selectedIndex))
+                conversationVC.conversation = Conversation(withManager: manager,
+                                                           userId: manager.getIdForIndexPath(selectedIndex))
                 conversationCell.hasUnreadMessages = false
-//                let conversation = selectedIndex.section == 0 ? conversations.onlineConversations![selectedIndex.row] : conversations.offlineConversations![selectedIndex.row]
+//                let conversation = selectedIndex.section == 0 ? manager.onlineConversations![selectedIndex.row] : manager.offlineConversations![selectedIndex.row]
 //                conversationVC.conversation = conversation
 //                conversation.isUnread = false
                 //conversationVC.conversation.tableViewController = conversationVC

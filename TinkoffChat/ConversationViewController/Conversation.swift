@@ -48,8 +48,8 @@ class Conversation: NSObject {
     var online: Bool {
         let conversationRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": interlocutor.id])
         
-        if let results = (try? saveContext.fetch(conversationRequest!)) as? [CDConversation],
-            let foundConversation = results.first {
+        if let results = try? saveContext.fetch((conversationRequest!)) as? [CDConversation],
+            let foundConversation = results?.first {
             return foundConversation.online
         }
         return false
@@ -77,12 +77,14 @@ class Conversation: NSObject {
     // MARK: - Private
     
     private func setupFRC(withId id: String) {
-        let userRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": id])
-        if let user = ((try? mainContext.fetch(userRequest!)) as? [CDUser])?.first {
-            interlocutor = User(id: id, name: user.name)
-        }
         mainContext = AppDelegate.storeManager.mainContext
         saveContext = AppDelegate.storeManager.saveContext
+        let userRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": id])
+        
+        if let result = try? mainContext.fetch(userRequest!) as? [CDUser],
+            let user = result?.first {
+            interlocutor = User(id: id, name: user.name)
+        }
         
         let messagesRequest = (saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "MessagesInConversationWithId", substitutionVariables: ["ID": id])) as! NSFetchRequest<CDMessage>
         
@@ -126,7 +128,7 @@ class Conversation: NSObject {
     }
     
     func sendMessage(text: String) {
-        manager?.communicator.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
+        manager?.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
             if let strongSelf = self {
                 // To do - Finish offline send develpment
                 if (flag || !(strongSelf.online)) {
@@ -142,8 +144,8 @@ class Conversation: NSObject {
     
                     let conversationRequest =  strongSelf.saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": strongSelf.interlocutor.id])
                     
-                    if let results = (try? strongSelf.saveContext.fetch(conversationRequest!)) as? [CDConversation],
-                        let foundConversation = results.first {
+                    if let results = try? strongSelf.saveContext.fetch(conversationRequest!) as? [CDConversation],
+                        let foundConversation = results?.first {
                         foundConversation.text = text
                         foundConversation.date = date
                         message.conversation = foundConversation
