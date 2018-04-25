@@ -91,6 +91,15 @@ class StoreManager {
 }
 
 extension StoreManager {
+//    convenience init(withModel model: NSManagedObjectModel, coordinator: NSPersistentStoreCoordinator, mainContext: NSManagedObjectContext, masterContext: NSManagedObjectContext, saveContext: NSManagedObjectContext) {
+//        self.init()
+//        self.managedObjectModel = model
+//        self.persistantStoreCoordinator = coordinator
+//        self.mainContext = mainContext
+//        self.masterContext = masterContext
+//        self.saveContext = saveContext
+//    }
+    
     func put(user: User, current: Bool) -> Bool {
         let currentUser: CDUser?
         if current {

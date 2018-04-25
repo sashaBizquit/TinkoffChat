@@ -17,13 +17,13 @@ enum SectionsNames: String {
 class ConversationsManager: NSObject {
     
     private var fetchedResultController: NSFetchedResultsController<CDConversation>?
-    private var mainContext: NSManagedObjectContext!
-    private var saveContext: NSManagedObjectContext!
+    private var storeManager: StoreManager!
     private var communicator: MultipeerCommunicator!
     private weak var tableView: UITableView?
 
-    init(with tableView: UITableView) {
+    init(with tableView: UITableView, andManager manager: StoreManager) {
         super.init()
+        self.storeManager = manager
         self.tableView = tableView
         self.setCommunicator()
         self.setupFRC()
@@ -38,15 +38,13 @@ class ConversationsManager: NSObject {
     // MARK: - Private
     
     private func setupFRC() {
-        mainContext = AppDelegate.storeManager.mainContext
-        saveContext = AppDelegate.storeManager.saveContext
         let fetchRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
         let onlineSortDescriptor = NSSortDescriptor(key: "online", ascending: true)
         let dateSortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         fetchRequest.sortDescriptors = [onlineSortDescriptor, dateSortDescriptor]
 
         fetchedResultController = NSFetchedResultsController<CDConversation>(fetchRequest: fetchRequest,
-                                                                      managedObjectContext: mainContext,
+                                                                      managedObjectContext: storeManager.mainContext,
                                                                       sectionNameKeyPath: "online",
                                                                       cacheName: nil)
         fetchedResultController?.delegate = self
@@ -81,15 +79,15 @@ class ConversationsManager: NSObject {
                             break outerloop
                     }
                     
-                    AppDelegate.storeManager.putNewUser(withId: nil, name: newChat.name) {user in
-                        AppDelegate.storeManager.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { conversation in
-                            AppDelegate.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation)
+                    self.storeManager.putNewUser(withId: nil, name: newChat.name) { [weak self] user in
+                        self?.storeManager.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { [weak self] conversation in
+                            self?.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation)
                         }
                     }
                     
                 }
             }
-            AppDelegate.storeManager.save{ flag in
+            self.storeManager.save{ flag in
                 if (flag) {
                     print("СОХРАНИЛ БОТОСООБЩЕНИЯ")
                 } else {
@@ -224,24 +222,35 @@ extension ConversationsManager : CommunicatorDelegate {
     
     func didFoundUser(userID: String, userName: String?) {
         let date = Date()
-        let mainContext = AppDelegate.storeManager.mainContext
-        let saveContext = AppDelegate.storeManager.saveContext
-        let userRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": userID])
-        if let result = try? mainContext.fetch(userRequest!) as? [CDUser],
+        let userRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": userID])
+        if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
             let user = result?.first {
-            let conversationRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
-            
-            if let results = try? saveContext.fetch(conversationRequest!) as? [CDConversation],
-                let foundConversation = results?.first {
-                foundConversation.text = ConversationListCell.noMessagesConst
-                foundConversation.date = date
-            } else {
-                print("не вытащили беседу для существующего юзера")
+            let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
+            storeManager.saveContext.performAndWait { [weak self] in
+                guard let strongSelf = self else {
+                    print("уже нет менеджера бесед")
+                    return
+                }
+                if let results = try? strongSelf.storeManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
+                    let foundConversation = results?.first {
+                    foundConversation.text = ConversationListCell.noMessagesConst
+                    foundConversation.date = date
+                    strongSelf.storeManager.save {flag in
+                        if (flag) {
+                            print("Сохранил юзера")
+                        } else {
+                            print("Не сохранил юзера")
+                        }
+                    }
+                } else {
+                    print("не вытащили беседу для существующего юзера")
+                }
             }
+            
         } else {
-            AppDelegate.storeManager.putNewUser(withId: userID, name: userName) {user in
-                AppDelegate.storeManager.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) {_ in
-                    AppDelegate.storeManager.save {flag in
+            storeManager.putNewUser(withId: userID, name: userName) {[weak self] user in
+                self?.storeManager.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) {[weak self] _ in
+                    self?.storeManager.save {flag in
                         if (flag) {
                             print("Сохранил юзера")
                         } else {
@@ -254,20 +263,25 @@ extension ConversationsManager : CommunicatorDelegate {
     }
     
     func didLostUser(userID: String) {
-        let saveContext = AppDelegate.storeManager.saveContext
-        let userRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": userID])
-        if let result = try? saveContext.fetch(userRequest!) as? [CDUser],
+        let userRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": userID])
+        if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
             let user = result?.first {
-            let conversationRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
-            
-            if let results = try? saveContext.fetch(conversationRequest!) as? [CDConversation],
-                let foundConversation = results?.first {
-                foundConversation.online = false
-            } else {
-                print("не вытащили юзера")
+            let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
+            storeManager.saveContext.performAndWait { [weak self] in
+                guard let strongSelf = self else {
+                    print("уже нет менеджера бесед")
+                    return
+                }
+                if let results = try? strongSelf.storeManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
+                    let foundConversation = results?.first {
+                    foundConversation.online = false
+                } else {
+                    print("не вытащили юзера")
+                }
             }
+            storeManager.save(completionHandler: {flag in if (flag) {print("Удалил Юзера")}})
         }
-        AppDelegate.storeManager.save(completionHandler: {flag in if (flag) {print("Удалил Юзера")}})
+        
 
     }
     
@@ -281,7 +295,6 @@ extension ConversationsManager : CommunicatorDelegate {
     
     func didReceiveMessage(text: String, fromUserWithId: String, withId: String) {
         let date = Date()
-        let mainContext = AppDelegate.storeManager.mainContext
         let userRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": fromUserWithId])
         if let result = try? mainContext.fetch(userRequest!) as? [CDUser],
             let user = result?.first {

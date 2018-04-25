@@ -11,15 +11,14 @@ import Foundation
 class DataManager {
     
     private var user: User!
+    private var storeManager: StoreManager!
     
     weak var delegate: UIViewController!
     var isImageChanged = true
     
-    convenience init() {
-        self.init(withId: User.me.id)
-    }
-    
-    init(withId id: String) {
+    init(withId id: String, andStoreManager sManager: StoreManager) {
+        //self.init()
+        storeManager = sManager
         user = User(id: id, name: nil)
         user.photoURL = AppDelegate.getStoredImageURLForUser(withId: id)
     }
@@ -70,8 +69,8 @@ class DataManager {
             }
             
             if (changesHappened || strongSelf.isImageChanged) {
-                if AppDelegate.storeManager.put(user: strongSelf.user, current: false) {
-                    AppDelegate.storeManager.save { [weak self] flag in
+                if strongSelf.storeManager.put(user: strongSelf.user, current: false) {
+                    strongSelf.storeManager.save { [weak self] flag in
                         if flag {
                             self?.savedMessage(withTitle: "Данные сохранены",
                                                message: nil,
@@ -94,7 +93,7 @@ class DataManager {
     //MARK: - User Getter
     
     func getStoredUser() -> User? {
-        return AppDelegate.storeManager.getUser(withId: user.id)
+        return storeManager.getUser(withId: user.id)
     }
     
     //MARK: - Photo Manager

@@ -26,17 +26,26 @@ class ConversationsListViewController: UITableViewController {
     }
     
     private var manager: ConversationsManager!
+    private var storeManager: StoreManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.set(theme: getStoredTheme())
-        self.setManager()
+        self.setManagers()
         self.setDrawingOptions(forButton: profileButton)
         
     }
     
-    private func setManager() {
-        manager = ConversationsManager(with: self.tableView)
+    private func setManagers() {
+        let newManager = StoreManager()
+        if newManager.getUser(withId: User.me.id) == nil {
+            var user = User.me
+            user.name = "Александр Лыков"
+            user.info = "MSU = 🧠, Tinkoff = 💛"
+            assert(newManager.put(user: user, current: true), "Не смогли положить себя")
+        }
+        self.storeManager = newManager
+        manager = ConversationsManager(with: self.tableView, andManager: self.storeManager)
         tableView.dataSource = manager
     }
     
@@ -87,6 +96,7 @@ class ConversationsListViewController: UITableViewController {
         if let navigationVC = segue.destination as? UINavigationController,
             let profileVC = navigationVC.topViewController as? ProfileViewController {
             profileVC.id = User.me.id
+            profileVC.storeManager = storeManager
         }
     }
     
@@ -98,8 +108,7 @@ class ConversationsListViewController: UITableViewController {
                 print("Не получили id")
                 return
             }
-            conversationVC.conversation = Conversation(withManager: manager,
-                                                       userId: conversationId)
+            conversationVC.conversation = Conversation(withConversationsManager: manager, storeManager: storeManager, userId: conversationId)
             conversationCell.hasUnreadMessages = false
         }
     }

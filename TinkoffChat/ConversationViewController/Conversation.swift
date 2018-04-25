@@ -39,8 +39,8 @@ struct User {
 class Conversation: NSObject {
     
     private var fetchedResultController: NSFetchedResultsController<CDMessage>?
-    private var mainContext: NSManagedObjectContext!
-    private var saveContext: NSManagedObjectContext!
+    private var storeManager: StoreManager!
+    private weak var manager: ConversationsManager?
     
     var interlocutor: User!
     var online: Bool {
@@ -54,11 +54,12 @@ class Conversation: NSObject {
     }
     
     weak var tableView: UITableView?
-    private weak var manager: ConversationsManager?
     
-    init(withManager manager: ConversationsManager?, userId id: Int64) {
+    
+    init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManager, userId id: Int64) {
         super.init()
-        self.manager = manager
+        self.storeManager = sManager
+        self.manager = cManager
         self.setupFRC(withId: id)
         self.fetchData()
     }
@@ -67,9 +68,7 @@ class Conversation: NSObject {
     // MARK: - Private
     
     private func setupFRC(withId conversationId: Int64) {
-        mainContext = AppDelegate.storeManager.mainContext
-        saveContext = AppDelegate.storeManager.saveContext
-        let conversationRequest = mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithId", substitutionVariables: ["ID": conversationId])
+        let conversationRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithId", substitutionVariables: ["ID": conversationId])
         
         if let result = try? mainContext.fetch(conversationRequest!) as? [CDConversation],
             let conversation = result?.first {
