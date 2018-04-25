@@ -94,11 +94,11 @@ extension StoreManager {
     func put(user: User, current: Bool) -> Bool {
         let currentUser: CDUser?
         if current {
-            let appUser = AppUser.findOrInsertAppUser(in: saveContext)
+            let appUser = AppUser.findOrInsertAppUser(in: mainContext)
             currentUser = appUser?.currentUser
         }
         else {
-            currentUser = CDUser.findOrInsertAnyUser(withId: user.id, in: saveContext)
+            currentUser = CDUser.findOrInsertAnyUser(withId: user.id, in: mainContext)
         }
         guard let newUser = currentUser else {
             return false
@@ -110,6 +110,68 @@ extension StoreManager {
         newUser.photoPath = user.photoURL?.path
         save(completionHandler: nil)
         return true
+    }
+    
+    func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)? = nil) {
+        
+        let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
+        saveContext.performAndWait { [weak self] in
+            guard let strongSelf = self else {
+                print("StoreManager уже нет")
+                return
+            }
+            guard let conversationId = try? strongSelf.saveContext.fetch(conversationRequest).count + 1,
+                let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: strongSelf.saveContext) as? CDConversation  else {
+                    print("Нет бесед/не смогли вставить")
+                    return
+            }
+            conversation.id = Int64(conversationId)
+            conversation.online = online
+            conversation.hasUnreadMessages = read
+            conversation.date = date
+            conversation.text = text
+            conversation.interlocutor = user
+            completionHandler?(conversation)
+        }
+        
+    }
+    
+    func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)? = nil) {
+        let messageRequest = NSFetchRequest<CDMessage>(entityName: "CDMessage")
+        saveContext.performAndWait { [weak self] in
+            guard let strongSelf = self else {
+                print("StoreManager уже нет")
+                return
+            }
+            guard let messageId = try? strongSelf.saveContext.fetch(messageRequest).count + 1,
+                let message = NSEntityDescription.insertNewObject(forEntityName: "CDMessage", into: strongSelf.saveContext) as? CDMessage else {
+                return
+            }
+            message.text = text
+            message.id = String(messageId)
+            message.date = date
+            message.incoming = status
+            message.conversation = conversation
+            completionHandler?(message)
+        }
+    }
+    
+    func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
+        let userRequest = NSFetchRequest<CDUser>(entityName: "CDUser")
+        saveContext.performAndWait { [weak self] in
+            guard let strongSelf = self else {
+                print("StoreManager уже нет")
+                return
+            }
+            guard let userId = try? strongSelf.saveContext.fetch(userRequest).count + 1,
+                let user = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: strongSelf.saveContext) as? CDUser else {
+                    print("Не смогли положить/посмотреть кол-во")
+                    return
+            }
+            user.id =  id ?? String(-userId)
+            user.name = name
+            completionHandler!(user)
+        }
     }
     
     func getUser(withId id: String) -> User? {

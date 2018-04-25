@@ -29,17 +29,24 @@ class ConversationsListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.set(theme: getStoredTheme())
+        self.setManager()
+        self.setDrawingOptions(forButton: profileButton)
         
-        logThemeChanging(selectedTheme: getStoredTheme())
+    }
+    
+    private func setManager() {
         manager = ConversationsManager(with: self.tableView)
         tableView.dataSource = manager
-        //conversations.tableView = self.tableView
-        profileButton.layer.masksToBounds = true
-        
+    }
+    
+    private func setDrawingOptions(forButton button: UIButton) {
+        self.title = "TinkoffChat"
+        button.layer.masksToBounds = true
         let height = self.navigationController!.navigationBar.frame.height
-        profileButton.heightAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
-        profileButton.widthAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
-        profileButton.translatesAutoresizingMaskIntoConstraints = false
+        button.heightAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
+        button.widthAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
+        button.translatesAutoresizingMaskIntoConstraints = false
     }
 
     override func viewDidLayoutSubviews() {
@@ -49,49 +56,62 @@ class ConversationsListViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.title = "TinkoffChat"
         let image = AppDelegate.getStoredImageForUser(withId: User.me.id)
         profileButton.setImage(image ?? #imageLiteral(resourceName: "placeholder-user"), for: .normal)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        //self.title = ""
     }
     
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "toProfile" {
-            if let navigationVC = segue.destination as? UINavigationController,
-                let profileVC = navigationVC.topViewController as? ProfileViewController {
-                    profileVC.id = User.me.id
+        
+        guard let segueId = segue.identifier else {
+            print("Нет id у segue")
+            return
+        }
+        switch segueId {
+            case "toProfile":
+                prepareProfile(segue: segue)
+                break
+            case "toConversation":
+                prepareConversation(segue: segue, sender: sender)
+                break
+            case "toThemePicker":
+                prepareTheme(segue: segue)
+                break
+            default:
+                return
+        }
+    }
+    
+    private func prepareProfile(segue: UIStoryboardSegue) {
+        if let navigationVC = segue.destination as? UINavigationController,
+            let profileVC = navigationVC.topViewController as? ProfileViewController {
+            profileVC.id = User.me.id
+        }
+    }
+    
+    private func prepareConversation(segue: UIStoryboardSegue, sender: Any?) {
+        if let conversationVC = segue.destination as? ConversationViewController,
+            let conversationCell = sender as? ConversationListCell,
+            let selectedIndex = tableView.indexPath(for: conversationCell) {
+            guard let conversationId = manager.getIdForIndexPath(selectedIndex) else {
+                print("Не получили id")
+                return
             }
-        } else if segue.identifier == "toConversation" {
-            if let conversationVC = segue.destination as? ConversationViewController,
-                let conversationCell = sender as? ConversationListCell,
-                let selectedIndex = tableView.indexPath(for: conversationCell) {
-                //conversations
-                guard let conversationId = manager.getIdForIndexPath(selectedIndex) else {
-                    return
-                }
-                conversationVC.conversation = Conversation(withManager: manager,
-                                                           userId: conversationId)
-                //conversationVC.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain , target: nil, action: nil)
-                conversationCell.hasUnreadMessages = false
-//                let conversation = selectedIndex.section == 0 ? manager.onlineConversations![selectedIndex.row] : manager.offlineConversations![selectedIndex.row]
-//                conversationVC.conversation = conversation
-//                conversation.isUnread = false
-                //conversationVC.conversation.tableViewController = conversationVC
-            }
-        } else if segue.identifier == "toThemePicker",
-            let navigationVC = segue.destination as? UINavigationController,
+            conversationVC.conversation = Conversation(withManager: manager,
+                                                       userId: conversationId)
+            conversationCell.hasUnreadMessages = false
+        }
+    }
+    
+    private func prepareTheme(segue: UIStoryboardSegue) {
+        if let navigationVC = segue.destination as? UINavigationController,
             let themesVC = navigationVC.topViewController as? ThemesViewController {
-                    themesVC.themeDidChanged = { [weak self] (theme: Theme) in
-                        self?.logThemeChanging(selectedTheme: theme)
-                        self?.saveTheme(selectedTheme: theme)
-                    }
+            themesVC.themeDidChanged = { [weak self] (theme: Theme) in
+                self?.set(theme: theme)
+                self?.saveTheme(selectedTheme: theme)
             }
+        }
     }
     
     // MARK: - Theme
@@ -125,8 +145,8 @@ class ConversationsListViewController: UITableViewController {
     }
     
     // MARK: - ThemesViewControllerDelegate
-    private func logThemeChanging(selectedTheme: Theme) {
-        ThemesViewController.set(theme: selectedTheme, to: self.navigationController!.navigationBar)
-        ThemesViewController.set(theme: selectedTheme, to: UINavigationBar.appearance())
+    private func set(theme: Theme) {
+        ThemesViewController.set(theme: theme, to: self.navigationController!.navigationBar)
+        ThemesViewController.set(theme: theme, to: UINavigationBar.appearance())
     }
 }

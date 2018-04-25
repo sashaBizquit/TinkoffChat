@@ -66,44 +66,29 @@ class ConversationsManager: NSObject {
     }
     
     private func setDefaultConversations() {
+        
         if (fetchedResultController?.sections?.count == 0 || fetchedResultController?.sections?.count == nil) {
             let boolArray = [false,false,false]
             outerloop: for status in boolArray {
                 for readStatus in boolArray.reversed() {
                     guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
+                        print("Исчерпал диалоги")
                         break outerloop
                     }
-                    let context = AppDelegate.storeManager.saveContext
                     
-                    let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
-                    let conversationId = try? context.fetch(conversationRequest).count + 1
-                    let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: context) as! CDConversation
-                    conversation.id = Int64(conversationId ?? 0)
-                    conversation.online = newChat.online
-                    conversation.hasUnreadMessages = readStatus
-                    conversation.date = newChat.date
-                    
-                    if let text = newChat.message {
-                        let messageRequest = NSFetchRequest<CDMessage>(entityName: "CDMessage")
-                        let messageId = try? context.fetch(messageRequest).count + 1
-                        let message = NSEntityDescription.insertNewObject(forEntityName: "CDMessage", into: context) as! CDMessage
-                        message.text = text
-                        message.id = String(messageId ?? 0)
-                        message.date = newChat.date
-                        message.incoming = status
-                        conversation.text = text
-                        message.conversation = conversation
+                    guard let date = newChat.date, let text = newChat.message else {
+                            print("Не удалось положить пользователя/сообщение/беседу")
+                            break outerloop
                     }
                     
-                    let userRequest = NSFetchRequest<CDUser>(entityName: "CDUser")
-                    let userId = try? context.fetch(userRequest).count + 1
-                    let user = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: context) as! CDUser
-                    user.id =  String(userId ?? 0)
-                    user.name = newChat.name
-                    conversation.interlocutor = user
+                    AppDelegate.storeManager.putNewUser(withId: nil, name: newChat.name) {user in
+                        AppDelegate.storeManager.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { conversation in
+                            AppDelegate.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation)
+                        }
+                    }
+                    
                 }
             }
-            
             AppDelegate.storeManager.save{ flag in
                 if (flag) {
                     print("СОХРАНИЛ БОТОСООБЩЕНИЯ")
@@ -111,6 +96,8 @@ class ConversationsManager: NSObject {
                     print("НЕ СОХРАНИЛ БОТОСООБЩЕНИЯ")
                 }
             }
+        } else {
+            print("Нашел диалоги в базе")
         }
         
     }
@@ -249,23 +236,21 @@ extension ConversationsManager : CommunicatorDelegate {
                 foundConversation.text = ConversationListCell.noMessagesConst
                 foundConversation.date = date
             } else {
-                print("не вытащили юзера")
+                print("не вытащили беседу для существующего юзера")
             }
         } else {
-            let user = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: saveContext) as! CDUser
-            user.id =  userID
-            user.name = userName ?? userID
-            
-            let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
-            let conversationId = try? saveContext.fetch(conversationRequest).count + 1
-            let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: saveContext) as! CDConversation
-            conversation.id = Int64(conversationId ?? 0)
-            conversation.online = true
-            conversation.hasUnreadMessages = true
-            conversation.date = date
-            conversation.interlocutor = user
+            AppDelegate.storeManager.putNewUser(withId: userID, name: userName) {user in
+                AppDelegate.storeManager.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) {_ in
+                    AppDelegate.storeManager.save {flag in
+                        if (flag) {
+                            print("Сохранил юзера")
+                        } else {
+                            print("Не сохранил юзера")
+                        }
+                    }
+                }
+            }
         }
-        AppDelegate.storeManager.save(completionHandler: {flag in if (flag) {print("Сохранил Юзера")}})
     }
     
     func didLostUser(userID: String) {
@@ -297,27 +282,28 @@ extension ConversationsManager : CommunicatorDelegate {
     func didReceiveMessage(text: String, fromUserWithId: String, withId: String) {
         let date = Date()
         let mainContext = AppDelegate.storeManager.mainContext
-        let saveContext = AppDelegate.storeManager.saveContext
-        let userRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": fromUserWithId])
+        let userRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": fromUserWithId])
         if let result = try? mainContext.fetch(userRequest!) as? [CDUser],
             let user = result?.first {
-            let conversationRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
+            let conversationRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
             
-            if let results = try? saveContext.fetch(conversationRequest!) as? [CDConversation],
-                let foundConversation = results?.first {
-                let messageRequest = NSFetchRequest<CDMessage>(entityName: "CDMessage")
-                let messageId = try? saveContext.fetch(messageRequest).count + 1
-                let message = NSEntityDescription.insertNewObject(forEntityName: "CDMessage", into: saveContext) as! CDMessage
-                message.text = text
-                message.id = String(messageId ?? 0)
-                message.date = date
-                message.incoming = true
-                foundConversation.text = text
-                foundConversation.date = date
-                message.conversation = foundConversation
-            } else {
-                print("не вытащили беседу")
+            guard let results = try? mainContext.fetch(conversationRequest!) as? [CDConversation],
+                let foundConversation = results?.first else {
+                    print("не вытащили беседу")
+                    return
             }
+            foundConversation.text = text
+            foundConversation.date = date
+            AppDelegate.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: foundConversation) {_ in
+                AppDelegate.storeManager.save{ flag in
+                    if (flag) {
+                        print("СОХРАНИЛ")
+                    } else {
+                        print("НЕ СОХРАНИЛ")
+                    }
+                }
+            }
+            
         }
     }
 }

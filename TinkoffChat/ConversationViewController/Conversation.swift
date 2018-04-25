@@ -121,26 +121,24 @@ class Conversation: NSObject {
                 // To do - Finish offline send develpment
                 if (flag || !(strongSelf.online)) {
                     let date = Date()
-
-                    let messageRequest = NSFetchRequest<CDMessage>(entityName: "CDMessage")
-                    let messageId = try? strongSelf.saveContext.fetch(messageRequest).count + 1
-                    let message = NSEntityDescription.insertNewObject(forEntityName: "CDMessage", into: strongSelf.saveContext) as! CDMessage
-                    message.text = text
-                    message.id = String(messageId ?? 0)
-                    message.date = date
-                    message.incoming = false
-    
-                    let conversationRequest =  strongSelf.saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": strongSelf.interlocutor.id])
+                    let conversationRequest =  strongSelf.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": strongSelf.interlocutor.id])
                     
-                    if let results = try? strongSelf.saveContext.fetch(conversationRequest!) as? [CDConversation],
-                        let foundConversation = results?.first {
-                        foundConversation.text = text
-                        foundConversation.date = date
-                        message.conversation = foundConversation
-                    } else {
+                    guard let results = try? strongSelf.mainContext.fetch(conversationRequest!) as? [CDConversation],
+                        let foundConversation = results?.first else {
                         print("не вытащили юзера")
+                        return
                     }
-                    AppDelegate.storeManager.save(completionHandler: {flag in if (flag) {print("ОТПРАВШИ СОХРАНИЛ")}})
+                    foundConversation.text = text
+                    foundConversation.date = date
+                    AppDelegate.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: false, conversation: foundConversation) { _ in
+                        AppDelegate.storeManager.save{ flag in
+                            if (flag) {
+                                print("СОХРАНИЛ")
+                            } else {
+                                print("НЕ СОХРАНИЛ")
+                            }
+                        }
+                    }
                 }
             }
         }

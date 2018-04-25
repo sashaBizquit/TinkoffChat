@@ -83,7 +83,6 @@ class MultipeerCommunicator: NSObject, Communicator {
         let session = MCSession(peer: MultipeerCommunicator.myPeerId, securityIdentity: nil, encryptionPreference: .none)
         session.delegate = self
         sessions[userId] = session
-        print("добавил")
         return session
     }
     
@@ -110,7 +109,6 @@ extension MultipeerCommunicator : MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         if sessions.contains(where: {$0.key.displayName == peerID.displayName}) {print("advertiser - уже есть"); return}
         let session = addSession(forId: peerID)
-        print("online")
         invitationHandler(online, session)
     }
 
@@ -133,7 +131,6 @@ extension MultipeerCommunicator : MCNearbyServiceBrowserDelegate {
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-        //print("lostUser")
         if let index = sessions.index(where: {$0.key.displayName == peerID.displayName}) {
             sessions.remove(at: index)
         }
