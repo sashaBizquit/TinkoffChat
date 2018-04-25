@@ -26,9 +26,9 @@ class ConversationsManager: NSObject {
         super.init()
         self.tableView = tableView
         self.setCommunicator()
-        setupFRC()
-        fetchData()
-        self.setConversations()
+        self.setupFRC()
+        self.fetchData()
+        self.setDefaultConversations()
     }
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
@@ -65,7 +65,7 @@ class ConversationsManager: NSObject {
         communicator.delegate = self
     }
     
-    private func setConversations() {
+    private func setDefaultConversations() {
         if (fetchedResultController?.sections?.count == 0 || fetchedResultController?.sections?.count == nil) {
             let boolArray = [false,false,false]
             outerloop: for status in boolArray {
@@ -119,11 +119,11 @@ class ConversationsManager: NSObject {
         tableView?.reloadSections(indexSet, with: .right)
     }
     
-    func getIdForIndexPath(_ indexPath: IndexPath) -> String {
-        guard let value = fetchedResultController?.object(at: indexPath).interlocutor?.id else {
-            return "Нет id в \(indexPath)"
+    func getIdForIndexPath(_ indexPath: IndexPath) -> Int64? {
+        guard let value = fetchedResultController?.object(at: indexPath) else {
+            return nil
         }
-        return value
+        return value.id
     }
 }
 
@@ -171,7 +171,6 @@ extension ConversationsManager : UITableViewDataSource {
             sections[0].numberOfObjects > 0 {
             return fetchedResultController!.object(at: IndexPath(row: 0, section: 0)).online ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
         }
-        
         return section == 0 ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
     }
 }
@@ -265,8 +264,6 @@ extension ConversationsManager : CommunicatorDelegate {
             conversation.hasUnreadMessages = true
             conversation.date = date
             conversation.interlocutor = user
-            
-            //conversation.interlocutor = user
         }
         AppDelegate.storeManager.save(completionHandler: {flag in if (flag) {print("Сохранил Юзера")}})
     }

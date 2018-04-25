@@ -72,8 +72,12 @@ class ConversationsListViewController: UITableViewController {
                 let conversationCell = sender as? ConversationListCell,
                 let selectedIndex = tableView.indexPath(for: conversationCell) {
                 //conversations
+                guard let conversationId = manager.getIdForIndexPath(selectedIndex) else {
+                    return
+                }
                 conversationVC.conversation = Conversation(withManager: manager,
-                                                           userId: manager.getIdForIndexPath(selectedIndex))
+                                                           userId: conversationId)
+                //conversationVC.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain , target: nil, action: nil)
                 conversationCell.hasUnreadMessages = false
 //                let conversation = selectedIndex.section == 0 ? manager.onlineConversations![selectedIndex.row] : manager.offlineConversations![selectedIndex.row]
 //                conversationVC.conversation = conversation

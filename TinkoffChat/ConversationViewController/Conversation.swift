@@ -24,11 +24,9 @@ struct User {
     static var me: User  = {
         return User(id: MultipeerCommunicator.myPeerId.displayName, name: MultipeerCommunicator.userName)
     }()
+    
     init(id newId: String, name newName: String?) {
-        id = newId
-        name = newName
-        info = nil
-        photoURL = nil
+        self.init(id: newId, name: newName, photoURL: nil, info: nil)
     }
     init(id newId: String, name newName: String?, photoURL url: URL?, info newInfo: String?) {
         id = newId
@@ -54,39 +52,37 @@ class Conversation: NSObject {
         }
         return false
     }
-//    var isUnread: Bool = true
-//    var messages: [Message]?
-//    var lastMessage: Message? {
-//        return messages?.last
-//    }
-//    var lastActivityDate: Date!
     
     weak var tableView: UITableView?
     private weak var manager: ConversationsManager?
     
-    init(withManager manager: ConversationsManager?, userId id: String) {
+    init(withManager manager: ConversationsManager?, userId id: Int64) {
         super.init()
-//        self.interlocutor = user
-//        self.online = status
         self.manager = manager
-        setupFRC(withId: id)
-        fetchData()
+        self.setupFRC(withId: id)
+        self.fetchData()
     }
     
     
     // MARK: - Private
     
-    private func setupFRC(withId id: String) {
+    private func setupFRC(withId conversationId: Int64) {
         mainContext = AppDelegate.storeManager.mainContext
         saveContext = AppDelegate.storeManager.saveContext
-        let userRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": id])
+        let conversationRequest = mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithId", substitutionVariables: ["ID": conversationId])
         
-        if let result = try? mainContext.fetch(userRequest!) as? [CDUser],
-            let user = result?.first {
-            interlocutor = User(id: id, name: user.name)
+        if let result = try? mainContext.fetch(conversationRequest!) as? [CDConversation],
+            let conversation = result?.first {
+            if let userId = conversation.interlocutor?.id {
+                interlocutor = User(id: userId, name: conversation.interlocutor?.name)
+            } else {
+                print("Conversation \(conversationId) with no-id-user")
+            }
+        } else {
+            print("No conversation with id == \(conversationId)")
         }
         
-        let messagesRequest = (saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "MessagesInConversationWithId", substitutionVariables: ["ID": id])) as! NSFetchRequest<CDMessage>
+        let messagesRequest = (saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "MessagesInConversationWithId", substitutionVariables: ["ID": conversationId])) as! NSFetchRequest<CDMessage>
         
         let dateSortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         messagesRequest.sortDescriptors = [dateSortDescriptor]
@@ -114,16 +110,8 @@ class Conversation: NSObject {
         }
         super.init()
         let user = User(id: newChat.name, name: newChat.name)
-//        self.interlocutor = user
-//        self.online = newChat.online
-//        self.isUnread = readStatus
-//
-//        if let message = newChat.message {
-//            messages = [Message]()
-//            messages!.append(Message(text: message, date: newChat.date, sender: interlocutor, isIncoming: true))
-//        }
-//        lastActivityDate = newChat.date
-        setupFRC(withId: user.id)
+        let conversationId = Int64(user.id) ?? 0
+        setupFRC(withId: conversationId)
         fetchData()
     }
     
@@ -152,19 +140,7 @@ class Conversation: NSObject {
                     } else {
                         print("не вытащили юзера")
                     }
-                    AppDelegate.storeManager.save(completionHandler: {flag in print("ОТПРАВШИ СОХРАНИЛ")})
-//                    message.conversation = conversation
-//                    conversation.text = text
-//                    conversation.date = date
-                    
-//                    let newMessage = Message(text: text, date: Date(), sender: User.me, isIncoming: false)
-//                    strongSelf.lastActivityDate = newMessage.date
-//                    if strongSelf.messages == nil {strongSelf.messages = [Message]()}
-//                    strongSelf.messages!.append(newMessage)
-//                    //strongSelf.manager?.sortDialogs()
-//                    strongSelf.tableView?.reloadData()
-//                    //strongSelf.manager?.reloadSections(strongSelf.online ? [0]:[1])
-//                    //strongSelf.manager?.tableView?.reloadSections(strongSelf.online ? [0]:[1], with: .right)
+                    AppDelegate.storeManager.save(completionHandler: {flag in if (flag) {print("ОТПРАВШИ СОХРАНИЛ")}})
                 }
             }
         }
@@ -176,7 +152,7 @@ extension Conversation: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         guard let sectionsCount = fetchedResultController?.sections?.count else {
             print("Не понял, сколько секций conversation")
-            return 1
+            return 0
         }
         return sectionsCount
     }
@@ -187,8 +163,7 @@ extension Conversation: UITableViewDataSource {
             print("Не понял, сколько элементов в секциях")
             return 0
         }
-        let value = sections[section].numberOfObjects
-        return value
+        return sections[section].numberOfObjects
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -202,10 +177,9 @@ extension Conversation: UITableViewDataSource {
         return cell
     }
     
-//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//
-//        return messages == nil ? ConversationListCell.noMessagesConst : nil
-//    }
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return (fetchedResultController?.fetchedObjects?.count ?? 0) == 0 ? ConversationListCell.noMessagesConst : nil
+    }
 
 }
 

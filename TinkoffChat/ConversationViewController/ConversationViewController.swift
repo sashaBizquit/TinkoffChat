@@ -24,7 +24,7 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
         self.view.addGestureRecognizer(tapGesture)
         messageTextView.delegate = self
         messageTextView.layer.masksToBounds = true
-        
+        //navigationItem.setLeftBarButton(UIBarButtonItem(title: "", style: .plain , target: nil, action: nil), animated: false)
     }
     
     override func viewDidLayoutSubviews() {
