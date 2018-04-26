@@ -13,18 +13,8 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-//    static var storeManager: StoreManager!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
-//        let newManager = StoreManager()
-//        if newManager.getUser(withId: User.me.id) == nil {
-//            var user = User.me
-//            user.name = "Александр Лыков"
-//            user.info = "MSU = 🧠, Tinkoff = 💛"
-//            assert(newManager.put(user: user, current: true), "Не смогли положить себя")
-//        }
-//        AppDelegate.storeManager = newManager
         return true
     }
     

@@ -40,13 +40,12 @@ class Conversation: NSObject {
     
     private var fetchedResultController: NSFetchedResultsController<CDMessage>?
     private var storeManager: StoreManager!
-    private weak var manager: ConversationsManager?
+    private weak var parentManager: ConversationsManager?
     
     var interlocutor: User!
     var online: Bool {
-        let conversationRequest =  saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": interlocutor.id])
-        
-        if let results = try? saveContext.fetch((conversationRequest!)) as? [CDConversation],
+        let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": interlocutor.id])
+        if let results = try? storeManager.mainContext.fetch((conversationRequest!)) as? [CDConversation],
             let foundConversation = results?.first {
             return foundConversation.online
         }
@@ -55,11 +54,10 @@ class Conversation: NSObject {
     
     weak var tableView: UITableView?
     
-    
     init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManager, userId id: Int64) {
         super.init()
         self.storeManager = sManager
-        self.manager = cManager
+        self.parentManager = cManager
         self.setupFRC(withId: id)
         self.fetchData()
     }
@@ -70,7 +68,7 @@ class Conversation: NSObject {
     private func setupFRC(withId conversationId: Int64) {
         let conversationRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithId", substitutionVariables: ["ID": conversationId])
         
-        if let result = try? mainContext.fetch(conversationRequest!) as? [CDConversation],
+        if let result = try? storeManager.mainContext.fetch(conversationRequest!) as? [CDConversation],
             let conversation = result?.first {
             if let userId = conversation.interlocutor?.id {
                 interlocutor = User(id: userId, name: conversation.interlocutor?.name)
@@ -81,13 +79,13 @@ class Conversation: NSObject {
             print("No conversation with id == \(conversationId)")
         }
         
-        let messagesRequest = (saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "MessagesInConversationWithId", substitutionVariables: ["ID": conversationId])) as! NSFetchRequest<CDMessage>
+        let messagesRequest = (storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "MessagesInConversationWithId", substitutionVariables: ["ID": conversationId])) as! NSFetchRequest<CDMessage>
         
         let dateSortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         messagesRequest.sortDescriptors = [dateSortDescriptor]
         
         fetchedResultController = NSFetchedResultsController<CDMessage>(fetchRequest: messagesRequest,
-                                                                             managedObjectContext: mainContext,
+                                                                             managedObjectContext: storeManager.mainContext,
                                                                              sectionNameKeyPath: nil,
                                                                              cacheName: nil)
         
@@ -102,44 +100,43 @@ class Conversation: NSObject {
         }
     }
     
-    init?(withManager manager: ConversationsManager?, status: Bool, andNotRead readStatus: Bool) {
-        self.manager = manager
-        guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
-            return nil
-        }
-        super.init()
-        let user = User(id: newChat.name, name: newChat.name)
-        let conversationId = Int64(user.id) ?? 0
-        setupFRC(withId: conversationId)
-        fetchData()
-    }
-    
     func sendMessage(text: String) {
-        manager?.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
-            if let strongSelf = self {
-                // To do - Finish offline send develpment
-                if (flag || !(strongSelf.online)) {
-                    let date = Date()
-                    let conversationRequest =  strongSelf.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": strongSelf.interlocutor.id])
-                    
-                    guard let results = try? strongSelf.mainContext.fetch(conversationRequest!) as? [CDConversation],
-                        let foundConversation = results?.first else {
+        parentManager?.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
+            guard let strongSelf = self else {
+                print("Нет беседы")
+                return
+            }
+            if (!flag && strongSelf.online) {
+                return
+            }
+            // To do - Finish offline send develpment
+            let date = Date()
+            let context = strongSelf.storeManager.saveContext
+            let cRequest =  context.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": strongSelf.interlocutor.id])
+            let storeManager = strongSelf.storeManager
+            context.performAndWait { [weak storeManager] in
+                guard let strongManager = storeManager else {
+                    print("Нет беседы")
+                    return
+                }
+                guard let results = try? strongManager.saveContext.fetch(cRequest!) as? [CDConversation],
+                    let foundConversation = results?.first else {
                         print("не вытащили юзера")
                         return
-                    }
-                    foundConversation.text = text
-                    foundConversation.date = date
-                    AppDelegate.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: false, conversation: foundConversation) { _ in
-                        AppDelegate.storeManager.save{ flag in
-                            if (flag) {
-                                print("СОХРАНИЛ")
-                            } else {
-                                print("НЕ СОХРАНИЛ")
-                            }
+                }
+                foundConversation.text = text
+                foundConversation.date = date
+                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: false, conversation: foundConversation) { [weak strongManager] _ in
+                    strongManager?.save{ flag in
+                        if (flag) {
+                            print("СОХРАНИЛ")
+                        } else {
+                            print("НЕ СОХРАНИЛ")
                         }
                     }
                 }
             }
+            
         }
     }
 }
@@ -203,7 +200,6 @@ extension Conversation : NSFetchedResultsControllerDelegate {
             if let indexPath = indexPath {
                 tableView?.deleteRows(at: [indexPath], with: .automatic)
             }
-            
             if let newIndexPath = newIndexPath {
                 tableView?.insertRows(at: [newIndexPath], with: .automatic)
             }

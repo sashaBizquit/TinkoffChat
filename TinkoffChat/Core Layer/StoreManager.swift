@@ -11,15 +11,22 @@ import CoreData
 
 class StoreManager {
     private var storeURL: URL {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            assert(false, "Documents directory not found")
+        }
         return documentsURL.appendingPathComponent("MyStore.sqlite")
     }
     private let dataModelName = "Storage"
     private let dataModelExtension = "momd"
     
     private lazy var managedObjectModel: NSManagedObjectModel = {
-        let modelURL = Bundle.main.url(forResource: dataModelName, withExtension: dataModelExtension)!
-        return NSManagedObjectModel(contentsOf: modelURL)!
+        guard let modelURL = Bundle.main.url(forResource: dataModelName, withExtension: dataModelExtension) else {
+            assert(false, "No such file: \(dataModelName).\(dataModelExtension)")
+        }
+        guard let model = NSManagedObjectModel(contentsOf: modelURL) else {
+            assert(false, "No NSManagedObjectModel in \(dataModelName).\(dataModelExtension)")
+        }
+        return model
     }()
     
     private lazy var persistantStoreCoordinator: NSPersistentStoreCoordinator = {
@@ -124,13 +131,13 @@ extension StoreManager {
     func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)? = nil) {
         
         let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
-        saveContext.performAndWait { [weak self] in
-            guard let strongSelf = self else {
+        saveContext.performAndWait { [weak saveContext] in
+            guard let strongContext = saveContext else {
                 print("StoreManager уже нет")
                 return
             }
-            guard let conversationId = try? strongSelf.saveContext.fetch(conversationRequest).count + 1,
-                let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: strongSelf.saveContext) as? CDConversation  else {
+            guard let conversationId = try? strongContext.fetch(conversationRequest).count + 1,
+                let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: strongContext) as? CDConversation  else {
                     print("Нет бесед/не смогли вставить")
                     return
             }
@@ -147,13 +154,13 @@ extension StoreManager {
     
     func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)? = nil) {
         let messageRequest = NSFetchRequest<CDMessage>(entityName: "CDMessage")
-        saveContext.performAndWait { [weak self] in
-            guard let strongSelf = self else {
+        saveContext.performAndWait { [weak saveContext] in
+            guard let strongContext = saveContext else {
                 print("StoreManager уже нет")
                 return
             }
-            guard let messageId = try? strongSelf.saveContext.fetch(messageRequest).count + 1,
-                let message = NSEntityDescription.insertNewObject(forEntityName: "CDMessage", into: strongSelf.saveContext) as? CDMessage else {
+            guard let messageId = try? strongContext.fetch(messageRequest).count + 1,
+                let message = NSEntityDescription.insertNewObject(forEntityName: "CDMessage", into: strongContext) as? CDMessage else {
                 return
             }
             message.text = text
@@ -167,19 +174,19 @@ extension StoreManager {
     
     func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
         let userRequest = NSFetchRequest<CDUser>(entityName: "CDUser")
-        saveContext.performAndWait { [weak self] in
-            guard let strongSelf = self else {
+        saveContext.performAndWait { [weak saveContext] in
+            guard let strongContext = saveContext else {
                 print("StoreManager уже нет")
                 return
             }
-            guard let userId = try? strongSelf.saveContext.fetch(userRequest).count + 1,
-                let user = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: strongSelf.saveContext) as? CDUser else {
+            guard let userId = try? strongContext.fetch(userRequest).count + 1,
+                let user = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: strongContext) as? CDUser else {
                     print("Не смогли положить/посмотреть кол-во")
                     return
             }
             user.id =  id ?? String(-userId)
             user.name = name
-            completionHandler!(user)
+            completionHandler?(user)
         }
     }
     

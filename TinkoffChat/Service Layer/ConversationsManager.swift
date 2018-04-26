@@ -70,21 +70,22 @@ class ConversationsManager: NSObject {
             outerloop: for status in boolArray {
                 for readStatus in boolArray.reversed() {
                     guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
-                        print("Исчерпал диалоги")
+                        print("Исчерпал диалоги: newChat == nil")
                         break outerloop
                     }
-                    
-                    guard let date = newChat.date, let text = newChat.message else {
-                            print("Не удалось положить пользователя/сообщение/беседу")
+                    let text = newChat.message
+                    guard let date = newChat.date else {
+                            print("Пользователь без даты")
                             break outerloop
                     }
-                    
-                    self.storeManager.putNewUser(withId: nil, name: newChat.name) { [weak self] user in
-                        self?.storeManager.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { [weak self] conversation in
-                            self?.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation)
+                    let weakManager = self.storeManager
+                    self.storeManager.putNewUser(withId: nil, name: newChat.name) { [weak weakManager] user in
+                        weakManager?.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { [weak weakManager] conversation in
+                            if let unwrapedText = text {
+                                weakManager?.putNewMessage(withText: unwrapedText, date: date, hasSendToMe: status, conversation: conversation)
+                            }
                         }
                     }
-                    
                 }
             }
             self.storeManager.save{ flag in
@@ -94,10 +95,7 @@ class ConversationsManager: NSObject {
                     print("НЕ СОХРАНИЛ БОТОСООБЩЕНИЯ")
                 }
             }
-        } else {
-            print("Нашел диалоги в базе")
         }
-        
     }
     
     func reloadSections(_ indexSet: IndexSet) {
@@ -151,10 +149,12 @@ extension ConversationsManager : UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if let sections = fetchedResultController?.sections,
+        if let controller = fetchedResultController,
+            let sections = controller.sections,
             sections.count == 1,
             sections[0].numberOfObjects > 0 {
-            return fetchedResultController!.object(at: IndexPath(row: 0, section: 0)).online ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
+            
+            return controller.object(at: IndexPath(row: 0, section: 0)).online ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
         }
         return section == 0 ? SectionsNames.Online.rawValue : SectionsNames.Offline.rawValue
     }
@@ -222,20 +222,24 @@ extension ConversationsManager : CommunicatorDelegate {
     
     func didFoundUser(userID: String, userName: String?) {
         let date = Date()
-        let userRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": userID])
-        if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
+        let templateName = "UserWithId"
+        let parameterName = "ID"
+        guard let userRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: templateName, substitutionVariables: [parameterName: userID]) else {
+            assert(false, "No template request named \(templateName) with parameter == \(parameterName)")
+        }
+        if let result = try? storeManager.mainContext.fetch(userRequest) as? [CDUser],
             let user = result?.first {
             let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
-            storeManager.saveContext.performAndWait { [weak self] in
-                guard let strongSelf = self else {
+            storeManager.saveContext.performAndWait { [weak storeManager] in
+                guard let strongManager = storeManager else {
                     print("уже нет менеджера бесед")
                     return
                 }
-                if let results = try? strongSelf.storeManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
+                if let results = try? strongManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
                     let foundConversation = results?.first {
                     foundConversation.text = ConversationListCell.noMessagesConst
                     foundConversation.date = date
-                    strongSelf.storeManager.save {flag in
+                    strongManager.save {flag in
                         if (flag) {
                             print("Сохранил юзера")
                         } else {
@@ -248,9 +252,9 @@ extension ConversationsManager : CommunicatorDelegate {
             }
             
         } else {
-            storeManager.putNewUser(withId: userID, name: userName) {[weak self] user in
-                self?.storeManager.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) {[weak self] _ in
-                    self?.storeManager.save {flag in
+            storeManager.putNewUser(withId: userID, name: userName) {[weak storeManager] user in
+                storeManager?.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) { [weak storeManager] _ in
+                    storeManager?.save {flag in
                         if (flag) {
                             print("Сохранил юзера")
                         } else {
@@ -267,12 +271,12 @@ extension ConversationsManager : CommunicatorDelegate {
         if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
             let user = result?.first {
             let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
-            storeManager.saveContext.performAndWait { [weak self] in
-                guard let strongSelf = self else {
+            storeManager.saveContext.performAndWait { [weak storeManager] in
+                guard let strongManager = storeManager else {
                     print("уже нет менеджера бесед")
                     return
                 }
-                if let results = try? strongSelf.storeManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
+                if let results = try? strongManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
                     let foundConversation = results?.first {
                     foundConversation.online = false
                 } else {
@@ -295,28 +299,36 @@ extension ConversationsManager : CommunicatorDelegate {
     
     func didReceiveMessage(text: String, fromUserWithId: String, withId: String) {
         let date = Date()
-        let userRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": fromUserWithId])
-        if let result = try? mainContext.fetch(userRequest!) as? [CDUser],
+        let userRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": fromUserWithId])
+        if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
             let user = result?.first {
-            let conversationRequest =  mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
-            
-            guard let results = try? mainContext.fetch(conversationRequest!) as? [CDConversation],
-                let foundConversation = results?.first else {
-                    print("не вытащили беседу")
+            let conversationRequest =  storeManager.saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
+            storeManager.saveContext.performAndWait { [weak storeManager] in
+                guard let strongManager = storeManager else {
+                    print("уже нет менеджера бесед")
                     return
-            }
-            foundConversation.text = text
-            foundConversation.date = date
-            AppDelegate.storeManager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: foundConversation) {_ in
-                AppDelegate.storeManager.save{ flag in
-                    if (flag) {
-                        print("СОХРАНИЛ")
-                    } else {
-                        print("НЕ СОХРАНИЛ")
+                }
+                guard let results = try? strongManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
+                    let conversation = results?.first else {
+                        print("не вытащили беседу")
+                        return
+                }
+                conversation.text = text
+                conversation.date = date
+                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: conversation) { [weak storeManager] _ in
+                    guard let strongManager = storeManager else {
+                        print("уже нет менеджера бесед")
+                        return
+                    }
+                    strongManager.save {flag in
+                        if (flag) {
+                            print("СОХРАНИЛ")
+                        } else {
+                            print("НЕ СОХРАНИЛ")
+                        }
                     }
                 }
             }
-            
         }
     }
 }

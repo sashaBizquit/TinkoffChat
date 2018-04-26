@@ -18,7 +18,10 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     
     var name: String {
         get {
-            return nameLabel.text!
+            guard let labelName = nameLabel.text else {
+                assert(false, "ConversationListCell: nameLabel contains no text")
+            }
+            return labelName
         }
         set {
             nameLabel.text = newValue
@@ -28,16 +31,7 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     var message: String? {
         set {
             messageLabel.text = newValue ?? ConversationListCell.noMessagesConst
-            
-            let fontSize = messageLabel.font.pointSize
-            var traits = messageLabel.font.fontDescriptor.symbolicTraits
-            switch newValue {
-            case nil:
-                traits.insert(.traitItalic)
-            default:
-                traits.remove(.traitItalic)
-            }
-            messageLabel.font = UIFont(descriptor: messageLabel.font.fontDescriptor.withSymbolicTraits(traits)!, size: fontSize)
+            self.toggleFont(with: .traitItalic, andFlag: newValue == nil)
         }
         get {
             return messageLabel.text == ConversationListCell.noMessagesConst ? nil: messageLabel.text
@@ -47,7 +41,7 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     var date: Date? {
         didSet {
             if let unwrappedDate = date {
-                let today = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
+                let today = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date()) ?? Date()
                 let formatter = DateFormatter()
                 formatter.locale = Locale(identifier: "ru_RU")
                 
@@ -71,28 +65,25 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
         get {
             return backgroundColor == #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1)
         }
-//        didSet {
-//            self.backgroundColor = online ? #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1) : #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-//        }
     }
 
     var hasUnreadMessages: Bool = false {
-//        set {
-//
-//        }
-//        get {
-//
-//        }
         didSet {
-            let fontSize = messageLabel.font.pointSize
-            var traits = messageLabel.font.fontDescriptor.symbolicTraits
-            switch hasUnreadMessages {
-            case true:
-                traits.insert(.traitBold)
-            default:
-                traits.remove(.traitBold)
-            }
-             messageLabel.font = UIFont(descriptor: messageLabel.font.fontDescriptor.withSymbolicTraits(traits)!, size: fontSize)
+            self.toggleFont(with: .traitBold, andFlag: hasUnreadMessages)
         }
+    }
+    private func toggleFont(with trait: UIFontDescriptorSymbolicTraits, andFlag flag: Bool) {
+        let fontSize = messageLabel.font.pointSize
+        var traits = messageLabel.font.fontDescriptor.symbolicTraits
+        if (flag) {
+            traits.insert(trait)
+        } else {
+            traits.remove(trait)
+        }
+
+        guard let fontDescriptor = messageLabel.font.fontDescriptor.withSymbolicTraits(traits) else {
+            assert(false, "Cant get symbolicTraits from \(messageLabel.font)")
+        }
+        messageLabel.font = UIFont(descriptor: fontDescriptor, size: fontSize)
     }
 }

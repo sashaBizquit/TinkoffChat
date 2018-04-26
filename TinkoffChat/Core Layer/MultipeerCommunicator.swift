@@ -101,7 +101,10 @@ class MultipeerCommunicator: NSObject, Communicator {
     }
     
     func generateMessageId() -> String {
-        return "\(arc4random_uniform(UINT32_MAX)) + \(Date.timeIntervalSinceReferenceDate)".data(using: .utf8)!.base64EncodedString()
+        guard let id = "\(arc4random_uniform(UINT32_MAX)) + \(Date.timeIntervalSinceReferenceDate)".data(using: .utf8)?.base64EncodedString()  else {
+            assert(false, "data(using encoding:allowLossyConversion:) couldn't get data")
+        }
+        return id
     }
 }
 
