@@ -16,7 +16,7 @@ protocol CommunicatorDelegate {
     func failedToStartBrowsingForUsers(error: Error)
     func failedToStartAdvertising(error: Error)
     
-    func didReceiveMessage(text: String, fromUserWithId: String, withId: String)
+    func didReceiveMessage(text: String, fromUserWithId: String, withMessageId: String)
 }
 
 protocol Communicator {
@@ -159,7 +159,7 @@ extension MultipeerCommunicator : MCSessionDelegate {
             let dict = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: String]
             if let text = dict?["text"] {
                 let messageId = dict?["messageId"] ?? ""
-                delegate?.didReceiveMessage(text: text, fromUserWithId: peerID.displayName, withId: messageId)
+                delegate?.didReceiveMessage(text: text, fromUserWithId: peerID.displayName, withMessageId: messageId)
             }
 
         }

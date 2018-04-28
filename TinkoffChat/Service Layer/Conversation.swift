@@ -16,12 +16,23 @@ struct Message {
     var isIncoming: Bool
 }
 
-struct User {
+protocol UserProtocol {
+    var id: String {get set}
+    var info: String? {get set}
+    var photoURL: URL? {get set}
+    var name: String? {get set}
+    static var me: UserProtocol {get}
+    
+    init(id newId: String, name newName: String?)
+    init(id newId: String, name newName: String?, photoURL url: URL?, info newInfo: String?)
+}
+
+struct User: UserProtocol {
     var id: String
     var info: String?
     var photoURL: URL?
     var name: String?
-    static var me: User  = {
+    static var me: UserProtocol = {
         return User(id: MultipeerCommunicator.myPeerId.displayName, name: MultipeerCommunicator.userName)
     }()
     
@@ -41,20 +52,22 @@ class Conversation: NSObject {
     private var fetchedResultController: NSFetchedResultsController<CDMessage>?
     private var storeManager: StoreManager!
     private weak var parentManager: ConversationsManager?
-    
-    var interlocutor: User!
+    //let userId: Int64
+    var interlocutor: User?
     var online: Bool {
-        let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": interlocutor.id])
-        if let results = try? storeManager.mainContext.fetch((conversationRequest!)) as? [CDConversation],
-            let foundConversation = results?.first {
-            return foundConversation.online
+        let context = storeManager.mainContext
+        guard let userId = interlocutor?.id,
+            let conversation = CDConversation.findConversation(withId: userId, in: context) else {
+                assert(false, "Request not found")
+                return false
         }
-        return false
+        return conversation.online
     }
     
     weak var tableView: UITableView?
     
-    init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManager, userId id: Int64) {
+    init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManager, _ id: Int64) {
+        //self.userId = id
         super.init()
         self.storeManager = sManager
         self.parentManager = cManager
@@ -66,20 +79,16 @@ class Conversation: NSObject {
     // MARK: - Private
     
     private func setupFRC(withId conversationId: Int64) {
-        let conversationRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithId", substitutionVariables: ["ID": conversationId])
-        
-        if let result = try? storeManager.mainContext.fetch(conversationRequest!) as? [CDConversation],
-            let conversation = result?.first {
-            if let userId = conversation.interlocutor?.id {
-                interlocutor = User(id: userId, name: conversation.interlocutor?.name)
-            } else {
-                print("Conversation \(conversationId) with no-id-user")
-            }
-        } else {
-            print("No conversation with id == \(conversationId)")
+        guard let user = CDConversation.findConversation(withId: conversationId, in: storeManager.mainContext)?.interlocutor,
+            let id = user.id else {
+            assert(false, "No user found in conversation with id == \(conversationId)")
         }
-        
-        let messagesRequest = (storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "MessagesInConversationWithId", substitutionVariables: ["ID": conversationId])) as! NSFetchRequest<CDMessage>
+        interlocutor = User(id: id, name: user.name)
+
+        guard let model = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel,
+            let messagesRequest = CDMessage.fetchRequestMessagesInConversation(withId: conversationId, model: model) else {
+            assert(false, "messagesRequest from conversation with id == \(conversationId) not found")
+        }
         
         let dateSortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         messagesRequest.sortDescriptors = [dateSortDescriptor]
@@ -101,7 +110,10 @@ class Conversation: NSObject {
     }
     
     func sendMessage(text: String) {
-        parentManager?.sendMessage(string: text, to: interlocutor.id) { [weak self] flag, error in
+        guard let userId = interlocutor?.id else {
+            assert(false, "No interlocutor found")
+        }
+        parentManager?.sendMessage(string: text, to: userId) { [weak self] flag, error in
             guard let strongSelf = self else {
                 print("Нет беседы")
                 return
@@ -111,16 +123,13 @@ class Conversation: NSObject {
             }
             // To do - Finish offline send develpment
             let date = Date()
-            let context = strongSelf.storeManager.saveContext
-            let cRequest =  context.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": strongSelf.interlocutor.id])
-            let storeManager = strongSelf.storeManager
-            context.performAndWait { [weak storeManager] in
-                guard let strongManager = storeManager else {
+            strongSelf.storeManager.saveContext.performAndWait { [weak strongSelf] in
+                guard let strongSelf = strongSelf,
+                    let strongManager = strongSelf.storeManager else {
                     print("Нет беседы")
                     return
                 }
-                guard let results = try? strongManager.saveContext.fetch(cRequest!) as? [CDConversation],
-                    let foundConversation = results?.first else {
+                guard let foundConversation = CDConversation.findConversation(withId: userId, in: strongSelf.storeManager.saveContext) else {
                         print("не вытащили юзера")
                         return
                 }

@@ -222,37 +222,28 @@ extension ConversationsManager : CommunicatorDelegate {
     
     func didFoundUser(userID: String, userName: String?) {
         let date = Date()
-        let templateName = "UserWithId"
-        let parameterName = "ID"
-        guard let userRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: templateName, substitutionVariables: [parameterName: userID]) else {
-            assert(false, "No template request named \(templateName) with parameter == \(parameterName)")
-        }
-        if let result = try? storeManager.mainContext.fetch(userRequest) as? [CDUser],
-            let user = result?.first {
-            let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
+        if let id = CDUser.findUser(withId: userID, in: storeManager.mainContext)?.id {
             storeManager.saveContext.performAndWait { [weak storeManager] in
-                guard let strongManager = storeManager else {
-                    print("уже нет менеджера бесед")
-                    return
+                guard let manager = storeManager else {
+                    assert(false, "Manager not found")
                 }
-                if let results = try? strongManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
-                    let foundConversation = results?.first {
-                    foundConversation.text = ConversationListCell.noMessagesConst
-                    foundConversation.date = date
-                    strongManager.save {flag in
-                        if (flag) {
-                            print("Сохранил юзера")
-                        } else {
-                            print("Не сохранил юзера")
-                        }
+                guard let foundConversation = CDConversation.findConversation(withId: id, in: manager.saveContext) else {
+                    assert(false, "Conversation not found")
+                }
+                foundConversation.text = ConversationListCell.noMessagesConst
+                foundConversation.date = date
+                
+                manager.save {flag in
+                    if (flag) {
+                        print("Сохранил юзера")
+                    } else {
+                        print("Не сохранил юзера")
                     }
-                } else {
-                    print("не вытащили беседу для существующего юзера")
                 }
             }
             
         } else {
-            storeManager.putNewUser(withId: userID, name: userName) {[weak storeManager] user in
+            storeManager.putNewUser(withId: userID, name: userName) { [weak storeManager] user in
                 storeManager?.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) { [weak storeManager] _ in
                     storeManager?.save {flag in
                         if (flag) {
@@ -267,26 +258,15 @@ extension ConversationsManager : CommunicatorDelegate {
     }
     
     func didLostUser(userID: String) {
-        let userRequest = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": userID])
-        if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
-            let user = result?.first {
-            let conversationRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
             storeManager.saveContext.performAndWait { [weak storeManager] in
-                guard let strongManager = storeManager else {
+                guard let context = storeManager?.saveContext,
+                    let conversation = CDConversation.findConversation(withId: userID, in: context) else {
                     print("уже нет менеджера бесед")
                     return
                 }
-                if let results = try? strongManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
-                    let foundConversation = results?.first {
-                    foundConversation.online = false
-                } else {
-                    print("не вытащили юзера")
-                }
+                conversation.online = false
             }
             storeManager.save(completionHandler: {flag in if (flag) {print("Удалил Юзера")}})
-        }
-        
-
     }
     
     func failedToStartBrowsingForUsers(error: Error) {
@@ -297,29 +277,25 @@ extension ConversationsManager : CommunicatorDelegate {
         print("failedToStartAdvertising: \(error.localizedDescription)")
     }
     
-    func didReceiveMessage(text: String, fromUserWithId: String, withId: String) {
+    func didReceiveMessage(text: String, fromUserWithId id: String, withMessageId messageId: String) {
         let date = Date()
-        let userRequest =  storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "UserWithId", substitutionVariables: ["ID": fromUserWithId])
-        if let result = try? storeManager.mainContext.fetch(userRequest!) as? [CDUser],
-            let user = result?.first {
-            let conversationRequest =  storeManager.saveContext.persistentStoreCoordinator?.managedObjectModel.fetchRequestFromTemplate(withName: "ConversationWithUser", substitutionVariables: ["ID": (user.id)!])
-            storeManager.saveContext.performAndWait { [weak storeManager] in
+        storeManager.saveContext.performAndWait { [weak storeManager] in
                 guard let strongManager = storeManager else {
                     print("уже нет менеджера бесед")
                     return
                 }
-                guard let results = try? strongManager.saveContext.fetch(conversationRequest!) as? [CDConversation],
-                    let conversation = results?.first else {
-                        print("не вытащили беседу")
+                guard let conversation = CDConversation.findConversation(withId: id, in: strongManager.saveContext) else {
+                        assert(false, "No conversation found")
                         return
                 }
                 conversation.text = text
                 conversation.date = date
-                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: conversation) { [weak storeManager] _ in
+                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: conversation) { [weak storeManager] message in
                     guard let strongManager = storeManager else {
                         print("уже нет менеджера бесед")
                         return
                     }
+                    message.id = messageId
                     strongManager.save {flag in
                         if (flag) {
                             print("СОХРАНИЛ")
@@ -329,6 +305,5 @@ extension ConversationsManager : CommunicatorDelegate {
                     }
                 }
             }
-        }
     }
 }

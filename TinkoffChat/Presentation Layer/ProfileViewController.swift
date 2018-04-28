@@ -46,8 +46,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
         nameTextField.delegate = self
         nameTextField.text = user?.name
         textFieldBottomLine = CALayer()
-        nameTextField.layer.addSublayer(textFieldBottomLine!)
-        
+        if let line = textFieldBottomLine {
+            nameTextField.layer.addSublayer(line)
+        }
         infoTextView.delegate = self
         infoTextView.text = user?.info
         infoTextView.layer.borderWidth = 1
@@ -59,7 +60,8 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     private func setImage() {
         self.photoImageView.image = #imageLiteral(resourceName: "placeholder-user")
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            if let image = AppDelegate.getStoredImageForUser(withId: self!.id) {
+            if let id = self?.id,
+               let image = AppDelegate.getStoredImageForUser(withId: id) {
                 DispatchQueue.main.async {
                     self?.photoImageView.image = image
                 }
@@ -75,7 +77,6 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     private func addObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        
         NotificationCenter.default.addObserver(self, selector: #selector(ProfileViewController.keyboardWillHide(sender:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
@@ -137,7 +138,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     private func saveData() {
         dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
-        dataManager.save(nameTextField.text!, infoTextView.text!, photoImageView.image!)
+        dataManager.save(nameTextField.text ?? "", infoTextView.text ?? "", photoImageView.image ?? #imageLiteral(resourceName: "placeholder-user"))
         isInEditMode(false)
         buttonsEnabled(equal: true)
     }
@@ -225,7 +226,9 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
 
 extension ProfileViewController: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
-        textView.text = textView.text!.offsetBy(300)
+        if let text = textView.text {
+            textView.text = text.offsetBy(300)
+        }
     }
     
     func textViewDidChange(_ textView: UITextView) {
@@ -238,7 +241,9 @@ extension ProfileViewController: UITextViewDelegate {
 
 extension ProfileViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.text = textField.text!.offsetBy(25)
+        if let text = textField.text {
+            textField.text = text.offsetBy(25)
+        }
     }
     
     @objc func textFieldDidChange(_ textField: UITextField) {

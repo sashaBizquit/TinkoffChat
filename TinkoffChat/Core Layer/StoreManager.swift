@@ -98,16 +98,8 @@ class StoreManager {
 }
 
 extension StoreManager {
-//    convenience init(withModel model: NSManagedObjectModel, coordinator: NSPersistentStoreCoordinator, mainContext: NSManagedObjectContext, masterContext: NSManagedObjectContext, saveContext: NSManagedObjectContext) {
-//        self.init()
-//        self.managedObjectModel = model
-//        self.persistantStoreCoordinator = coordinator
-//        self.mainContext = mainContext
-//        self.masterContext = masterContext
-//        self.saveContext = saveContext
-//    }
     
-    func put(user: User, current: Bool) -> Bool {
+    func put(user: UserProtocol, current: Bool) -> Bool {
         let currentUser: CDUser?
         if current {
             let appUser = AppUser.findOrInsertAppUser(in: mainContext)
@@ -192,8 +184,16 @@ extension StoreManager {
     
     func getUser(withId id: String) -> User? {
         if let anyUser = CDUser.findUser(withId: id, in: mainContext) {
-            let userURL = anyUser.photoPath != nil ? URL(fileURLWithPath: anyUser.photoPath!) : nil
-            return User(id: anyUser.id!,
+            var userURL: URL?
+            if let path = anyUser.photoPath {
+                userURL = URL(fileURLWithPath: path)
+            } else {
+                userURL = nil
+            }
+            guard let id = anyUser.id else {
+                return nil
+            }
+            return User(id: id,
                         name: anyUser.name,
                         photoURL: userURL,
                         info: anyUser.info)
@@ -210,10 +210,16 @@ extension StoreManager {
 extension CDUser {
     
     static func findUser(withId id: String, in context: NSManagedObjectContext) -> CDUser? {
-        var anyUser: CDUser?
-        let fetchRequset = NSFetchRequest<CDUser>(entityName: "CDUser")
-        fetchRequset.predicate = NSPredicate(format: "id == %@", id)
         
+        guard let model = context.persistentStoreCoordinator?.managedObjectModel else {
+            assert(false, "Model is not avaliable in context!")
+            return nil
+        }
+        var anyUser: CDUser?
+        guard let fetchRequset = self.fetchRequestUser(withId: id, model: model) else {
+            assert(false, "fetchRequestUser not found")
+            return nil
+        }
         do {
             let results = try context.fetch(fetchRequset)
             assert(results.count < 2, "Multiple AnyUsers found with id = \(id)!")
@@ -225,6 +231,16 @@ extension CDUser {
             print("Failed to fetch AnyUser with id = \(id): \(error)")
         }
         return anyUser
+    }
+    
+    static func fetchRequestUser(withId id: String, model: NSManagedObjectModel)  -> NSFetchRequest<CDUser>?  {
+        let templateName = "UserWithId"
+        let parameterName = "ID"
+        guard let fetchRequset = model.fetchRequestFromTemplate(withName: templateName,substitutionVariables: [parameterName: id]) as? NSFetchRequest<CDUser> else {
+            assert(false, "No template request named \(templateName) with parameter == \(parameterName)")
+            return nil
+        }
+        return fetchRequset
     }
     
     static func findOrInsertAnyUser(withId id: String, in context: NSManagedObjectContext) -> CDUser? {
@@ -272,19 +288,76 @@ extension AppUser {
         }
         
         if appUser.currentUser == nil {
-            let currentUser = CDUser.findOrInsertAnyUser(withId: User.me.id, in: context)
-            
-            appUser.currentUser = currentUser
+            appUser.currentUser = CDUser.findOrInsertAnyUser(withId: User.me.id, in: context)
         }
         return appUser
     }
     
     static func fetchRequestAppUser(model: NSManagedObjectModel) -> NSFetchRequest<AppUser>? {
         let requestName = "AppUserRequest"
+        
         guard let fetchRequest = model.fetchRequestTemplate(forName: requestName) as? NSFetchRequest<AppUser> else {
             assert(false, "No request with name: \(requestName)")
-            return nil
         }
         return fetchRequest
+    }
+}
+
+extension CDConversation {
+    
+    static func findConversation<T>(withId id: T, in context: NSManagedObjectContext)-> CDConversation? {
+        guard let model = context.persistentStoreCoordinator?.managedObjectModel else {
+            assert(false, "Model is not avaliable in context!")
+            return nil
+        }
+        var conversation: CDConversation?
+        var fetchRequset: NSFetchRequest<CDConversation>?
+        if let stringId = id as? String {
+            fetchRequset = CDConversation.fetchRequestConversationWithUser(stringId, model: model)
+        } else if let intId = id as? Int64 {
+            fetchRequset = CDConversation.fetchRequestConversation(withId: intId, model: model)
+        }
+        guard let request = fetchRequset else {
+            assert(false, "Conversation not found")
+        }
+        do {
+            let results = try context.fetch(request)
+            assert(results.count < 2, "Multiple Conversations with \(id)-user found!")
+            if let sConversation = results.first {
+                conversation = sConversation
+            }
+        } catch {
+            print("Failed to fetch CDConversation-\(id): \(error)")
+        }
+        return conversation
+    }
+    
+    static func fetchRequestConversation(withId id: Int64, model: NSManagedObjectModel) -> NSFetchRequest<CDConversation>? {
+        let conversationWithIdName = "ConversationWithId"
+        guard let conversationRequest = model.fetchRequestFromTemplate(withName: conversationWithIdName,
+                                                                       substitutionVariables: ["ID": id]) as? NSFetchRequest<CDConversation> else {
+            assert(false, "Template with name \(conversationWithIdName) not found")
+        }
+        return conversationRequest
+    }
+    
+    static func fetchRequestConversationWithUser(_ id: String, model: NSManagedObjectModel) -> NSFetchRequest<CDConversation>? {
+        let requestName = "ConversationWithUser"
+        guard let conversationRequest =  model.fetchRequestFromTemplate(withName: requestName,
+                                                                        substitutionVariables: ["ID": id]) as? NSFetchRequest<CDConversation> else {
+                                                                            assert(false, "Template with name \(requestName) not found")
+        }
+        return conversationRequest
+    }
+}
+
+extension CDMessage {
+    static func fetchRequestMessagesInConversation(withId id: Int64, model: NSManagedObjectModel) -> NSFetchRequest<CDMessage>? {
+        let messagesInConversationWithId = "MessagesInConversationWithId"
+        guard let messagesRequest = model.fetchRequestFromTemplate(withName: messagesInConversationWithId, substitutionVariables: ["ID": id]) as? NSFetchRequest<CDMessage> else {
+            assert(false, "Template with name \(messagesInConversationWithId) and param == \(id) not found")
+            return nil
+        }
+        return messagesRequest
     }
 }

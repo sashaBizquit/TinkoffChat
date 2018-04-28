@@ -52,7 +52,7 @@ class ConversationsListViewController: UITableViewController {
     private func setDrawingOptions(forButton button: UIButton) {
         self.title = "TinkoffChat"
         button.layer.masksToBounds = true
-        let height = self.navigationController!.navigationBar.frame.height
+        let height = self.navigationController?.navigationBar.frame.height ?? 20
         button.heightAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
         button.widthAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -108,7 +108,7 @@ class ConversationsListViewController: UITableViewController {
                 print("Не получили id")
                 return
             }
-            conversationVC.conversation = Conversation(withConversationsManager: manager, storeManager: storeManager, userId: conversationId)
+            conversationVC.conversation = Conversation(withConversationsManager: manager, storeManager: storeManager, conversationId)
             conversationCell.hasUnreadMessages = false
         }
     }
@@ -127,11 +127,11 @@ class ConversationsListViewController: UITableViewController {
     func saveTheme(selectedTheme: Theme) {
         DispatchQueue.global().async { [weak selectedTheme] in
             guard let strongTheme = selectedTheme else {return}
-            let backgroundColor = strongTheme.backgroundColor!
+            let backgroundColor = strongTheme.backgroundColor ?? #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
             let backgroundColorData =  NSKeyedArchiver.archivedData(withRootObject: backgroundColor)
             try? backgroundColorData.write(to: ConversationsListViewController.backgroundColorURL)
         
-            let tintColor = strongTheme.tintColor!
+            let tintColor = strongTheme.tintColor ?? #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
             let tintColorData = NSKeyedArchiver.archivedData(withRootObject: tintColor)
             try? tintColorData.write(to: ConversationsListViewController.tintColorURL)
         }
@@ -141,7 +141,7 @@ class ConversationsListViewController: UITableViewController {
         let backgroundColorPath = ConversationsListViewController.backgroundColorURL.path
         let tintColorPath = ConversationsListViewController.tintColorURL.path
         
-        let theme: Theme!
+        let theme: Theme
         if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
             let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
             theme = Theme()
@@ -155,7 +155,10 @@ class ConversationsListViewController: UITableViewController {
     
     // MARK: - ThemesViewControllerDelegate
     private func set(theme: Theme) {
-        ThemesViewController.set(theme: theme, to: self.navigationController!.navigationBar)
+        guard let navigationBar = self.navigationController?.navigationBar else {
+            assert(false, "ConversationsListViewController has no access to navigationBar")
+        }
+        ThemesViewController.set(theme: theme, to: navigationBar)
         ThemesViewController.set(theme: theme, to: UINavigationBar.appearance())
     }
 }

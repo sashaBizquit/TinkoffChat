@@ -51,9 +51,9 @@ struct ConversationProvider: ConversationCellConfiguration {
     ]
     private static let storedDates: [Date] = [
         Date(),
-        Calendar.current.date(byAdding: .hour, value: -1, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
-        Calendar.current.date(byAdding: .day, value: -2, to: Date())!
+        Calendar.current.date(byAdding: .hour, value: -1, to: Date()) ?? Date(),
+        Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date(),
+        Calendar.current.date(byAdding: .day, value: -2, to: Date()) ?? Date()
     ]
     
     private static func getName() -> String? {

@@ -15,8 +15,10 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
     @IBOutlet weak var messageTextView: UITextView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.title = conversation.interlocutor.name ?? conversation.interlocutor.id
+        guard let user = conversation.interlocutor else {
+            assert(false, "Can't get user from conversation")
+        }
+        self.title = user.name ?? user.id
         tableView.dataSource = conversation
         conversation.tableView = self.tableView
         tableView.rowHeight = UITableViewAutomaticDimension
@@ -24,7 +26,6 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
         self.view.addGestureRecognizer(tapGesture)
         messageTextView.delegate = self
         messageTextView.layer.masksToBounds = true
-        //navigationItem.setLeftBarButton(UIBarButtonItem(title: "", style: .plain , target: nil, action: nil), animated: false)
     }
     
     override func viewDidLayoutSubviews() {

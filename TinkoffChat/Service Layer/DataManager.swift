@@ -58,12 +58,12 @@ class DataManager {
             }
             
             var changesHappened = false
-            let currentUser = strongSelf.user!
-            if (currentUser.name != name) {
+            let currentUser = strongSelf.user
+            if (currentUser?.name != name) {
                 strongSelf.user.name = name
                 changesHappened = true
             }
-            if (currentUser.info != info) {
+            if (currentUser?.info != info) {
                 strongSelf.user.info = info
                 changesHappened = true
             }

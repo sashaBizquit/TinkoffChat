@@ -44,12 +44,18 @@ class ThemesViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     @IBAction func theme1Action(_ sender: UIButton) {
-        changeTheme(to: model!.theme1)
+        if let model = model {
+            changeTheme(to: model.theme1)
+        }
     }
     @IBAction func theme2Action(_ sender: UIButton) {
-        changeTheme(to: model!.theme2)
+        if let model = model {
+            changeTheme(to: model.theme2)
+        }
     }
     @IBAction func theme3Action(_ sender: UIButton) {
-        changeTheme(to: model!.theme3)
+        if let model = model {
+            changeTheme(to: model.theme3)
+        }
     }
 }

@@ -21,7 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Photo Access Around the App
     
     static func getStoredImageURLForUser(withId id: String) -> URL {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            assert(false, "App has no access to documentDirectory")
+        }
         return documentsURL.appendingPathComponent("profile-\(id)-image")
     }
     
