@@ -17,14 +17,14 @@ enum SectionsNames: String {
 class ConversationsManager: NSObject {
     
     private var fetchedResultController: NSFetchedResultsController<CDConversation>?
-    private var storeManager: StoreManager!
+    private var storeManager: StoreManagerProtocol
     private var communicator: MultipeerCommunicator!
     private weak var tableView: UITableView?
 
-    init(with tableView: UITableView, andManager manager: StoreManager) {
-        super.init()
+    init(with tableView: UITableView, andManager manager: StoreManagerProtocol) {
         self.storeManager = manager
         self.tableView = tableView
+        super.init()
         self.setCommunicator()
         self.setupFRC()
         self.fetchData()
@@ -42,7 +42,6 @@ class ConversationsManager: NSObject {
         let onlineSortDescriptor = NSSortDescriptor(key: "online", ascending: true)
         let dateSortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         fetchRequest.sortDescriptors = [onlineSortDescriptor, dateSortDescriptor]
-
         fetchedResultController = NSFetchedResultsController<CDConversation>(fetchRequest: fetchRequest,
                                                                       managedObjectContext: storeManager.mainContext,
                                                                       sectionNameKeyPath: "online",
@@ -64,36 +63,34 @@ class ConversationsManager: NSObject {
     }
     
     private func setDefaultConversations() {
-        
-        if (fetchedResultController?.sections?.count == 0 || fetchedResultController?.sections?.count == nil) {
-            let boolArray = [false,false,false]
-            outerloop: for status in boolArray {
-                for readStatus in boolArray.reversed() {
-                    guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
-                        print("Исчерпал диалоги: newChat == nil")
+        if (fetchedResultController?.sections?.count != 0 && fetchedResultController?.sections?.count != nil) {
+            return
+        }
+        let boolArray = [false,false,false]
+        outerloop: for status in boolArray {
+            for readStatus in boolArray.reversed() {
+                guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
+                    print("Исчерпал диалоги: newChat == nil")
+                    break outerloop
+                }
+                let text = newChat.message
+                guard let date = newChat.date else {
+                        print("Пользователь без даты")
                         break outerloop
-                    }
-                    let text = newChat.message
-                    guard let date = newChat.date else {
-                            print("Пользователь без даты")
-                            break outerloop
-                    }
-                    let weakManager = self.storeManager
-                    self.storeManager.putNewUser(withId: nil, name: newChat.name) { [weak weakManager] user in
-                        weakManager?.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { [weak weakManager] conversation in
-                            if let unwrapedText = text {
-                                weakManager?.putNewMessage(withText: unwrapedText, date: date, hasSendToMe: status, conversation: conversation)
-                            }
-                        }
+                }
+                storeManager.putNewUser(withId: nil, name: newChat.name) { [weak storeManager] user in
+                    storeManager?.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { [weak storeManager] conversation in
+                        guard let unwrapedText = text else { return }
+                        storeManager?.putNewMessage(withText: unwrapedText, date: date, hasSendToMe: status, conversation: conversation)
                     }
                 }
             }
-            self.storeManager.save{ flag in
-                if (flag) {
-                    print("СОХРАНИЛ БОТОСООБЩЕНИЯ")
-                } else {
-                    print("НЕ СОХРАНИЛ БОТОСООБЩЕНИЯ")
-                }
+        }
+        self.storeManager.save{ flag in
+            if (flag) {
+                print("СОХРАНИЛ БОТОСООБЩЕНИЯ")
+            } else {
+                print("НЕ СОХРАНИЛ БОТОСООБЩЕНИЯ")
             }
         }
     }
@@ -103,16 +100,12 @@ class ConversationsManager: NSObject {
     }
     
     func getIdForIndexPath(_ indexPath: IndexPath) -> Int64? {
-        guard let value = fetchedResultController?.object(at: indexPath) else {
-            return nil
-        }
-        return value.id
+        return fetchedResultController?.object(at: indexPath).id
     }
 }
 
 // MARK: - Table view data source
 extension ConversationsManager : UITableViewDataSource {
-    
     func numberOfSections(in tableView: UITableView) -> Int {
         guard let sectionsCount = fetchedResultController?.sections?.count else {
             print("Не понял, сколько секций")
@@ -219,7 +212,6 @@ extension ConversationsManager : NSFetchedResultsControllerDelegate {
 
 // MARK: - CommunicatorDelegate
 extension ConversationsManager : CommunicatorDelegate {
-    
     func didFoundUser(userID: String, userName: String?) {
         let date = Date()
         if let id = CDUser.findUser(withId: userID, in: storeManager.mainContext)?.id {

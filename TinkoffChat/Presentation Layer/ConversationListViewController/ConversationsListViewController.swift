@@ -25,15 +25,14 @@ class ConversationsListViewController: UITableViewController {
         case Online = "Онлайн", Offline = "Офлайн"
     }
     
-    private var manager: ConversationsManager!
-    private var storeManager: StoreManager!
+    private var cManager: ConversationsManager!
+    private var storeManager: StoreManagerProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.set(theme: getStoredTheme())
         self.setManagers()
         self.setDrawingOptions(forButton: profileButton)
-        
     }
     
     private func setManagers() {
@@ -45,8 +44,11 @@ class ConversationsListViewController: UITableViewController {
             assert(newManager.put(user: user, current: true), "Не смогли положить себя")
         }
         self.storeManager = newManager
-        manager = ConversationsManager(with: self.tableView, andManager: self.storeManager)
-        tableView.dataSource = manager
+        guard let sManager = self.storeManager else {
+            assert(false, "ConversationsListViewController: store manager wasn't found")
+        }
+        cManager = ConversationsManager(with: self.tableView, andManager: sManager)
+        tableView.dataSource = cManager
     }
     
     private func setDrawingOptions(forButton button: UIButton) {
@@ -101,14 +103,17 @@ class ConversationsListViewController: UITableViewController {
     }
     
     private func prepareConversation(segue: UIStoryboardSegue, sender: Any?) {
-        if let conversationVC = segue.destination as? ConversationViewController,
+        if let conversationVC = segue.destination as? ConversationTableViewController,
             let conversationCell = sender as? ConversationListCell,
             let selectedIndex = tableView.indexPath(for: conversationCell) {
-            guard let conversationId = manager.getIdForIndexPath(selectedIndex) else {
+            guard let conversationId = cManager.getIdForIndexPath(selectedIndex) else {
                 print("Не получили id")
                 return
             }
-            conversationVC.conversation = Conversation(withConversationsManager: manager, storeManager: storeManager, conversationId)
+            guard let sManager = storeManager else {
+                assert(false, "ConversationsListViewController: storeManager not defined")
+            }
+            conversationVC.conversation = Conversation(withConversationsManager: cManager, storeManager: sManager, conversationId)
             conversationCell.hasUnreadMessages = false
         }
     }

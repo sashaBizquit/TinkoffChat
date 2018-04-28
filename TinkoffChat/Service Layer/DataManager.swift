@@ -11,12 +11,12 @@ import Foundation
 class DataManager {
     
     private var user: User!
-    private var storeManager: StoreManager!
+    private var storeManager: StoreManagerProtocol
     
     weak var delegate: UIViewController!
     var isImageChanged = true
     
-    init(withId id: String, andStoreManager sManager: StoreManager) {
+    init(withId id: String, andStoreManager sManager: StoreManagerProtocol) {
         //self.init()
         storeManager = sManager
         user = User(id: id, name: nil)
@@ -70,9 +70,12 @@ class DataManager {
             
             if (changesHappened || strongSelf.isImageChanged) {
                 if strongSelf.storeManager.put(user: strongSelf.user, current: false) {
-                    strongSelf.storeManager.save { [weak self] flag in
+                    strongSelf.storeManager.save { [weak strongSelf] flag in
+                        guard let strongSelf = strongSelf else {
+                            assert(false, "DataManager: save(): DataManager not found")
+                        }
                         if flag {
-                            self?.savedMessage(withTitle: "Данные сохранены",
+                            strongSelf.savedMessage(withTitle: "Данные сохранены",
                                                message: nil,
                                                additionAction: nil,
                                                strongActivator)

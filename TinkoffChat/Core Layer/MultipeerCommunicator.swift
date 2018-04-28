@@ -22,7 +22,6 @@ protocol CommunicatorDelegate {
 protocol Communicator {
     func sendMessage(string: String, to userID: String, completionHandler: ((_ success: Bool, _ error: Error?)->())?)
     var delegate: CommunicatorDelegate? {get set}
-    var online: Bool {get set}
 }
 
 class MultipeerCommunicator: NSObject, Communicator {
@@ -35,10 +34,9 @@ class MultipeerCommunicator: NSObject, Communicator {
     }
     
     private var sessions = [MCPeerID:MCSession]()
-    var online: Bool
     private var serviceAdvertiser : MCNearbyServiceAdvertiser!
     private var serviceBrowser : MCNearbyServiceBrowser!
-    private let serviceType = "tinkoff-chat"
+    private static let serviceType = "tinkoff-chat"
     static let userName = "Lykov Aleksandr"
     static let myPeerId = MCPeerID(displayName: MultipeerCommunicator.userName)
     
@@ -48,29 +46,32 @@ class MultipeerCommunicator: NSObject, Communicator {
             "text": string,
             "messageId": generateMessageId()
         ]
-
-        if JSONSerialization.isValidJSONObject(jsonObject) {
-            do {
-                var tuple: (MCPeerID, MCSession)?
-                for elem in sessions {
-                    if elem.key.displayName == userID {
-                        tuple = (elem.key, elem.value)
-                    }
-                }
-                if let strongTuple = tuple {
-                    let data = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
-                    try strongTuple.1.send(data, toPeers: [strongTuple.0], with: .unreliable)
-                    completionHandler?(true, nil)
-                }
-                else {completionHandler?(false, NSError(domain: "Сессия для \(userID) не найдена", code: -1, userInfo: nil)) }
-            }
-            catch {
-                completionHandler?(false, error)
-            }
-        }
-        else {
+        guard JSONSerialization.isValidJSONObject(jsonObject) else {
             completionHandler?(false, NSError(domain: "Объект JSON не был создан", code: -2, userInfo: nil))
+            return
         }
+        do {
+            guard let strongTuple = self.findSessionForUser(withId: userID) else {
+                completionHandler?(false, NSError(domain: "Сессия для \(userID) не найдена", code: -1, userInfo: nil))
+                return
+            }
+            let data = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
+            try strongTuple.1.send(data, toPeers: [strongTuple.0], with: .unreliable)
+            completionHandler?(true, nil)
+        }
+        catch {
+            completionHandler?(false, error)
+        }
+    }
+    
+    private func findSessionForUser(withId userID: String) -> (MCPeerID, MCSession)? {
+        var tuple: (MCPeerID, MCSession)?
+        for elem in sessions {
+            if elem.key.displayName == userID {
+                tuple = (elem.key, elem.value)
+            }
+        }
+        return tuple
     }
     
     private func addSession(forId userId: MCPeerID) -> MCSession {
@@ -87,17 +88,9 @@ class MultipeerCommunicator: NSObject, Communicator {
     }
     
     override init() {
-        online = true
         super.init()
-        
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: MultipeerCommunicator.myPeerId,
-                                                           discoveryInfo: ["userName": MultipeerCommunicator.userName],
-                                                           serviceType: serviceType)
-        
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: MultipeerCommunicator.myPeerId, serviceType: serviceType)
-        
-        self.serviceAdvertiser.delegate = self
-        self.serviceBrowser.delegate = self
+        self.setupAdvertiser()
+        self.setupBrowser()
     }
     
     func generateMessageId() -> String {
@@ -106,13 +99,24 @@ class MultipeerCommunicator: NSObject, Communicator {
         }
         return id
     }
+    
+    private func setupBrowser() {
+        self.serviceBrowser = MCNearbyServiceBrowser(peer: MultipeerCommunicator.myPeerId, serviceType: MultipeerCommunicator.serviceType)
+        self.serviceBrowser.delegate = self
+    }
+    private func setupAdvertiser() {
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: MultipeerCommunicator.myPeerId,
+                                                           discoveryInfo: ["userName": MultipeerCommunicator.userName],
+                                                           serviceType: MultipeerCommunicator.serviceType)
+        self.serviceAdvertiser.delegate = self
+    }
 }
 
 extension MultipeerCommunicator : MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         if sessions.contains(where: {$0.key.displayName == peerID.displayName}) {print("advertiser - уже есть"); return}
         let session = addSession(forId: peerID)
-        invitationHandler(online, session)
+        invitationHandler(true, session)
     }
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {

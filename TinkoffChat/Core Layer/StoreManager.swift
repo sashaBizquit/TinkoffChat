@@ -9,7 +9,32 @@
 import Foundation
 import CoreData
 
-class StoreManager {
+protocol StoreManagerProtocol: class
+{
+    var mainContext: NSManagedObjectContext {get}
+    var saveContext: NSManagedObjectContext {get}
+    
+    func put(user: UserProtocol, current: Bool) -> Bool
+    func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)?)
+    func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)?)
+    func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)?)
+    func getUser(withId id: String) -> User?
+    func save(completionHandler: ((Bool)->Void)?)
+}
+
+extension StoreManagerProtocol {
+    func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)? = nil) {
+        return putNewConversation(withNetworkStatus: online, lastDate: date, readStatus: read, user: user, text: text, completionHandler: completionHandler)
+    }
+    func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)? = nil) {
+        return putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation, completionHandler: completionHandler)
+    }
+    func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
+        return putNewUser(withId: id, name: name, completionHandler: completionHandler)
+    }
+}
+
+class StoreManager: StoreManagerProtocol {
     private var storeURL: URL {
         guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             assert(false, "Documents directory not found")
@@ -45,7 +70,6 @@ class StoreManager {
     
     private lazy var masterContext: NSManagedObjectContext = {
         var masterContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        
         masterContext.persistentStoreCoordinator = persistantStoreCoordinator
         masterContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
         masterContext.undoManager = nil
@@ -55,7 +79,6 @@ class StoreManager {
     
     lazy var mainContext: NSManagedObjectContext = {
         var mainContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        
         mainContext.parent = masterContext
         mainContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
         mainContext.undoManager = nil
@@ -75,7 +98,6 @@ class StoreManager {
     
     
     fileprivate func performSave(context: NSManagedObjectContext, completionHandler: ((Bool)->Void)?) {
-        
         guard context.hasChanges else {
             completionHandler?(true)
             return
@@ -98,7 +120,6 @@ class StoreManager {
 }
 
 extension StoreManager {
-    
     func put(user: UserProtocol, current: Bool) -> Bool {
         let currentUser: CDUser?
         if current {
@@ -121,7 +142,6 @@ extension StoreManager {
     }
     
     func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)? = nil) {
-        
         let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
         saveContext.performAndWait { [weak saveContext] in
             guard let strongContext = saveContext else {
@@ -198,7 +218,6 @@ extension StoreManager {
                         photoURL: userURL,
                         info: anyUser.info)
         }
-        
         return nil
     }
     
@@ -208,9 +227,7 @@ extension StoreManager {
 }
 
 extension CDUser {
-    
     static func findUser(withId id: String, in context: NSManagedObjectContext) -> CDUser? {
-        
         guard let model = context.persistentStoreCoordinator?.managedObjectModel else {
             assert(false, "Model is not avaliable in context!")
             return nil
@@ -226,7 +243,6 @@ extension CDUser {
             if let foundUser = results.first {
                 anyUser = foundUser
             }
-            
         } catch {
             print("Failed to fetch AnyUser with id = \(id): \(error)")
         }
@@ -245,18 +261,15 @@ extension CDUser {
     
     static func findOrInsertAnyUser(withId id: String, in context: NSManagedObjectContext) -> CDUser? {
         var anyUser: CDUser? = findUser(withId: id, in: context)
-        
         if anyUser == nil {
             anyUser = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: context) as? CDUser
             anyUser?.id = id
         }
-        
         return anyUser
     }
 }
 
 extension AppUser {
-    
     static func findOrInsertAppUser(in context: NSManagedObjectContext) -> AppUser? {
         guard let model = context.persistentStoreCoordinator?.managedObjectModel else {
             assert(false, "Model is not avaliable in context!")

@@ -22,7 +22,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     private var dataManager: DataManager!
     private var textFieldBottomLine: CALayer?
-    var storeManager: StoreManager!
+    var storeManager: StoreManagerProtocol?
     var id: String = User.me.id
     
     // MARK: UIViewController Lifecycle
@@ -37,7 +37,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     private func setModel() {
-        dataManager = DataManager(withId: id, andStoreManager: storeManager)
+        guard let manager = storeManager else {
+            assert(false, "ProfileViewController: no storeManager defined")
+        }
+        dataManager = DataManager(withId: id, andStoreManager: manager)
         dataManager.delegate = self
     }
     

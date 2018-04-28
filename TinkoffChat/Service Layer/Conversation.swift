@@ -9,82 +9,40 @@
 import Foundation
 import CoreData
 
-struct Message {
-    var text: String?
-    var date: Date?
-    var sender: User
-    var isIncoming: Bool
-}
-
-protocol UserProtocol {
-    var id: String {get set}
-    var info: String? {get set}
-    var photoURL: URL? {get set}
-    var name: String? {get set}
-    static var me: UserProtocol {get}
-    
-    init(id newId: String, name newName: String?)
-    init(id newId: String, name newName: String?, photoURL url: URL?, info newInfo: String?)
-}
-
-struct User: UserProtocol {
-    var id: String
-    var info: String?
-    var photoURL: URL?
-    var name: String?
-    static var me: UserProtocol = {
-        return User(id: MultipeerCommunicator.myPeerId.displayName, name: MultipeerCommunicator.userName)
-    }()
-    
-    init(id newId: String, name newName: String?) {
-        self.init(id: newId, name: newName, photoURL: nil, info: nil)
-    }
-    init(id newId: String, name newName: String?, photoURL url: URL?, info newInfo: String?) {
-        id = newId
-        name = newName
-        info = newInfo
-        photoURL = url
-    }
-}
-
 class Conversation: NSObject {
     
     private var fetchedResultController: NSFetchedResultsController<CDMessage>?
-    private var storeManager: StoreManager!
+    private var storeManager: StoreManagerProtocol
     private weak var parentManager: ConversationsManager?
-    //let userId: Int64
-    var interlocutor: User?
+    weak var tableView: UITableView?
+    
+    var interlocutor: UserProtocol
     var online: Bool {
         let context = storeManager.mainContext
-        guard let userId = interlocutor?.id,
-            let conversation = CDConversation.findConversation(withId: userId, in: context) else {
+        let userId = interlocutor.id
+        guard let conversation = CDConversation.findConversation(withId: userId, in: context) else {
                 assert(false, "Request not found")
                 return false
         }
         return conversation.online
     }
     
-    weak var tableView: UITableView?
-    
-    init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManager, _ id: Int64) {
-        //self.userId = id
+    init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManagerProtocol, _ id: Int64) {
+        storeManager = sManager
+        parentManager = cManager
+        guard let user = CDConversation.findConversation(withId: id, in: storeManager.mainContext)?.interlocutor,
+            let userId = user.id else {
+                assert(false, "No non-nil id user found in conversation == \(id)")
+        }
+        interlocutor = User(id: userId, name: user.name)
         super.init()
-        self.storeManager = sManager
-        self.parentManager = cManager
         self.setupFRC(withId: id)
         self.fetchData()
     }
     
-    
     // MARK: - Private
     
     private func setupFRC(withId conversationId: Int64) {
-        guard let user = CDConversation.findConversation(withId: conversationId, in: storeManager.mainContext)?.interlocutor,
-            let id = user.id else {
-            assert(false, "No user found in conversation with id == \(conversationId)")
-        }
-        interlocutor = User(id: id, name: user.name)
-
         guard let model = storeManager.mainContext.persistentStoreCoordinator?.managedObjectModel,
             let messagesRequest = CDMessage.fetchRequestMessagesInConversation(withId: conversationId, model: model) else {
             assert(false, "messagesRequest from conversation with id == \(conversationId) not found")
@@ -110,9 +68,7 @@ class Conversation: NSObject {
     }
     
     func sendMessage(text: String) {
-        guard let userId = interlocutor?.id else {
-            assert(false, "No interlocutor found")
-        }
+        let userId = interlocutor.id
         parentManager?.sendMessage(string: text, to: userId) { [weak self] flag, error in
             guard let strongSelf = self else {
                 print("Нет беседы")
@@ -124,11 +80,11 @@ class Conversation: NSObject {
             // To do - Finish offline send develpment
             let date = Date()
             strongSelf.storeManager.saveContext.performAndWait { [weak strongSelf] in
-                guard let strongSelf = strongSelf,
-                    let strongManager = strongSelf.storeManager else {
+                guard let strongSelf = strongSelf else {
                     print("Нет беседы")
                     return
                 }
+                let strongManager = strongSelf.storeManager
                 guard let foundConversation = CDConversation.findConversation(withId: userId, in: strongSelf.storeManager.saveContext) else {
                         print("не вытащили юзера")
                         return

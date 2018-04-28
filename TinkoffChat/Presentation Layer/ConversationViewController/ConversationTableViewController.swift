@@ -1,5 +1,5 @@
 //
-//  ConversationViewController.swift
+//  ConversationTableViewController.swift
 //  TinkoffChat
 //
 //  Created by Александр Лыков on 12.03.2018.
@@ -8,22 +8,31 @@
 
 import UIKit
 
-class ConversationViewController: UITableViewController, UITextViewDelegate{
+class ConversationTableViewController: UITableViewController, UITextViewDelegate{
     
     var conversation: Conversation!
     
     @IBOutlet weak var messageTextView: UITextView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        guard let user = conversation.interlocutor else {
-            assert(false, "Can't get user from conversation")
-        }
+        
+        
+        let user = conversation.interlocutor
         self.title = user.name ?? user.id
-        tableView.dataSource = conversation
-        conversation.tableView = self.tableView
+        
         tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.dataSource = conversation
+        
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)
+    }
+    
+    private func setupConversation() {
+        conversation.tableView = self.tableView
+    }
+    
+    private func setupTextView() {
         messageTextView.delegate = self
         messageTextView.layer.masksToBounds = true
     }
@@ -34,7 +43,7 @@ class ConversationViewController: UITableViewController, UITextViewDelegate{
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if(text == "\n") {
+        if (text == "\n") {
             textView.resignFirstResponder()
             return false
         }
