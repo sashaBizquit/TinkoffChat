@@ -60,7 +60,7 @@ class ConversationListCell: UITableViewCell, ConversationCellConfiguration{
     
     var online: Bool {
         set {
-            backgroundColor = newValue ? #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1) : #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+            backgroundColor = newValue ? #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1): #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         }
         get {
             return backgroundColor == #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1)

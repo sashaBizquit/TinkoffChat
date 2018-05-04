@@ -139,7 +139,6 @@ extension Conversation: UITableViewDataSource {
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return (fetchedResultController?.fetchedObjects?.count ?? 0) == 0 ? ConversationListCell.noMessagesConst : nil
     }
-
 }
 
 extension Conversation : NSFetchedResultsControllerDelegate {

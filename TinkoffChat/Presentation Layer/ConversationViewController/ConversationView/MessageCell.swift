@@ -13,7 +13,6 @@ class MessageCell: UITableViewCell {
     @IBOutlet weak var label: UILabel!
     @IBOutlet weak var leftConstraint: NSLayoutConstraint!
     @IBOutlet weak var messageView: UIView!
-    
     @IBOutlet weak var rightConstraint: NSLayoutConstraint!
     
     private var storedRight: NSLayoutConstraint?

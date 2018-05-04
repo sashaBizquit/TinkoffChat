@@ -16,7 +16,6 @@ class ConversationTableViewController: UITableViewController, UITextViewDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         let user = conversation.interlocutor
         self.title = user.name ?? user.id
         
@@ -26,6 +25,9 @@ class ConversationTableViewController: UITableViewController, UITextViewDelegate
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard (_:)))
         self.view.addGestureRecognizer(tapGesture)
+        
+        setupConversation()
+        setupTextView()
     }
     
     private func setupConversation() {

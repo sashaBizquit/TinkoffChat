@@ -154,6 +154,7 @@ extension StoreManager {
                     return
             }
             conversation.id = Int64(conversationId)
+            print("online = \(online)")
             conversation.online = online
             conversation.hasUnreadMessages = read
             conversation.date = date

@@ -63,7 +63,6 @@
                                     <outlet property="dateLabel" destination="5Fs-bu-PI4" id="Rk7-Rz-TIJ"/>
                                     <outlet property="messageLabel" destination="BDJ-8R-1rV" id="UGX-EX-7cN"/>
                                     <outlet property="nameLabel" destination="MAM-EB-0EJ" id="fd0-tF-BDL"/>
-                                    <segue destination="dGt-GH-pLi" kind="show" identifier="toConversation" id="6WK-0H-4dh"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -96,82 +95,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gNg-lE-9KK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-256.875" y="-385.56338028169017"/>
-        </scene>
-        <!--Conversation Table View Controller-->
-        <scene sceneID="JML-Zo-sW0">
-            <objects>
-                <tableViewController id="dGt-GH-pLi" customClass="ConversationTableViewController" customModule="TinkoffChat" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="9b0-Yh-v3W">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <textView key="tableHeaderView" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Отправьте, нажав Enter" textAlignment="natural" id="qXx-VT-mGx">
-                            <rect key="frame" x="0.0" y="0.0" width="320" height="36"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <color key="backgroundColor" red="0.80778077411167515" green="0.80778077411167515" blue="0.80778077411167515" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                        </textView>
-                        <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="message" id="WWh-j6-zpA" customClass="MessageCell" customModule="TinkoffChat" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="64" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="WWh-j6-zpA" id="lji-7W-fDx">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RRh-n8-Ypz">
-                                            <rect key="frame" x="16" y="5" width="288" height="34"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Сообщение" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8WT-9O-6UL">
-                                                    <rect key="frame" x="10" y="10" width="268" height="14"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <constraints>
-                                                <constraint firstAttribute="leading" secondItem="8WT-9O-6UL" secondAttribute="leading" constant="-10" id="3GX-bP-iMc"/>
-                                                <constraint firstAttribute="trailing" secondItem="8WT-9O-6UL" secondAttribute="trailing" constant="10" id="XHK-sn-pZr"/>
-                                                <constraint firstAttribute="bottom" secondItem="8WT-9O-6UL" secondAttribute="bottom" constant="10" id="jmH-xc-c4h"/>
-                                                <constraint firstAttribute="top" secondItem="8WT-9O-6UL" secondAttribute="top" constant="-10" id="xfC-Ju-P1X"/>
-                                            </constraints>
-                                            <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                    <integer key="value" value="10"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                            </userDefinedRuntimeAttributes>
-                                        </view>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstAttribute="trailing" secondItem="RRh-n8-Ypz" secondAttribute="trailing" constant="16" id="NtN-pB-fNS"/>
-                                        <constraint firstItem="RRh-n8-Ypz" firstAttribute="leading" secondItem="lji-7W-fDx" secondAttribute="leading" constant="16" id="Tdj-9y-feg"/>
-                                        <constraint firstItem="RRh-n8-Ypz" firstAttribute="top" secondItem="lji-7W-fDx" secondAttribute="top" constant="5" id="U8G-oO-EDf"/>
-                                        <constraint firstAttribute="bottom" secondItem="RRh-n8-Ypz" secondAttribute="bottom" constant="5" id="VBs-Fb-vZa"/>
-                                    </constraints>
-                                </tableViewCellContentView>
-                                <connections>
-                                    <outlet property="label" destination="8WT-9O-6UL" id="CAV-V9-4sE"/>
-                                    <outlet property="leftConstraint" destination="Tdj-9y-feg" id="IOB-0n-a9G"/>
-                                    <outlet property="messageView" destination="RRh-n8-Ypz" id="Guo-30-gYp"/>
-                                    <outlet property="rightConstraint" destination="NtN-pB-fNS" id="rWW-ch-ZrP"/>
-                                </connections>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="dGt-GH-pLi" id="Ya7-RJ-bGN"/>
-                            <outlet property="delegate" destination="dGt-GH-pLi" id="Rdu-xy-PPb"/>
-                        </connections>
-                    </tableView>
-                    <connections>
-                        <outlet property="messageTextView" destination="qXx-VT-mGx" id="fak-bP-Pb2"/>
-                    </connections>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="8zh-20-x6E" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-258.75" y="467.95774647887322"/>
         </scene>
         <!--Выберите тему-->
         <scene sceneID="so6-aP-fFh">

@@ -10,8 +10,20 @@ import UIKit
 
 class ConversationView: UIView {
 
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var textView: UITextView!
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        commonInit()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        commonInit()
+    }
+    
+    private func commonInit() {
+        
+    }
     /*
     // Only override draw() if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.

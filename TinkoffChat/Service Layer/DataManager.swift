@@ -10,17 +10,16 @@ import Foundation
 
 class DataManager {
     
-    private var user: User!
+    private var user: User?
     private var storeManager: StoreManagerProtocol
     
     weak var delegate: UIViewController!
     var isImageChanged = true
     
     init(withId id: String, andStoreManager sManager: StoreManagerProtocol) {
-        //self.init()
         storeManager = sManager
         user = User(id: id, name: nil)
-        user.photoURL = AppDelegate.getStoredImageURLForUser(withId: id)
+        user?.photoURL = AppDelegate.getStoredImageURLForUser(withId: id)
     }
     
     //MARK: - Saving Methods
@@ -49,10 +48,14 @@ class DataManager {
         activityIndicator.startAnimating()
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self, weak activityIndicator] in
-            guard let strongSelf = self, let strongActivator = activityIndicator else { return }
+            guard let strongSelf = self,
+                let user = strongSelf.user,
+                let strongActivator = activityIndicator else {
+                    return
+            }
             
-            let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self, weak image] action in
-                guard let strongSelf = self else { return }
+            let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak strongSelf, weak image] action in
+                guard let strongSelf = strongSelf else { return }
                 guard let strongImage = image else { return }
                 strongSelf.save(name, info, strongImage)
             }
@@ -60,31 +63,32 @@ class DataManager {
             var changesHappened = false
             let currentUser = strongSelf.user
             if (currentUser?.name != name) {
-                strongSelf.user.name = name
+                strongSelf.user?.name = name
                 changesHappened = true
             }
             if (currentUser?.info != info) {
-                strongSelf.user.info = info
+                strongSelf.user?.info = info
                 changesHappened = true
             }
             
-            if (changesHappened || strongSelf.isImageChanged) {
-                if strongSelf.storeManager.put(user: strongSelf.user, current: false) {
-                    strongSelf.storeManager.save { [weak strongSelf] flag in
-                        guard let strongSelf = strongSelf else {
-                            assert(false, "DataManager: save(): DataManager not found")
-                        }
-                        if flag {
-                            strongSelf.savedMessage(withTitle: "Данные сохранены",
-                                               message: nil,
-                                               additionAction: nil,
-                                               strongActivator)
-                        } else {
-                            strongSelf.savedMessage(withTitle: "Ошибка",
-                                                    message: "Не удалось сохранить данные",
-                                                    additionAction: repeatAction,
-                                                    strongActivator)
-                        }
+            if (!changesHappened && !strongSelf.isImageChanged) {
+                return
+            }
+            if strongSelf.storeManager.put(user: user, current: false) {
+                strongSelf.storeManager.save { [weak strongSelf] flag in
+                    guard let strongSelf = strongSelf else {
+                        assert(false, "DataManager: save(): DataManager not found")
+                    }
+                    if flag {
+                        strongSelf.savedMessage(withTitle: "Данные сохранены",
+                                           message: nil,
+                                           additionAction: nil,
+                                           strongActivator)
+                    } else {
+                        strongSelf.savedMessage(withTitle: "Ошибка",
+                                                message: "Не удалось сохранить данные",
+                                                additionAction: repeatAction,
+                                                strongActivator)
                     }
                 }
             }
@@ -96,7 +100,11 @@ class DataManager {
     //MARK: - User Getter
     
     func getStoredUser() -> User? {
-        return storeManager.getUser(withId: user.id)
+        guard let id = user?.id else {
+            assert(false, "User not found")
+            return nil
+        }
+        return storeManager.getUser(withId: id)
     }
     
     //MARK: - Photo Manager
@@ -107,7 +115,11 @@ class DataManager {
         guard let newImageData = UIImagePNGRepresentation(newImage) else {
             throw NSError(domain: "Can't convert new image", code: -1, userInfo: nil)
         }
-        try newImageData.write(to: AppDelegate.getStoredImageURLForUser(withId: user.id), options: .atomic)
+        guard let id = user?.id else {
+            assert(false, "User not found")
+            return
+        }
+        try newImageData.write(to: AppDelegate.getStoredImageURLForUser(withId: id), options: .atomic)
         isImageChanged = false
     }
 }

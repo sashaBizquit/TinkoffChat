@@ -18,7 +18,7 @@ class ConversationsManager: NSObject {
     
     private var fetchedResultController: NSFetchedResultsController<CDConversation>?
     private var storeManager: StoreManagerProtocol
-    private var communicator: MultipeerCommunicator!
+    private var communicator: MultipeerCommunicator?
     private weak var tableView: UITableView?
 
     init(with tableView: UITableView, andManager manager: StoreManagerProtocol) {
@@ -32,7 +32,7 @@ class ConversationsManager: NSObject {
     }
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
-        communicator.sendMessage(string: string, to: userID, completionHandler: completionHandler)
+        communicator?.sendMessage(string: string, to: userID, completionHandler: completionHandler)
     }
     
     // MARK: - Private
@@ -59,16 +59,15 @@ class ConversationsManager: NSObject {
     
     private func setCommunicator() {
         communicator = MultipeerCommunicator()
-        communicator.delegate = self
+        communicator?.delegate = self
     }
     
     private func setDefaultConversations() {
         if (fetchedResultController?.sections?.count != 0 && fetchedResultController?.sections?.count != nil) {
             return
         }
-        let boolArray = [false,false,false]
-        outerloop: for status in boolArray {
-            for readStatus in boolArray.reversed() {
+        outerloop: for status in [false,false,false] {
+            for readStatus in [false,true,true] {
                 guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
                     print("Исчерпал диалоги: newChat == nil")
                     break outerloop

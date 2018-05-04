@@ -25,7 +25,7 @@ class ConversationsListViewController: UITableViewController {
         case Online = "Онлайн", Offline = "Офлайн"
     }
     
-    private var cManager: ConversationsManager!
+    private var cManager: ConversationsManager?
     private var storeManager: StoreManagerProtocol?
     
     override func viewDidLoad() {
@@ -71,6 +71,11 @@ class ConversationsListViewController: UITableViewController {
         profileButton.setImage(image ?? #imageLiteral(resourceName: "placeholder-user"), for: .normal)
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let conversationVC = prepareConversationController(indexPath: indexPath)
+        self.navigationController?.pushViewController(conversationVC, animated: true)
+    }
+    
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -82,9 +87,6 @@ class ConversationsListViewController: UITableViewController {
         switch segueId {
             case "toProfile":
                 prepareProfile(segue: segue)
-                break
-            case "toConversation":
-                prepareConversation(segue: segue, sender: sender)
                 break
             case "toThemePicker":
                 prepareTheme(segue: segue)
@@ -102,20 +104,16 @@ class ConversationsListViewController: UITableViewController {
         }
     }
     
-    private func prepareConversation(segue: UIStoryboardSegue, sender: Any?) {
-        if let conversationVC = segue.destination as? ConversationTableViewController,
-            let conversationCell = sender as? ConversationListCell,
-            let selectedIndex = tableView.indexPath(for: conversationCell) {
-            guard let conversationId = cManager.getIdForIndexPath(selectedIndex) else {
-                print("Не получили id")
-                return
-            }
-            guard let sManager = storeManager else {
-                assert(false, "ConversationsListViewController: storeManager not defined")
-            }
-            conversationVC.conversation = Conversation(withConversationsManager: cManager, storeManager: sManager, conversationId)
-            conversationCell.hasUnreadMessages = false
+    private func prepareConversationController(indexPath: IndexPath) -> ConversationViewController {
+        guard let conversationId = cManager?.getIdForIndexPath(indexPath) else {
+            assert(false, "Не получили conversationId для \(indexPath)")
         }
+        guard let sManager = storeManager else {
+            assert(false, "ConversationsListViewController: storeManager not defined")
+        }
+        let conversation = Conversation(withConversationsManager: cManager, storeManager: sManager, conversationId)
+        let conversationVC = ConversationViewController(withConversation: conversation)
+        return conversationVC
     }
     
     private func prepareTheme(segue: UIStoryboardSegue) {

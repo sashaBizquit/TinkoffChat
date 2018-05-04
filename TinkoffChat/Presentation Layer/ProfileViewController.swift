@@ -20,7 +20,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     // MARK: Properties
     
-    private var dataManager: DataManager!
+    private var dataManager: DataManager?
     private var textFieldBottomLine: CALayer?
     var storeManager: StoreManagerProtocol?
     var id: String = User.me.id
@@ -41,11 +41,11 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
             assert(false, "ProfileViewController: no storeManager defined")
         }
         dataManager = DataManager(withId: id, andStoreManager: manager)
-        dataManager.delegate = self
+        dataManager?.delegate = self
     }
     
     private func setTexts() {
-        let user = dataManager.getStoredUser()
+        let user = dataManager?.getStoredUser()
         nameTextField.delegate = self
         nameTextField.text = user?.name
         textFieldBottomLine = CALayer()
@@ -141,7 +141,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     private func saveData() {
         dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
-        dataManager.save(nameTextField.text ?? "", infoTextView.text ?? "", photoImageView.image ?? #imageLiteral(resourceName: "placeholder-user"))
+        dataManager?.save(nameTextField.text ?? "", infoTextView.text ?? "", photoImageView.image ?? #imageLiteral(resourceName: "placeholder-user"))
         isInEditMode(false)
         buttonsEnabled(equal: true)
     }
@@ -265,18 +265,18 @@ extension ProfileViewController: UIImagePickerControllerDelegate {
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             photoImageView.image = editedImage
-            dataManager.isImageChanged = true
+            dataManager?.isImageChanged = true
             buttonsEnabled(equal: true)
         }
         else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             photoImageView.image = originalImage
-            dataManager.isImageChanged = true
+            dataManager?.isImageChanged = true
             buttonsEnabled(equal: true)
         }
         let image = photoImageView.image
         DispatchQueue.global(qos: .background).async { [weak self, weak image] in
             if let newImage = image {
-                try? self?.dataManager.saveImage(newImage)
+                try? self?.dataManager?.saveImage(newImage)
             }
         }
         dismiss(animated: true, completion: nil)
