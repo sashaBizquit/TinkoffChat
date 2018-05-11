@@ -40,8 +40,10 @@ class ConversationsListViewController: UITableViewController {
         if newManager.getUser(withId: User.me.id) == nil {
             var user = User.me
             user.name = "Александр Лыков"
-            user.info = "MSU = 🧠, Tinkoff = 💛"
-            assert(newManager.put(user: user, current: true), "Не смогли положить себя")
+            
+            newManager.putNewUser(withId: user.id, name: user.name) { user in
+                user.info = "MSU = 🧠, Tinkoff = 💛"
+            }
         }
         self.storeManager = newManager
         guard let sManager = self.storeManager else {
@@ -52,7 +54,8 @@ class ConversationsListViewController: UITableViewController {
     }
     
     private func setDrawingOptions(forButton button: UIButton) {
-        self.title = "TinkoffChat"
+        self.title = "Чаты"
+        self.tableView.rowHeight = 80
         button.layer.masksToBounds = true
         let height = self.navigationController?.navigationBar.frame.height ?? 20
         button.heightAnchor.constraint(equalToConstant: height / CGFloat(2).squareRoot()).isActive = true
@@ -112,6 +115,7 @@ class ConversationsListViewController: UITableViewController {
             assert(false, "ConversationsListViewController: storeManager not defined")
         }
         let conversation = Conversation(withConversationsManager: cManager, storeManager: sManager, conversationId)
+        cManager?.didReadConversation(withId: conversationId)
         let conversationVC = ConversationViewController(withConversation: conversation)
         return conversationVC
     }

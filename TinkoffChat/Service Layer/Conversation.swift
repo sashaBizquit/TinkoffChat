@@ -14,17 +14,27 @@ class Conversation: NSObject {
     private var fetchedResultController: NSFetchedResultsController<CDMessage>?
     private var storeManager: StoreManagerProtocol
     private weak var parentManager: ConversationsManager?
-    weak var tableView: UITableView?
+    weak var messagesTableView: UITableView?
     
     var interlocutor: UserProtocol
     var online: Bool {
-        let context = storeManager.mainContext
-        let userId = interlocutor.id
-        guard let conversation = CDConversation.findConversation(withId: userId, in: context) else {
-                assert(false, "Request not found")
-                return false
+        get {
+            let userId = interlocutor.id
+            
+            guard let conversation = CDConversation.findConversation(withId: userId, in: storeManager.mainContext) else {
+                    assert(false, "Request not found")
+                    return false
+            }
+            return conversation.online
         }
-        return conversation.online
+        set {
+            let userId = self.interlocutor.id
+            
+            storeManager.findOrInsertConversation(withId: userId) { conversation in
+                conversation.online = newValue
+            }
+            storeManager.save(completionHandler: nil)
+        }
     }
     
     init(withConversationsManager cManager: ConversationsManager?, storeManager sManager: StoreManagerProtocol, _ id: Int64) {
@@ -79,29 +89,17 @@ class Conversation: NSObject {
             }
             // To do - Finish offline send develpment
             let date = Date()
-            strongSelf.storeManager.saveContext.performAndWait { [weak strongSelf] in
-                guard let strongSelf = strongSelf else {
-                    print("Нет беседы")
-                    return
-                }
-                let strongManager = strongSelf.storeManager
-                guard let foundConversation = CDConversation.findConversation(withId: userId, in: strongSelf.storeManager.saveContext) else {
-                        print("не вытащили юзера")
-                        return
-                }
-                foundConversation.text = text
-                foundConversation.date = date
-                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: false, conversation: foundConversation) { [weak strongManager] _ in
-                    strongManager?.save{ flag in
-                        if (flag) {
-                            print("СОХРАНИЛ")
-                        } else {
-                            print("НЕ СОХРАНИЛ")
-                        }
-                    }
-                }
-            }
+            let manager = strongSelf.storeManager
             
+            manager.findOrInsertConversation(withId: userId) { [weak manager] conversation in
+                guard let strongManager = manager else {
+                    assert(false, "No manager found")
+                }
+                conversation.text = text
+                conversation.date = date
+                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: false, conversation: conversation)
+            }
+            manager.save(completionHandler: nil)
         }
     }
 }
@@ -143,7 +141,7 @@ extension Conversation: UITableViewDataSource {
 
 extension Conversation : NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView?.beginUpdates()
+        messagesTableView?.beginUpdates()
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
@@ -154,27 +152,27 @@ extension Conversation : NSFetchedResultsControllerDelegate {
         switch type {
         case .delete:
             if let indexPath = indexPath {
-                tableView?.deleteRows(at: [indexPath], with: .automatic)
+                messagesTableView?.deleteRows(at: [indexPath], with: .automatic)
             }
         case .insert:
             if let newIndexPath = newIndexPath {
-                tableView?.insertRows(at: [newIndexPath], with: .automatic)
+                messagesTableView?.insertRows(at: [newIndexPath], with: .automatic)
             }
         case .move:
             if let indexPath = indexPath {
-                tableView?.deleteRows(at: [indexPath], with: .automatic)
+                messagesTableView?.deleteRows(at: [indexPath], with: .automatic)
             }
             if let newIndexPath = newIndexPath {
-                tableView?.insertRows(at: [newIndexPath], with: .automatic)
+                messagesTableView?.insertRows(at: [newIndexPath], with: .automatic)
             }
         case .update:
             if let indexPath = indexPath {
-                tableView?.reloadRows(at: [indexPath], with: .automatic)
+                messagesTableView?.reloadRows(at: [indexPath], with: .automatic)
             }
         }
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView?.endUpdates()
+        messagesTableView?.endUpdates()
     }
 }

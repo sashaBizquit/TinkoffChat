@@ -12,25 +12,26 @@ import CoreData
 protocol StoreManagerProtocol: class
 {
     var mainContext: NSManagedObjectContext {get}
-    var saveContext: NSManagedObjectContext {get}
     
-    func put(user: UserProtocol, current: Bool) -> Bool
-    func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)?)
+    func findOrInsertConversation<T>(withId id: T, completionHandler: ((_ conversation: CDConversation)->())?)
+    
     func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)?)
+    
     func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)?)
     func getUser(withId id: String) -> User?
+    
     func save(completionHandler: ((Bool)->Void)?)
 }
 
 extension StoreManagerProtocol {
-    func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)? = nil) {
-        return putNewConversation(withNetworkStatus: online, lastDate: date, readStatus: read, user: user, text: text, completionHandler: completionHandler)
-    }
     func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)? = nil) {
         return putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation, completionHandler: completionHandler)
     }
     func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
         return putNewUser(withId: id, name: name, completionHandler: completionHandler)
+    }
+    func findOrInsertConversation<T>(withId id: T, completionHandler: ((_ conversation: CDConversation)->())? = nil) {
+        return findOrInsertConversation(withId: id, completionHandler: completionHandler)
     }
 }
 
@@ -120,48 +121,29 @@ class StoreManager: StoreManagerProtocol {
 }
 
 extension StoreManager {
-    func put(user: UserProtocol, current: Bool) -> Bool {
-        let currentUser: CDUser?
-        if current {
-            let appUser = AppUser.findOrInsertAppUser(in: mainContext)
-            currentUser = appUser?.currentUser
-        }
-        else {
-            currentUser = CDUser.findOrInsertAnyUser(withId: user.id, in: mainContext)
-        }
-        guard let newUser = currentUser else {
-            return false
-        }
-        
-        newUser.id = user.id
-        newUser.name = user.name
-        newUser.info = user.info
-        newUser.photoPath = user.photoURL?.path
-        save(completionHandler: nil)
-        return true
-    }
     
-    func putNewConversation(withNetworkStatus online: Bool, lastDate date: Date, readStatus read: Bool, user: CDUser, text: String?, completionHandler: ((CDConversation)->Void)? = nil) {
-        let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
-        saveContext.performAndWait { [weak saveContext] in
-            guard let strongContext = saveContext else {
-                print("StoreManager уже нет")
+    func findOrInsertConversation<T>(withId id: T, completionHandler: ((_ conversation: CDConversation)->())?) {
+        saveContext.performAndWait { [weak self] in
+            guard let strongSelf = self else {
+                assert(false, "StoreManager became nil")
                 return
             }
-            guard let conversationId = try? strongContext.fetch(conversationRequest).count + 1,
-                let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: strongContext) as? CDConversation  else {
-                    print("Нет бесед/не смогли вставить")
-                    return
+            let context = strongSelf.saveContext
+            var conversation = CDConversation.findConversation(withId: id, in: context)
+            if (conversation == nil) {
+                if id is String {
+                    conversation = CDConversation.insertConversation(withId: nil, in: context)
+                } else if let intId = id as? Int64 {
+                    conversation = CDConversation.insertConversation(withId: intId, in: context)
+                } else {
+                    assert(false, "Unexpected id type" + #function)
+                }
             }
-            conversation.id = Int64(conversationId)
-            print("online = \(online)")
-            conversation.online = online
-            conversation.hasUnreadMessages = read
-            conversation.date = date
-            conversation.text = text
-            conversation.interlocutor = user
-            completionHandler?(conversation)
+            if let unwrapedConversation = conversation {
+                completionHandler?(unwrapedConversation)
+            }
         }
+        
         
     }
     
@@ -186,20 +168,30 @@ extension StoreManager {
     }
     
     func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
-        let userRequest = NSFetchRequest<CDUser>(entityName: "CDUser")
         saveContext.performAndWait { [weak saveContext] in
             guard let strongContext = saveContext else {
                 print("StoreManager уже нет")
                 return
             }
-            guard let userId = try? strongContext.fetch(userRequest).count + 1,
-                let user = NSEntityDescription.insertNewObject(forEntityName: "CDUser", into: strongContext) as? CDUser else {
+            
+            let userRequest = NSFetchRequest<CDUser>(entityName: "CDUser")
+            guard let userId = try? strongContext.fetch(userRequest).count else {
                     print("Не смогли положить/посмотреть кол-во")
                     return
             }
-            user.id =  id ?? String(-userId)
-            user.name = name
-            completionHandler?(user)
+            var user: CDUser?
+            if (userId == 0) {
+                let appUser = AppUser.findOrInsertAppUser(in: strongContext)
+                user = appUser?.currentUser
+            } else {
+                user = CDUser.findOrInsertAnyUser(withId: id ?? String(-userId - 1), in: strongContext)
+            }
+            if let unwrapedUser = user {
+                unwrapedUser.name = name
+                completionHandler?(unwrapedUser)
+            }
+
+            
         }
     }
     
@@ -297,7 +289,7 @@ extension AppUser {
     }
     
     static func insertAppUser(in context: NSManagedObjectContext) -> AppUser? {
-        guard let appUser = NSEntityDescription.insertNewObject(forEntityName: "AppUser", into: context) as? AppUser else {
+         guard let appUser = NSEntityDescription.insertNewObject(forEntityName: "AppUser", into: context) as? AppUser else {
             return nil
         }
         
@@ -319,7 +311,7 @@ extension AppUser {
 
 extension CDConversation {
     
-    static func findConversation<T>(withId id: T, in context: NSManagedObjectContext)-> CDConversation? {
+    static func findConversation<T>(withId id: T, in context: NSManagedObjectContext) -> CDConversation? {
         guard let model = context.persistentStoreCoordinator?.managedObjectModel else {
             assert(false, "Model is not avaliable in context!")
             return nil
@@ -342,6 +334,22 @@ extension CDConversation {
             }
         } catch {
             print("Failed to fetch CDConversation-\(id): \(error)")
+        }
+        return conversation
+    }
+    
+    static func insertConversation(withId id: Int64?, in context: NSManagedObjectContext) -> CDConversation {
+        guard let conversation = NSEntityDescription.insertNewObject(forEntityName: "CDConversation", into: context) as? CDConversation else {
+            assert(false, "Cant insert conversation")
+        }
+        if let unwrapedId = id {
+            conversation.id = unwrapedId
+        } else {
+            let conversationRequest = NSFetchRequest<CDConversation>(entityName: "CDConversation")
+            guard let conversationId = try? context.fetch(conversationRequest).count else {
+                assert(false, "Cant get conversations")
+            }
+            conversation.id = -Int64(conversationId + 1)
         }
         return conversation
     }

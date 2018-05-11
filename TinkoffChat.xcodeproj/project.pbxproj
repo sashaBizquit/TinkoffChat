@@ -103,6 +103,7 @@
 		2A9F4BF020924CCE00BD421D /* Service Layer */ = {
 			isa = PBXGroup;
 			children = (
+				2A4ECBF6205437FC0091A040 /* ConversationProvider.swift */,
 				2A0E26E62074FC7600F61B8C /* ConversationsManager.swift */,
 				2A0E26E82074FCC800F61B8C /* Conversation.swift */,
 				2A992386206AF43B003B206A /* DataManager.swift */,
@@ -116,7 +117,6 @@
 				2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */,
 				2AE6580F207F62AD002972EF /* StoreManager.swift */,
 				2AE65814207F6B78002972EF /* Storage.xcdatamodeld */,
-				2A4ECBF6205437FC0091A040 /* ConversationProvider.swift */,
 				2A85045D2094A0E2004A60D4 /* User.swift */,
 				2A7DCC90206EC77000627C9C /* Themes */,
 			);

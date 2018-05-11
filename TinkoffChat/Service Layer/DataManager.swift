@@ -74,16 +74,16 @@ class DataManager {
             if (!changesHappened && !strongSelf.isImageChanged) {
                 return
             }
-            if strongSelf.storeManager.put(user: user, current: false) {
-                strongSelf.storeManager.save { [weak strongSelf] flag in
+            strongSelf.storeManager.putNewUser(withId: user.id, name: user.name) { [weak strongSelf] _ in
+                strongSelf?.storeManager.save { [weak strongSelf] flag in
                     guard let strongSelf = strongSelf else {
                         assert(false, "DataManager: save(): DataManager not found")
                     }
                     if flag {
                         strongSelf.savedMessage(withTitle: "Данные сохранены",
-                                           message: nil,
-                                           additionAction: nil,
-                                           strongActivator)
+                                                message: nil,
+                                                additionAction: nil,
+                                                strongActivator)
                     } else {
                         strongSelf.savedMessage(withTitle: "Ошибка",
                                                 message: "Не удалось сохранить данные",

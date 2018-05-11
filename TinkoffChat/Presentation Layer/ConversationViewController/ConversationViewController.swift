@@ -67,7 +67,7 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     }
     
     private func setupConversation() {
-        conversation.tableView = self.tableView
+        conversation.messagesTableView = self.tableView
     }
     
     private func addObservers() {

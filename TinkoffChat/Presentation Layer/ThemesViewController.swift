@@ -13,7 +13,6 @@ class ThemesViewController: UIViewController {
     var model: Themes?
     
     var themeDidChanged: ((Theme) -> Void)?
-    //var getCurrentThemeBackroundColor: (()-> UIColor?)?
     
     override func viewDidLoad() {
         super.viewDidLoad()

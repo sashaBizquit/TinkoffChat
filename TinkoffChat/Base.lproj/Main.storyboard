@@ -16,46 +16,46 @@
         <scene sceneID="slh-Fd-u0m">
             <objects>
                 <tableViewController id="1Og-tF-Cwx" customClass="ConversationsListViewController" customModule="TinkoffChat" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="lmC-lX-s9p">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="80" sectionHeaderHeight="28" sectionFooterHeight="28" id="lmC-lX-s9p">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="conversationIdentifier" id="QbG-vI-v4Q" customClass="ConversationListCell" customModule="TinkoffChat" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="320" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="conversationIdentifier" rowHeight="80" id="QbG-vI-v4Q" customClass="ConversationListCell" customModule="TinkoffChat" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="320" height="80"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="QbG-vI-v4Q" id="sZm-YT-cdq">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="79.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="16:47" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Fs-bu-PI4" userLabel="dateLabel">
-                                            <rect key="frame" x="261.5" y="0.0" width="42.5" height="21"/>
+                                            <rect key="frame" x="261.5" y="10" width="42.5" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" text="Александр Лыков" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MAM-EB-0EJ" userLabel="nameLabel">
-                                            <rect key="frame" x="16" y="0.0" width="153" height="21"/>
+                                            <rect key="frame" x="16" y="10" width="153" height="21"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ну, привет!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BDJ-8R-1rV" userLabel="messageLabel">
-                                            <rect key="frame" x="16" y="21" width="288" height="22"/>
+                                            <rect key="frame" x="16" y="31" width="288" height="38.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstItem="MAM-EB-0EJ" firstAttribute="top" secondItem="sZm-YT-cdq" secondAttribute="top" id="6pN-Gy-3GE"/>
+                                        <constraint firstItem="MAM-EB-0EJ" firstAttribute="top" secondItem="sZm-YT-cdq" secondAttribute="top" constant="10" id="6pN-Gy-3GE"/>
                                         <constraint firstItem="BDJ-8R-1rV" firstAttribute="leading" secondItem="sZm-YT-cdq" secondAttribute="leading" constant="16" id="DsO-jE-XAe"/>
                                         <constraint firstAttribute="trailing" secondItem="BDJ-8R-1rV" secondAttribute="trailing" constant="16" id="HEE-DB-u1e"/>
                                         <constraint firstItem="5Fs-bu-PI4" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="MAM-EB-0EJ" secondAttribute="trailing" id="JxI-tw-WPR"/>
                                         <constraint firstItem="MAM-EB-0EJ" firstAttribute="leading" secondItem="sZm-YT-cdq" secondAttribute="leading" constant="16" id="QTT-oa-eTz"/>
-                                        <constraint firstItem="5Fs-bu-PI4" firstAttribute="top" secondItem="sZm-YT-cdq" secondAttribute="top" id="hM5-oE-Trw"/>
+                                        <constraint firstItem="5Fs-bu-PI4" firstAttribute="top" secondItem="MAM-EB-0EJ" secondAttribute="top" id="nEB-EZ-UIr"/>
                                         <constraint firstItem="BDJ-8R-1rV" firstAttribute="top" secondItem="MAM-EB-0EJ" secondAttribute="bottom" id="oZy-fH-SdW"/>
-                                        <constraint firstAttribute="bottom" secondItem="BDJ-8R-1rV" secondAttribute="bottom" id="wPL-3m-FOp"/>
+                                        <constraint firstAttribute="bottom" secondItem="BDJ-8R-1rV" secondAttribute="bottom" constant="10" id="wPL-3m-FOp"/>
                                         <constraint firstAttribute="trailing" secondItem="5Fs-bu-PI4" secondAttribute="trailing" constant="16" id="y6c-po-gem"/>
                                     </constraints>
                                 </tableViewCellContentView>

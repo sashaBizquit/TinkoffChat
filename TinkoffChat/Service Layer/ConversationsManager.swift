@@ -78,17 +78,29 @@ class ConversationsManager: NSObject {
                         break outerloop
                 }
                 storeManager.putNewUser(withId: nil, name: newChat.name) { [weak storeManager] user in
-                    storeManager?.putNewConversation(withNetworkStatus: status, lastDate: date, readStatus: readStatus, user: user, text: text) { [weak storeManager] conversation in
-                        guard let unwrapedText = text else { return }
-                        storeManager?.putNewMessage(withText: unwrapedText, date: date, hasSendToMe: status, conversation: conversation)
+                    
+                    guard let id = user.id,
+                        let strongManager = storeManager else {
+                        assert(false, "storeManager is nil")
+                    }
+                    
+                    strongManager.findOrInsertConversation(withId: id)
+                    {
+                        [weak storeManager] conversation in
+                        conversation.online = status
+                        conversation.hasUnreadMessages = readStatus
+                        conversation.interlocutor = user
+                        conversation.text = text
+                        conversation.date = date
+                        if let unwrapedText = text {
+                            storeManager?.putNewMessage(withText: unwrapedText, date: date, hasSendToMe: status, conversation: conversation)
+                        }
                     }
                 }
             }
         }
         self.storeManager.save{ flag in
-            if (flag) {
-                print("СОХРАНИЛ БОТОСООБЩЕНИЯ")
-            } else {
+            if (!flag) {
                 print("НЕ СОХРАНИЛ БОТОСООБЩЕНИЯ")
             }
         }
@@ -162,15 +174,15 @@ extension ConversationsManager : NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
         switch type {
         case .update:
-            tableView?.reloadSections([sectionIndex], with: .automatic)
+            tableView?.reloadSections([sectionIndex], with: .bottom )
             break;
         case .insert:
-            tableView?.insertSections([sectionIndex], with: .automatic)
+            tableView?.insertSections([sectionIndex], with: .bottom)
             break;
         case .move:
             break;
         case .delete:
-            tableView?.deleteSections([sectionIndex], with: .automatic)
+            tableView?.deleteSections([sectionIndex], with: .bottom)
             break;
         }
     }
@@ -213,51 +225,38 @@ extension ConversationsManager : NSFetchedResultsControllerDelegate {
 extension ConversationsManager : CommunicatorDelegate {
     func didFoundUser(userID: String, userName: String?) {
         let date = Date()
-        if let id = CDUser.findUser(withId: userID, in: storeManager.mainContext)?.id {
-            storeManager.saveContext.performAndWait { [weak storeManager] in
-                guard let manager = storeManager else {
-                    assert(false, "Manager not found")
-                }
-                guard let foundConversation = CDConversation.findConversation(withId: id, in: manager.saveContext) else {
-                    assert(false, "Conversation not found")
-                }
-                foundConversation.text = ConversationListCell.noMessagesConst
-                foundConversation.date = date
-                
-                manager.save {flag in
-                    if (flag) {
-                        print("Сохранил юзера")
-                    } else {
-                        print("Не сохранил юзера")
-                    }
-                }
+        
+        if let id = storeManager.getUser(withId: userID)?.id {
+            storeManager.findOrInsertConversation(withId: id) { conversation in
+                conversation.text = ConversationListCell.noMessagesConst
+                conversation.date = date
             }
-            
         } else {
             storeManager.putNewUser(withId: userID, name: userName) { [weak storeManager] user in
-                storeManager?.putNewConversation(withNetworkStatus: true, lastDate: date, readStatus: true, user: user, text: nil) { [weak storeManager] _ in
-                    storeManager?.save {flag in
-                        if (flag) {
-                            print("Сохранил юзера")
-                        } else {
-                            print("Не сохранил юзера")
-                        }
-                    }
+                storeManager?.findOrInsertConversation(withId: user.id) { conversation in
+                    conversation.date = date
+                    conversation.online = true
+                    conversation.hasUnreadMessages = true
+                    conversation.interlocutor = user
                 }
             }
         }
+        storeManager.save(completionHandler: nil)
     }
     
+    
     func didLostUser(userID: String) {
-            storeManager.saveContext.performAndWait { [weak storeManager] in
-                guard let context = storeManager?.saveContext,
-                    let conversation = CDConversation.findConversation(withId: userID, in: context) else {
-                    print("уже нет менеджера бесед")
-                    return
-                }
-                conversation.online = false
-            }
-            storeManager.save(completionHandler: {flag in if (flag) {print("Удалил Юзера")}})
+        storeManager.findOrInsertConversation(withId: userID) { conversation in
+            conversation.online = false
+        }
+        storeManager.save(completionHandler: nil)
+    }
+    
+    func didReadConversation<T>(withId id: T) {
+        storeManager.findOrInsertConversation(withId: id) { conversation in
+            conversation.hasUnreadMessages = false
+        }
+        storeManager.save(completionHandler: nil)
     }
     
     func failedToStartBrowsingForUsers(error: Error) {
@@ -270,31 +269,16 @@ extension ConversationsManager : CommunicatorDelegate {
     
     func didReceiveMessage(text: String, fromUserWithId id: String, withMessageId messageId: String) {
         let date = Date()
-        storeManager.saveContext.performAndWait { [weak storeManager] in
-                guard let strongManager = storeManager else {
-                    print("уже нет менеджера бесед")
-                    return
-                }
-                guard let conversation = CDConversation.findConversation(withId: id, in: strongManager.saveContext) else {
-                        assert(false, "No conversation found")
-                        return
-                }
-                conversation.text = text
-                conversation.date = date
-                strongManager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: conversation) { [weak storeManager] message in
-                    guard let strongManager = storeManager else {
-                        print("уже нет менеджера бесед")
-                        return
-                    }
-                    message.id = messageId
-                    strongManager.save {flag in
-                        if (flag) {
-                            print("СОХРАНИЛ")
-                        } else {
-                            print("НЕ СОХРАНИЛ")
-                        }
-                    }
-                }
+        storeManager.findOrInsertConversation(withId: id) { [weak storeManager] conversation in
+            guard let manager = storeManager else {
+                assert(false, "No manager found")
             }
+            conversation.text = text
+            conversation.date = date
+            manager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: conversation) { message in
+                message.id = messageId
+            }
+        }
+        storeManager.save(completionHandler: nil)
     }
 }

@@ -55,10 +55,10 @@
                     <color key="backgroundColor" red="0.8304052982233503" green="0.8304052982233503" blue="0.8304052982233503" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     <constraints>
                         <constraint firstItem="ojh-bk-CC1" firstAttribute="top" secondItem="mPQ-7j-LW5" secondAttribute="top" constant="8" id="1Ne-0o-Mcm"/>
+                        <constraint firstItem="b4h-5v-vEG" firstAttribute="bottom" secondItem="ojh-bk-CC1" secondAttribute="bottom" id="5b8-a3-JW4"/>
                         <constraint firstAttribute="bottom" secondItem="ojh-bk-CC1" secondAttribute="bottom" constant="8" id="B90-yR-2D5"/>
                         <constraint firstItem="ojh-bk-CC1" firstAttribute="leading" secondItem="mPQ-7j-LW5" secondAttribute="leading" constant="10" id="GlH-6e-cqj"/>
                         <constraint firstItem="b4h-5v-vEG" firstAttribute="leading" secondItem="ojh-bk-CC1" secondAttribute="trailing" constant="10" id="InC-06-Hzv"/>
-                        <constraint firstItem="b4h-5v-vEG" firstAttribute="top" secondItem="ojh-bk-CC1" secondAttribute="top" id="VKF-nn-j9Z"/>
                         <constraint firstAttribute="trailing" secondItem="b4h-5v-vEG" secondAttribute="trailing" constant="10" id="tpJ-PD-EuT"/>
                     </constraints>
                 </view>
