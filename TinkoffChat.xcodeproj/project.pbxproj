@@ -10,7 +10,12 @@
 		2A0E26E52074E8D800F61B8C /* MultipeerCommunicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */; };
 		2A0E26E72074FC7600F61B8C /* ConversationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E26E62074FC7600F61B8C /* ConversationsManager.swift */; };
 		2A0E26E92074FCC800F61B8C /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0E26E82074FCC800F61B8C /* Conversation.swift */; };
+		2A1C60C320A85207000AEB0C /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1C60C220A85207000AEB0C /* ImageCell.swift */; };
+		2A1C60C520A85345000AEB0C /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1C60C420A85345000AEB0C /* DownloadManager.swift */; };
+		2A1C60C720A85A14000AEB0C /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1C60C620A85A14000AEB0C /* NetworkManager.swift */; };
+		2A1C60C920A85FF7000AEB0C /* ParserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1C60C820A85FF7000AEB0C /* ParserManager.swift */; };
 		2A2CBC212057CABA007C98AA /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2CBC202057CABA007C98AA /* MessageCell.swift */; };
+		2A41030220A838580043EA01 /* DownloadCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A41030120A838580043EA01 /* DownloadCollectionViewController.swift */; };
 		2A4ECBF7205437FC0091A040 /* ConversationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A4ECBF6205437FC0091A040 /* ConversationProvider.swift */; };
 		2A83AE35205414FD004AED5B /* ConversationsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */; };
 		2A83AE3720541812004AED5B /* ConversationListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A83AE3620541812004AED5B /* ConversationListCell.swift */; };
@@ -35,7 +40,12 @@
 		2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipeerCommunicator.swift; sourceTree = "<group>"; };
 		2A0E26E62074FC7600F61B8C /* ConversationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsManager.swift; sourceTree = "<group>"; };
 		2A0E26E82074FCC800F61B8C /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
+		2A1C60C220A85207000AEB0C /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
+		2A1C60C420A85345000AEB0C /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		2A1C60C620A85A14000AEB0C /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		2A1C60C820A85FF7000AEB0C /* ParserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParserManager.swift; sourceTree = "<group>"; };
 		2A2CBC202057CABA007C98AA /* MessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
+		2A41030120A838580043EA01 /* DownloadCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadCollectionViewController.swift; sourceTree = "<group>"; };
 		2A4ECBF6205437FC0091A040 /* ConversationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationProvider.swift; sourceTree = "<group>"; };
 		2A83AE34205414FD004AED5B /* ConversationsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsListViewController.swift; sourceTree = "<group>"; };
 		2A83AE3620541812004AED5B /* ConversationListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListCell.swift; sourceTree = "<group>"; };
@@ -72,6 +82,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A41030320A838E00043EA01 /* DownloadCollectionViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2A41030120A838580043EA01 /* DownloadCollectionViewController.swift */,
+				2A1C60C220A85207000AEB0C /* ImageCell.swift */,
+			);
+			path = DownloadCollectionViewController;
+			sourceTree = "<group>";
+		};
 		2A7DCC90206EC77000627C9C /* Themes */ = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				2A4ECBF6205437FC0091A040 /* ConversationProvider.swift */,
+				2A1C60C420A85345000AEB0C /* DownloadManager.swift */,
 				2A0E26E62074FC7600F61B8C /* ConversationsManager.swift */,
 				2A0E26E82074FCC800F61B8C /* Conversation.swift */,
 				2A992386206AF43B003B206A /* DataManager.swift */,
@@ -115,6 +135,8 @@
 			isa = PBXGroup;
 			children = (
 				2A0E26E42074E8D800F61B8C /* MultipeerCommunicator.swift */,
+				2A1C60C620A85A14000AEB0C /* NetworkManager.swift */,
+				2A1C60C820A85FF7000AEB0C /* ParserManager.swift */,
 				2AE6580F207F62AD002972EF /* StoreManager.swift */,
 				2AE65814207F6B78002972EF /* Storage.xcdatamodeld */,
 				2A85045D2094A0E2004A60D4 /* User.swift */,
@@ -129,6 +151,7 @@
 				2A85045C2094950F004A60D4 /* ConversationListViewController */,
 				2A85045B209494EF004A60D4 /* ConversationViewController */,
 				2AFF7474203DD342006FF139 /* ProfileViewController.swift */,
+				2A41030320A838E00043EA01 /* DownloadCollectionViewController */,
 				2A9A3D8E2063FED40097F2E1 /* ThemesViewController.swift */,
 			);
 			path = "Presentation Layer";
@@ -263,14 +286,19 @@
 				2AE65810207F62AD002972EF /* StoreManager.swift in Sources */,
 				2A83AE3720541812004AED5B /* ConversationListCell.swift in Sources */,
 				2AFF7475203DD342006FF139 /* ProfileViewController.swift in Sources */,
+				2A1C60C920A85FF7000AEB0C /* ParserManager.swift in Sources */,
 				2A85045E2094A0E2004A60D4 /* User.swift in Sources */,
 				2A0E26E52074E8D800F61B8C /* MultipeerCommunicator.swift in Sources */,
 				2A0E26E92074FCC800F61B8C /* Conversation.swift in Sources */,
 				2A4ECBF7205437FC0091A040 /* ConversationProvider.swift in Sources */,
+				2A41030220A838580043EA01 /* DownloadCollectionViewController.swift in Sources */,
 				2A9A3D8F2063FED40097F2E1 /* ThemesViewController.swift in Sources */,
 				2AC9BFBD2094B46D0063B378 /* ConversationViewController.swift in Sources */,
+				2A1C60C320A85207000AEB0C /* ImageCell.swift in Sources */,
+				2A1C60C720A85A14000AEB0C /* NetworkManager.swift in Sources */,
 				2A83AE35205414FD004AED5B /* ConversationsListViewController.swift in Sources */,
 				2AFF7473203DD342006FF139 /* AppDelegate.swift in Sources */,
+				2A1C60C520A85345000AEB0C /* DownloadManager.swift in Sources */,
 				2A9A3D8D2063D1680097F2E1 /* Themes.m in Sources */,
 				2A992387206AF43B003B206A /* DataManager.swift in Sources */,
 				2AE65816207F6B78002972EF /* Storage.xcdatamodeld in Sources */,

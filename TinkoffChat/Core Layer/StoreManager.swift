@@ -17,7 +17,7 @@ protocol StoreManagerProtocol: class
     
     func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)?)
     
-    func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)?)
+    func findOrInsertUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)?)
     func getUser(withId id: String) -> User?
     
     func save(completionHandler: ((Bool)->Void)?)
@@ -27,8 +27,8 @@ extension StoreManagerProtocol {
     func putNewMessage(withText text: String, date: Date, hasSendToMe status: Bool, conversation: CDConversation, completionHandler: ((CDMessage)->Void)? = nil) {
         return putNewMessage(withText: text, date: date, hasSendToMe: status, conversation: conversation, completionHandler: completionHandler)
     }
-    func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
-        return putNewUser(withId: id, name: name, completionHandler: completionHandler)
+    func findOrInsertUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
+        return findOrInsertUser(withId: id, name: name, completionHandler: completionHandler)
     }
     func findOrInsertConversation<T>(withId id: T, completionHandler: ((_ conversation: CDConversation)->())? = nil) {
         return findOrInsertConversation(withId: id, completionHandler: completionHandler)
@@ -167,7 +167,7 @@ extension StoreManager {
         }
     }
     
-    func putNewUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
+    func findOrInsertUser(withId id: String?, name: String?, completionHandler: ((CDUser)->Void)? = nil) {
         saveContext.performAndWait { [weak saveContext] in
             guard let strongContext = saveContext else {
                 print("StoreManager уже нет")
@@ -180,6 +180,7 @@ extension StoreManager {
                     return
             }
             var user: CDUser?
+            
             if (userId == 0) {
                 let appUser = AppUser.findOrInsertAppUser(in: strongContext)
                 user = appUser?.currentUser

@@ -47,49 +47,74 @@ class DataManager {
         activityIndicator.frame = self.delegate.view.bounds
         activityIndicator.startAnimating()
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self, weak activityIndicator] in
-            guard let strongSelf = self,
-                let user = strongSelf.user,
-                let strongActivator = activityIndicator else {
-                    return
+        
+        
+        let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self, weak image] action in
+            guard let strongSelf = self else { return }
+            guard let strongImage = image else { return }
+            strongSelf.save(name, info, strongImage)
+        }
+        
+        var changesHappened = false
+        let currentUser = self.user
+        if (currentUser?.name == nil || currentUser?.name != name) {
+            self.user?.name = name
+            changesHappened = true
+        }
+        if (currentUser?.info == nil || currentUser?.info != info) {
+            self.user?.info = info
+            changesHappened = true
+        }
+        if (isImageChanged) {
+            DispatchQueue.global(qos: .background).async { [weak self, weak image] in
+                guard let strongSelf = self else {
+                    assert(false, "DataManager became nil")
+                }
+                guard let newImage = image else {
+                    assert(false, "Image is gone!")
+                }
+                do {
+                    try strongSelf.saveImage(newImage)
+                } catch {
+                    strongSelf.savedMessage(withTitle: "Ошибка сохранения изображения",
+                                      message: error.localizedDescription,
+                                      additionAction: repeatAction,
+                                      activityIndicator)
+                }
             }
-            
-            let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak strongSelf, weak image] action in
-                guard let strongSelf = strongSelf else { return }
-                guard let strongImage = image else { return }
-                strongSelf.save(name, info, strongImage)
+        }
+        
+        
+        if (!changesHappened && !self.isImageChanged) {
+            self.savedMessage(withTitle: "Внимание!",
+                                    message: "Данные не были изменены",
+                                    additionAction: repeatAction,
+                                    activityIndicator)
+            return
+        }
+        
+        guard let user = self.user else {
+            return
+        }
+        
+        self.storeManager.findOrInsertUser(withId: user.id, name: user.name) { [weak self] _ in
+            guard let strongSelf = self else {
+                assert(false, "DataManager became nil")
             }
-            
-            var changesHappened = false
-            let currentUser = strongSelf.user
-            if (currentUser?.name != name) {
-                strongSelf.user?.name = name
-                changesHappened = true
-            }
-            if (currentUser?.info != info) {
-                strongSelf.user?.info = info
-                changesHappened = true
-            }
-            
-            if (!changesHappened && !strongSelf.isImageChanged) {
-                return
-            }
-            strongSelf.storeManager.putNewUser(withId: user.id, name: user.name) { [weak strongSelf] _ in
-                strongSelf?.storeManager.save { [weak strongSelf] flag in
-                    guard let strongSelf = strongSelf else {
-                        assert(false, "DataManager: save(): DataManager not found")
-                    }
-                    if flag {
-                        strongSelf.savedMessage(withTitle: "Данные сохранены",
-                                                message: nil,
-                                                additionAction: nil,
-                                                strongActivator)
-                    } else {
-                        strongSelf.savedMessage(withTitle: "Ошибка",
-                                                message: "Не удалось сохранить данные",
-                                                additionAction: repeatAction,
-                                                strongActivator)
-                    }
+            strongSelf.storeManager.save { [weak strongSelf] flag in
+                guard let strongSelf = strongSelf else {
+                    assert(false, "DataManager: save(): DataManager not found")
+                }
+                if flag {
+                    strongSelf.savedMessage(withTitle: "Данные сохранены",
+                                            message: nil,
+                                            additionAction: nil,
+                                            activityIndicator)
+                } else {
+                    strongSelf.savedMessage(withTitle: "Ошибка",
+                                            message: "Не удалось сохранить данные",
+                                            additionAction: repeatAction,
+                                            activityIndicator)
                 }
             }
         }

@@ -262,11 +262,75 @@
                         <outlet property="infoTextView" destination="I2T-4i-JhP" id="iMQ-eb-laq"/>
                         <outlet property="nameTextField" destination="3hm-gL-QpS" id="NMa-uw-wy6"/>
                         <outlet property="photoImageView" destination="vu3-f5-6GS" id="o68-Rk-kTl"/>
+                        <segue destination="t5g-lq-V5d" kind="presentation" identifier="toDownload" id="wZp-gC-LqZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1717.5" y="-717.25352112676057"/>
+        </scene>
+        <!--Download Collection View Controller-->
+        <scene sceneID="tMw-MB-zqE">
+            <objects>
+                <collectionViewController id="jvu-AF-Ix2" customClass="DownloadCollectionViewController" customModule="TinkoffChat" customModuleProvider="target" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="8hO-VN-Z74">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="vSr-5W-J6z">
+                            <size key="itemSize" width="150" height="150"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <activityIndicatorView key="backgroundView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" id="NlB-jZ-eD4">
+                            <rect key="frame" x="0.0" y="-64" width="320" height="568"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="color" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        </activityIndicatorView>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="ImageCell" id="g41-FC-lrq" customClass="ImageCell" customModule="TinkoffChat" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                                    <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholder-user" translatesAutoresizingMaskIntoConstraints="NO" id="YVV-PU-adi">
+                                            <rect key="frame" x="0.0" y="0.0" width="150" height="150"/>
+                                        </imageView>
+                                    </subviews>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="YVV-PU-adi" secondAttribute="trailing" id="752-nJ-ASi"/>
+                                    <constraint firstAttribute="bottom" secondItem="YVV-PU-adi" secondAttribute="bottom" id="9OM-Ie-Hva"/>
+                                    <constraint firstItem="YVV-PU-adi" firstAttribute="leading" secondItem="g41-FC-lrq" secondAttribute="leading" id="SeQ-yb-b5l"/>
+                                    <constraint firstItem="YVV-PU-adi" firstAttribute="top" secondItem="g41-FC-lrq" secondAttribute="top" id="WSg-0c-pB9"/>
+                                </constraints>
+                                <connections>
+                                    <outlet property="imageView" destination="YVV-PU-adi" id="POw-mQ-EG7"/>
+                                </connections>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="jvu-AF-Ix2" id="XXk-KH-VIY"/>
+                            <outlet property="delegate" destination="jvu-AF-Ix2" id="3JK-bg-GQr"/>
+                        </connections>
+                    </collectionView>
+                    <navigationItem key="navigationItem" id="85d-xv-6X9">
+                        <barButtonItem key="leftBarButtonItem" title="Закрыть" id="1cZ-Tb-W0v">
+                            <connections>
+                                <action selector="dismiss:" destination="jvu-AF-Ix2" id="ENT-5P-LLd"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="indicator" destination="NlB-jZ-eD4" id="aA4-t7-4SG"/>
+                    </connections>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gGf-6A-LoX" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3435" y="-717.25352112676057"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1bB-yv-dmE">
@@ -306,6 +370,24 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Abd-Ip-37G" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="724" y="-6"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="ueN-bR-2Pm">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="t5g-lq-V5d" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Rit-gI-G25">
+                        <rect key="frame" x="0.0" y="20" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="jvu-AF-Ix2" kind="relationship" relationship="rootViewController" id="HgW-Yy-1IH"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AbS-kS-Naq" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2604" y="-717"/>
         </scene>
     </scenes>
     <resources>

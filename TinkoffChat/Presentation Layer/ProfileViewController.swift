@@ -46,8 +46,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     private func setTexts() {
         let user = dataManager?.getStoredUser()
+        
         nameTextField.delegate = self
-        nameTextField.text = user?.name
+        nameTextField.text = user?.name ?? user?.id
+        
         textFieldBottomLine = CALayer()
         if let line = textFieldBottomLine {
             nameTextField.layer.addSublayer(line)
@@ -126,8 +128,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     @IBAction func changeEditMode(_ sender: Any) {
-        nameTextField.endEditing(false)
-        infoTextView.endEditing(false)
+        self.view.endEditing(false)
         buttonsEnabled(equal: false)
         editPhotoButton.isHidden ? self.isInEditMode(true) : saveData()
     }
@@ -141,7 +142,10 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     private func saveData() {
         dismissKeyboard(UITapGestureRecognizer(target: nil, action: nil))
-        dataManager?.save(nameTextField.text ?? "", infoTextView.text ?? "", photoImageView.image ?? #imageLiteral(resourceName: "placeholder-user"))
+        let image = photoImageView.image ?? #imageLiteral(resourceName: "placeholder-user")
+        let name = nameTextField.text ?? ""
+        let info = infoTextView.text ?? ""
+        dataManager?.save(name, info, image)
         isInEditMode(false)
         buttonsEnabled(equal: true)
     }
@@ -182,6 +186,12 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
             }
         }
         alertController.addAction(cameraAction)
+        let downloadAction = UIAlertAction(title: "Загрузить", style: .default) { [weak self] action in
+            if let strongSelf = self {
+                strongSelf.performSegue(withIdentifier: "toDownload", sender: strongSelf)
+            }
+        }
+        alertController.addAction(downloadAction)
         self.present(alertController, animated: true) { [weak self] in
             if let strongSelf = self {
                 alertController.view.superview?.addGestureRecognizer(UITapGestureRecognizer(target: strongSelf, action: #selector(strongSelf.alertControllerBackgroundTapped)))
@@ -196,8 +206,7 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     }
     
     @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
-        infoTextView.endEditing(true)
-        nameTextField.endEditing(true)
+        self.view.endEditing(false)
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {
@@ -217,6 +226,24 @@ class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     @objc func keyboardWillHide(sender: NSNotification) {
         self.view.frame.origin.y = 0
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "toDownload"),
+            let navigation = segue.destination as? UINavigationController,
+            let destination = navigation.topViewController as? DownloadCollectionViewController {
+            destination.completionHandler = { [weak self] image in
+                guard let strongSelf = self else {
+                    assert(false, "ProfileViewController is nil")
+                }
+                DispatchQueue.main.async { [weak strongSelf] in
+                    strongSelf?.photoImageView.image = image
+                    strongSelf?.dataManager?.isImageChanged = true
+                    strongSelf?.buttonsEnabled(equal: true)
+                }
+                
+            }
+        }
     }
     
     deinit {
@@ -254,7 +281,7 @@ extension ProfileViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        self.view.endEditing(true)
+        self.view.endEditing(false)
         return false
     }
 }
@@ -265,20 +292,12 @@ extension ProfileViewController: UIImagePickerControllerDelegate {
     @objc func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let editedImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             photoImageView.image = editedImage
-            dataManager?.isImageChanged = true
-            buttonsEnabled(equal: true)
         }
         else if let originalImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             photoImageView.image = originalImage
-            dataManager?.isImageChanged = true
-            buttonsEnabled(equal: true)
         }
-        let image = photoImageView.image
-        DispatchQueue.global(qos: .background).async { [weak self, weak image] in
-            if let newImage = image {
-                try? self?.dataManager?.saveImage(newImage)
-            }
-        }
+        dataManager?.isImageChanged = true
+        buttonsEnabled(equal: true)
         dismiss(animated: true, completion: nil)
     }
 }

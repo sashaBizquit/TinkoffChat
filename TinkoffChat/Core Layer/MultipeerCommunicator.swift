@@ -150,7 +150,7 @@ extension MultipeerCommunicator : MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
         case .connected:
-            delegate?.didFoundUser(userID: peerID.displayName, userName: nil)
+            delegate?.didFoundUser(userID: peerID.displayName, userName: peerID.displayName)
             break
         default:
             break

@@ -64,6 +64,12 @@ class ConversationsManager: NSObject {
     
     private func setDefaultConversations() {
         if (fetchedResultController?.sections?.count != 0 && fetchedResultController?.sections?.count != nil) {
+            guard let objects = fetchedResultController?.fetchedObjects else {
+                return
+            }
+            for object in objects {
+                object.online = false
+            }
             return
         }
         outerloop: for status in [false,false,false] {
@@ -77,7 +83,7 @@ class ConversationsManager: NSObject {
                         print("Пользователь без даты")
                         break outerloop
                 }
-                storeManager.putNewUser(withId: nil, name: newChat.name) { [weak storeManager] user in
+                storeManager.findOrInsertUser(withId: nil, name: newChat.name) { [weak storeManager] user in
                     
                     guard let id = user.id,
                         let strongManager = storeManager else {
@@ -142,7 +148,7 @@ extension ConversationsManager : UITableViewDataSource {
         }
         
         if let conversation = fetchedResultController?.object(at: indexPath) {
-            cell.name = conversation.interlocutor?.name ?? conversation.interlocutor?.id ?? "имечко"
+            cell.name = conversation.interlocutor?.name ?? conversation.interlocutor?.id ?? "No-id user"
             cell.hasUnreadMessages = conversation.hasUnreadMessages
             cell.online = conversation.online
             cell.message = conversation.text
@@ -232,7 +238,7 @@ extension ConversationsManager : CommunicatorDelegate {
                 conversation.date = date
             }
         } else {
-            storeManager.putNewUser(withId: userID, name: userName) { [weak storeManager] user in
+            storeManager.findOrInsertUser(withId: userID, name: userName) { [weak storeManager] user in
                 storeManager?.findOrInsertConversation(withId: user.id) { conversation in
                     conversation.date = date
                     conversation.online = true

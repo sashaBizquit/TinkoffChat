@@ -36,7 +36,7 @@
                             <rect key="frame" x="10" y="8" width="311" height="34"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" spellCheckingType="no"/>
                         </textView>
                         <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b4h-5v-vEG" userLabel="Send Button">
                             <rect key="frame" x="331" y="8" width="34" height="34"/>
@@ -44,8 +44,8 @@
                             <constraints>
                                 <constraint firstAttribute="width" secondItem="b4h-5v-vEG" secondAttribute="height" multiplier="1:1" id="xa4-B9-yhu"/>
                             </constraints>
-                            <state key="normal" title="-&gt;">
-                                <color key="titleColor" red="0.0" green="0.28445493400108052" blue="0.8304052982233503" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            <state key="normal" title="➜">
+                                <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
                             </state>
                             <connections>
                                 <action selector="sendMessage:" destination="-1" eventType="touchUpInside" id="5oM-bO-T7I"/>

@@ -102,6 +102,7 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     }
     
     @objc func dismissKeyboard (_ sender: UITapGestureRecognizer) {
+        setupTextViewDefaultState()
         messageTextView.endEditing(true)
     }
     

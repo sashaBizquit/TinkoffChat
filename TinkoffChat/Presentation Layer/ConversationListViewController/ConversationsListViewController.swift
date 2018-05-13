@@ -41,7 +41,7 @@ class ConversationsListViewController: UITableViewController {
             var user = User.me
             user.name = "Александр Лыков"
             
-            newManager.putNewUser(withId: user.id, name: user.name) { user in
+            newManager.findOrInsertUser(withId: user.id, name: user.name) { user in
                 user.info = "MSU = 🧠, Tinkoff = 💛"
             }
         }
