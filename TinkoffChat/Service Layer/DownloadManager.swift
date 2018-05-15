@@ -87,7 +87,8 @@ class DownloadManager: NSObject, UICollectionViewDataSource, UICollectionViewDel
                         print("Data is not an image for row #\(indexPath.row)")
                         return
                     }
-                    strongSelf.images.insert(image, at: indexPath.row)
+                    
+                    strongSelf.images[indexPath.row] = image
                     DispatchQueue.main.async { [weak strongSelf] in
                         guard let strongSelf = strongSelf else {
                             assert(false, "weak DownloadManager became nil")
