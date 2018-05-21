@@ -10,8 +10,6 @@ import Foundation
 
 protocol NetworkManagerProtocol: class {
     
-    
-    
     func askDataList(completionHandler: @escaping (_ data: Data?, _ error: Error?) -> Void)
     func askImageData(forPath path: String, completionHandler: @escaping (_ data: Data?, _ error: Error?) -> Void)
     

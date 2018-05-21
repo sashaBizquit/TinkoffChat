@@ -28,7 +28,7 @@ class ConversationsManager: NSObject {
         self.setCommunicator()
         self.setupFRC()
         self.fetchData()
-        self.setDefaultConversations()
+        //self.setDefaultConversations()
     }
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
@@ -234,8 +234,9 @@ extension ConversationsManager : CommunicatorDelegate {
         
         if let id = storeManager.getUser(withId: userID)?.id {
             storeManager.findOrInsertConversation(withId: id) { conversation in
-                conversation.text = ConversationListCell.noMessagesConst
-                conversation.date = date
+                conversation.online = true
+                //conversation.text = ConversationListCell.noMessagesConst
+                //conversation.date = date
             }
         } else {
             storeManager.findOrInsertUser(withId: userID, name: userName) { [weak storeManager] user in
@@ -244,6 +245,7 @@ extension ConversationsManager : CommunicatorDelegate {
                     conversation.online = true
                     conversation.hasUnreadMessages = true
                     conversation.interlocutor = user
+                    //conversation.text = ConversationListCell.noMessagesConst
                 }
             }
         }
