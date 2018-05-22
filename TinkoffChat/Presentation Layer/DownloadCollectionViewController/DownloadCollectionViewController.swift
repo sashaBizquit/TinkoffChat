@@ -30,7 +30,6 @@ class DownloadCollectionViewController: UICollectionViewController, DownloadCont
         super.viewDidLoad()
         manager = DownloadManager(withDelegate: self)
         self.collectionView?.dataSource = manager
-        //self.collectionView
         self.indicator.startAnimating()
         self.title = "Выберите фото"
     }
