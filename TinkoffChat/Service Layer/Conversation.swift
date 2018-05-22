@@ -48,6 +48,7 @@ class Conversation: NSObject {
         super.init()
         self.setupFRC(withId: id)
         self.fetchData()
+        
     }
     
     // MARK: - Private
@@ -175,4 +176,9 @@ extension Conversation : NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         messagesTableView?.endUpdates()
     }
+}
+
+extension Notification.Name {
+    static let didFoundUser = Notification.Name("didFoundUser")
+    static let didLostUser = Notification.Name("didLostUser")
 }

@@ -16,6 +16,11 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     
     private var cornerRadius: CGFloat?
     private var buttonHeight: CGFloat?
+    private var titleLabel: UILabel?
+    private let activeButtonColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
+    private let inactiveButtonColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
+    private let activeTitleColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+    private let inactiveTitleColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
     
     private var conversation: Conversation!
     
@@ -56,8 +61,11 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     }
     
     private func setupTextViewDefaultState() {
-        messageTextView.text = "Сообщение..."
+        messageTextView.text = ""
         messageTextView.textColor = #colorLiteral(red: 0.5723067522, green: 0.5723067522, blue: 0.5723067522, alpha: 1)
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            self?.sendButton.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
+        }
     }
     
     private func setupTextView() {
@@ -71,11 +79,33 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     }
     
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.keyboardWillShow(sender:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(ConversationViewController.keyboardWillHide(sender:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(sender:)), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(sender:)), name: .UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didFoundUser), name: .didFoundUser, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didLostUser), name: .didLostUser, object: nil)
     }
     
-    @objc func keyboardWillShow(sender: NSNotification) {
+    @objc private func didFoundUser() {
+        DispatchQueue.main.async { [weak self] in
+            self?.activeTitleState()
+            self?.sendButton.isEnabled = true
+            if (self?.messageTextView.text.count != 0) {
+                self?.activeSendButtonState()
+            }
+        }
+    }
+    
+    @objc private func didLostUser() {
+        DispatchQueue.main.async { [weak self] in
+            self?.inactiveTitleState()
+            self?.sendButton.isEnabled = false
+            if (self?.messageTextView.text.count != 0) {
+                self?.inactiveSendButtonState()
+            }
+        }
+    }
+    
+    @objc private func keyboardWillShow(sender: NSNotification) {
         guard let keyboardFrame = sender.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else {
             return
         }
@@ -85,12 +115,32 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
         } else {
             keyboardHeight =  keyboardFrame.cgRectValue.height
         }
-        
         self.view.frame.origin.y = -1.0 * keyboardHeight
     }
     
-    @objc func keyboardWillHide(sender: NSNotification) {
+    @objc private func keyboardWillHide(sender: NSNotification) {
         self.view.frame.origin.y = 0
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if (conversation.online) {
+//            titleLabel?.transform = CGAffineTransform(scaleX: 1.0/1.1, y: 1.0/1.1)
+//            titleLabel?.textColor = self.inactiveTitleColor
+            configureTitle()
+            activeTitleState()
+        }
+    }
+    
+    private func configureTitle() {
+        titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
+        titleLabel?.text = self.title
+        titleLabel?.textColor = self.navigationController?.navigationBar.tintColor
+        titleLabel?.font = UIFont(name: "Helvetica-Bold", size: 20.0)
+        titleLabel?.adjustsFontSizeToFitWidth = true
+        titleLabel?.textAlignment = .center
+        self.navigationController?.navigationBar.topItem?.titleView = titleLabel
+        //titleLabel?.sizeToFit()
     }
     
     override func viewDidLayoutSubviews() {
@@ -114,28 +164,68 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         if let text = messageTextView.text  {
             if text.count != 0 {
-                UIView.animate(withDuration: 0.5, animations: { [weak self] in
-                    self?.sendButton.backgroundColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
-                    self?.sendButton.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
-                    }, completion:  { [weak self] flag in
-                        self?.sendButton.transform = CGAffineTransform(scaleX: 1/1.15, y: 1/1.15)
-                })
+                if (sendButton.backgroundColor == activeButtonColor || conversation.online == false) {return}
+                self.activeSendButtonState()
             } else {
-                UIView.animate(withDuration: 0.5) { [weak self] in
-                    self?.sendButton.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
-                }
+                if (sendButton.backgroundColor == inactiveButtonColor) {return}
+                self.inactiveSendButtonState()
             }
         }
     }
     
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if let text = messageTextView.text  {
-            if text.count != 0 {
-                UIView.animate(withDuration: 0.5) { [weak self] in
-                    self?.sendButton.backgroundColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
-                }
-            }
+    private func activeSendButtonState() {
+        if (!self.sendButton.isEnabled) {return}
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            guard let strongSelf = self else {return}
+            strongSelf.sendButton.backgroundColor = strongSelf.activeButtonColor
+            strongSelf.sendButton.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+            }, completion:  { [weak self] flag in
+                guard let strongSelf = self else {return}
+                UIView.animate(withDuration: 0.5, animations: { [weak strongSelf] in
+                    strongSelf?.sendButton.transform = CGAffineTransform(scaleX: 1/1.15, y: 1/1.15)
+                    }, completion:  { [weak strongSelf] flag in
+                        strongSelf?.sendButton.isEnabled = true
+                })
+        })
+    }
+    
+    private func inactiveSendButtonState() {
+        if (self.sendButton.isEnabled) {return}
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            self?.sendButton.backgroundColor = self?.inactiveButtonColor
         }
+    }
+    
+    private func activeTitleState() {
+        if (self.titleLabel?.textColor == self.activeTitleColor) {
+            
+            return
+        }
+        //self.titleLabel?.textColor = self.activeTitleColor
+        UIView.animate(withDuration: 1) { [weak self] in
+            guard let strongSelf = self else {return}
+            
+            strongSelf.titleLabel?.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+            strongSelf.titleLabel?.textColor = strongSelf.activeTitleColor
+        }
+    }
+    
+    private func inactiveTitleState() {
+        if (self.titleLabel?.textColor != self.activeTitleColor) {
+            
+            return
+        }
+        UIView.animate(withDuration: 1) { [weak self] in
+            guard let strongSelf = self, let label = strongSelf.titleLabel else {return}
+            label.transform = CGAffineTransform(scaleX: 1.0/1.1, y: 1.0/1.1)
+            label.textColor = strongSelf.inactiveTitleColor
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.navigationBar.topItem?.titleView = nil
+        NotificationCenter.default.removeObserver(self)
     }
     
     @IBAction func sendMessage(_ sender: UIButton) {

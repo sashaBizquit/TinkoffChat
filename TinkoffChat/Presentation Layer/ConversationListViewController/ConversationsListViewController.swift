@@ -30,9 +30,26 @@ class ConversationsListViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.set(theme: getStoredTheme())
+        self.setDesign()
         self.setManagers()
         self.setDrawingOptions(forButton: profileButton)
+    }
+    
+//    private func handleTap(_ sender: UITapGestureRecognizer) {
+//        let point = sender.location(in: self.view)
+//        let image = #imageLiteral(resourceName: "tinkoff")
+//        while true {
+//            UIView.animate(withDuration: 5, animations: {
+//                
+//            }) { (flag) in
+//                <#code#>
+//            }
+//        }
+//    }
+    
+    private func setDesign() {
+        let theme = ThemesViewController.getStoredTheme()
+        self.setTheme(theme)
     }
     
     private func setManagers() {
@@ -124,7 +141,7 @@ class ConversationsListViewController: UITableViewController {
         if let navigationVC = segue.destination as? UINavigationController,
             let themesVC = navigationVC.topViewController as? ThemesViewController {
             themesVC.themeDidChanged = { [weak self] (theme: Theme) in
-                self?.set(theme: theme)
+                self?.setTheme(theme)
                 self?.saveTheme(selectedTheme: theme)
             }
         }
@@ -144,27 +161,12 @@ class ConversationsListViewController: UITableViewController {
         }
     }
     
-    private func getStoredTheme() -> Theme {
-        let backgroundColorPath = ConversationsListViewController.backgroundColorURL.path
-        let tintColorPath = ConversationsListViewController.tintColorURL.path
-        
-        let theme: Theme
-        if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
-            let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
-            theme = Theme()
-            theme.backgroundColor = backgroundColor
-            theme.tintColor = tintColor
-        } else {
-            theme = Theme.sharedWhite()
-        }
-        return theme
-    }
-    
     // MARK: - ThemesViewControllerDelegate
-    private func set(theme: Theme) {
+    private func setTheme(_ theme: Theme) {
         guard let navigationBar = self.navigationController?.navigationBar else {
             assert(false, "ConversationsListViewController has no access to navigationBar")
         }
+        
         ThemesViewController.set(theme: theme, to: navigationBar)
         ThemesViewController.set(theme: theme, to: UINavigationBar.appearance())
     }

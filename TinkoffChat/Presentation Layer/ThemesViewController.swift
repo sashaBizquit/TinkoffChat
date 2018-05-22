@@ -11,8 +11,16 @@ import UIKit
 class ThemesViewController: UIViewController {
     
     var model: Themes?
-    
     var themeDidChanged: ((Theme) -> Void)?
+    
+    private static var backgroundColorURL: URL {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documentsDirectory.appendingPathComponent("theme-backgroundColor")
+    }
+    private static var tintColorURL : URL {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documentsDirectory.appendingPathComponent("theme-tintColor")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,11 +40,26 @@ class ThemesViewController: UIViewController {
         themeDidChanged?(theme)
     }
     
-    
     static func set(theme newTheme: Theme, to bar: UINavigationBar) {
         bar.tintColor = newTheme.tintColor
         bar.barTintColor = newTheme.backgroundColor
         bar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: newTheme.tintColor]
+    }
+    
+    static func getStoredTheme() -> Theme {
+        let backgroundColorPath = ThemesViewController.backgroundColorURL.path
+        let tintColorPath = ThemesViewController.tintColorURL.path
+        
+        let theme: Theme
+        if let backgroundColor =  NSKeyedUnarchiver.unarchiveObject(withFile: backgroundColorPath) as? UIColor,
+            let tintColor = NSKeyedUnarchiver.unarchiveObject(withFile: tintColorPath) as? UIColor {
+            theme = Theme()
+            theme.backgroundColor = backgroundColor
+            theme.tintColor = tintColor
+        } else {
+            theme = Theme.sharedWhite()
+        }
+        return theme
     }
     
     @IBAction func closeAction(_ sender: UIBarButtonItem) {

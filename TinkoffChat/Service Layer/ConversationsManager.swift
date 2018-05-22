@@ -29,6 +29,7 @@ class ConversationsManager: NSObject {
         self.setupFRC()
         self.fetchData()
         //self.setDefaultConversations()
+        self.prepareStoredConversations()
     }
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {
@@ -59,10 +60,14 @@ class ConversationsManager: NSObject {
     
     private func setCommunicator() {
         communicator = MultipeerCommunicator()
+        startCommunicating()
+    }
+    
+    func startCommunicating() {
         communicator?.delegate = self
     }
     
-    private func setDefaultConversations() {
+    private func prepareStoredConversations() {
         if (fetchedResultController?.sections?.count != 0 && fetchedResultController?.sections?.count != nil) {
             guard let objects = fetchedResultController?.fetchedObjects else {
                 return
@@ -72,6 +77,9 @@ class ConversationsManager: NSObject {
             }
             return
         }
+    }
+    
+    private func setDefaultConversations() {
         outerloop: for status in [false,false,false] {
             for readStatus in [false,true,true] {
                 guard let newChat = ConversationProvider.getNewConversation(online: status, andNotRead: readStatus) else {
@@ -250,6 +258,7 @@ extension ConversationsManager : CommunicatorDelegate {
             }
         }
         storeManager.save(completionHandler: nil)
+        NotificationCenter.default.post(name: .didFoundUser, object: nil)
     }
     
     
@@ -258,6 +267,7 @@ extension ConversationsManager : CommunicatorDelegate {
             conversation.online = false
         }
         storeManager.save(completionHandler: nil)
+        NotificationCenter.default.post(name: .didLostUser, object: nil)
     }
     
     func didReadConversation<T>(withId id: T) {
@@ -283,6 +293,7 @@ extension ConversationsManager : CommunicatorDelegate {
             }
             conversation.text = text
             conversation.date = date
+            conversation.hasUnreadMessages = true
             manager.putNewMessage(withText: text, date: date, hasSendToMe: true, conversation: conversation) { message in
                 message.id = messageId
             }
