@@ -28,24 +28,63 @@ class ConversationsListViewController: UITableViewController {
     private var cManager: ConversationsManager?
     private var storeManager: StoreManagerProtocol?
     
+    //var flag = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setDesign()
         self.setManagers()
         self.setDrawingOptions(forButton: profileButton)
+        self.addRecognizer()
     }
     
-//    private func handleTap(_ sender: UITapGestureRecognizer) {
-//        let point = sender.location(in: self.view)
-//        let image = #imageLiteral(resourceName: "tinkoff")
-//        while true {
-//            UIView.animate(withDuration: 5, animations: {
-//                
-//            }) { (flag) in
-//                <#code#>
+    private func addRecognizer() {
+        let gestureView = UIView(frame: UIApplication.shared.windows.first!.bounds)
+        gestureView.backgroundColor = .clear
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(_:)))
+        recognizer.cancelsTouchesInView = false
+        gestureView.addGestureRecognizer(recognizer)
+        self.view.addSubview(gestureView)
+    }
+
+    @objc private func longPress(_ sender: UILongPressGestureRecognizer) {
+        
+        let point = sender.location(in: self.view)
+        switch sender.state {
+        case .began:
+            print("began")
+//            if (!flag) {
+//                return
+//            } else {
+//                flag = false
 //            }
-//        }
-//    }
+            let imageView = UIImageView(image: #imageLiteral(resourceName: "tinkoff"))
+            imageView.frame = CGRect(origin: point, size: CGSize(width: 100, height: 100))
+            imageView.sizeToFit()
+            print(point)
+            self.view.addSubview(imageView)
+            //        DispatchQueue.main.async {
+            //            UIView.animate(withDuration: 2, animations: {[weak self] in
+            //                guard let strongSelf = self else {return}
+            //                imageView.frame.origin = CGPoint(x: strongSelf.view.frame.midX, y: strongSelf.view.frame.midY)
+            //            }) { [weak self] (finished) in
+            //                self?.flag = true
+            //                imageView.removeFromSuperview()
+            //            }
+            //        }
+            break;
+        case .cancelled:
+            print("cancelled")
+            break;
+        case .ended:
+            print("ended")
+            break;
+        default:
+            break
+        }
+        
+        
+    }
     
     private func setDesign() {
         let theme = ThemesViewController.getStoredTheme()
