@@ -191,8 +191,6 @@ extension StoreManager {
                 unwrapedUser.name = name
                 completionHandler?(unwrapedUser)
             }
-
-            
         }
     }
     

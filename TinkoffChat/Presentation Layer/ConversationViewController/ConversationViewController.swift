@@ -125,8 +125,6 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if (conversation.online) {
-//            titleLabel?.transform = CGAffineTransform(scaleX: 1.0/1.1, y: 1.0/1.1)
-//            titleLabel?.textColor = self.inactiveTitleColor
             configureTitle()
             activeTitleState()
         }
@@ -140,7 +138,6 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
         titleLabel?.adjustsFontSizeToFitWidth = true
         titleLabel?.textAlignment = .center
         self.navigationController?.navigationBar.topItem?.titleView = titleLabel
-        //titleLabel?.sizeToFit()
     }
     
     override func viewDidLayoutSubviews() {
@@ -201,7 +198,6 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
             
             return
         }
-        //self.titleLabel?.textColor = self.activeTitleColor
         UIView.animate(withDuration: 1) { [weak self] in
             guard let strongSelf = self else {return}
             

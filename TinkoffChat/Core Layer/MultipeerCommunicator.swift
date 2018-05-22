@@ -134,7 +134,6 @@ extension MultipeerCommunicator : MCNearbyServiceBrowserDelegate {
         if sessions.contains(where: {$0.key.displayName == peerID.displayName}) {print("browser - уже есть"); return}
         let session = addSession(forId: peerID)
         browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
-        //delegate?.didFoundUser(userID: peerID.displayName, userName: info?["userName"])
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
