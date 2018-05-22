@@ -37,7 +37,7 @@ class MultipeerCommunicator: NSObject, Communicator {
     private var serviceAdvertiser : MCNearbyServiceAdvertiser!
     private var serviceBrowser : MCNearbyServiceBrowser!
     private static let serviceType = "tinkoff-chat"
-    static let userName = "Lykov Aleksandr"
+    static let userName = "Lykov Second"
     static let myPeerId = MCPeerID(displayName: MultipeerCommunicator.userName)
     
     func sendMessage(string: String, to userID: String, completionHandler: ((Bool, Error?) -> ())?) {

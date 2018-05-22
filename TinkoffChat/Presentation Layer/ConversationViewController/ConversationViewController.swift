@@ -111,6 +111,33 @@ class ConversationViewController: UIViewController, UITextViewDelegate {
         textView.textColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
     }
     
+    func textViewDidChange(_ textView: UITextView) {
+        if let text = messageTextView.text  {
+            if text.count != 0 {
+                UIView.animate(withDuration: 0.5, animations: { [weak self] in
+                    self?.sendButton.backgroundColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
+                    self?.sendButton.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+                    }, completion:  { [weak self] flag in
+                        self?.sendButton.transform = CGAffineTransform(scaleX: 1/1.15, y: 1/1.15)
+                })
+            } else {
+                UIView.animate(withDuration: 0.5) { [weak self] in
+                    self?.sendButton.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
+                }
+            }
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if let text = messageTextView.text  {
+            if text.count != 0 {
+                UIView.animate(withDuration: 0.5) { [weak self] in
+                    self?.sendButton.backgroundColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
+                }
+            }
+        }
+    }
+    
     @IBAction func sendMessage(_ sender: UIButton) {
         
         if let text = messageTextView.text  {
